@@ -35,7 +35,7 @@ def readSensor(sensorPin:int):
     temperature = output_t*200/TEMPERATURE_MAX-50
 
     """
-    
+    qqq
     print(f'Sensor data {res}')
     print('Decoded:')
 
