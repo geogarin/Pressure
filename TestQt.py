@@ -1,62 +1,8 @@
-#!/usr/bin/python3
-
 import sys
+from Channel import Channel
 from PyQt5.QtWidgets import QWidget, QDesktopWidget, QApplication,QPushButton,QDialog,QLineEdit,QVBoxLayout,QHBoxLayout,QFrame,QGroupBox,QGridLayout,QStyleFactory,QDial,QSlider,QProgressBar
 from PyQt5.QtCore import Qt,QTimer
 
-class Channel():
-    def __init__(self,parent,w,h):
-        #super().__init__(parent)
-        #self.initWidget()
-    
-    #def initWidget(self,w,h):
-        #self.resize(w,h)
-        #self.setGeometry(0,0,w,h)
-        #self.move(x,y)
-        print(f'w={w} h={h}')
-
-        #self.group = QGroupBox('Канал')
-
-
-        #self.setWindowTitle('widget')
-        button = QPushButton("Hello",parent)
-        button.setGeometry(10,10,200,100)
-        #button.show()
-
-
-        
-
-
-
-
-        lay = QVBoxLayout()
-        lay.addWidget(button)
-        lay.addStretch(1)
-
-        #group.setLayout(lay)
-
-
-        """
-        self.fr = QFrame(self)
-        
-        self.fr.setFrameRect(self.frameGeometry())
-        self.fr.setFrameStyle(QFrame.Box)
-        self.fr.setFrameShadow(QFrame.Raised)
-        print(f'{self.fr.frameRect()}')
-        """
-
-        #p = self.palette()
-        #p.setColor(self.backgroundRole(),Qt.red)
-        #self.setPalette(p)
-        #self.setAutoFillBackground(True)
-        #self.setStyleSheet("background-color:red;")
-
-        #self.show()
-
-
-
-
-#class Example(QWidget):
 class Example(QDialog):
 
     def __init__(self):
@@ -66,13 +12,13 @@ class Example(QDialog):
 
     def addChannel(self,group,w,h):
 
-        print(f'w={w} h={h}')
+        #print(f'w={w} h={h}')
 
         #self.group = QGroupBox('Канал')
 
 
         #self.setWindowTitle('widget')
-        button = QPushButton("Hello",self)
+        button = QPushButton("Hello",group)
         #button.setGeometry(10,10,200,100)
         #button.show()
 
@@ -126,6 +72,9 @@ class Example(QDialog):
         self.progressBar.setValue(curVal + self.n*(maxVal - minVal) // 100)
         
     def initUI(self):
+        self.groups = []
+
+
         #cp = QDesktopWidget().availableGeometry().center()
         #qr = self.frameGeometry()
         #print(f'{qr}')
@@ -150,7 +99,28 @@ class Example(QDialog):
         #self.setWindowTitle('Center')
         #w1 = Channel(self)
         #w1.initWidget(220,500)
+        self.progressBar = QProgressBar()
+        self.progressBar.setRange(0, 10000)
+        self.progressBar.setValue(0)
 
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.advanceProgressBar)
+        self.timer.start(20)
+        
+
+
+        self.channels = []
+        mainLayout = QGridLayout()
+        channelsQty = 4
+        for i in range(channelsQty):
+            ch = Channel(f'Канал {i+1}')
+            self.channels.append(ch)
+            self.groups.append(ch.getGroup())
+            mainLayout.addWidget(self.groups[i],1,i,3,1)
+        mainLayout.addWidget(self.progressBar,5,0,1,channelsQty)
+        
+        self.setLayout(mainLayout)
+        """
         self.g1 = QGroupBox('Канал 1')
         self.addChannel(self.g1,220,500)
         self.g2 = QGroupBox('Канал 2')
@@ -162,13 +132,7 @@ class Example(QDialog):
         self.g5 = QGroupBox('Канал 5')
         self.addChannel(self.g5,220,500)
 
-        self.progressBar = QProgressBar()
-        self.progressBar.setRange(0, 10000)
-        self.progressBar.setValue(0)
-
-        self.timer = QTimer(self)
-        self.timer.timeout.connect(self.advanceProgressBar)
-        self.timer.start(20)
+        
 
         mainLayout = QGridLayout()
         #mainLayout = QHBoxLayout(self)
@@ -179,6 +143,7 @@ class Example(QDialog):
         mainLayout.addWidget(self.g4,0,3,3,1)
         mainLayout.addWidget(self.g5,0,4,3,1)
         mainLayout.addWidget(self.progressBar,4,0,2,5)
+        """
         '''
         mainLayout.addWidget(self.g1)
         mainLayout.addWidget(self.g2)
@@ -190,13 +155,13 @@ class Example(QDialog):
         #mainLayout.setRowStretch(2,1)
         #mainLayout.setColumnStretch(0,1)
         #mainLayout.setColumnStretch(1,1)
-        self.setLayout(mainLayout)
+        #self.setLayout(mainLayout)
 
         
 
         
 
-        QApplication.setStyle(QStyleFactory.create('Coffee'))
+        #QApplication.setStyle(QStyleFactory.create('Coffee'))
 
 
 
@@ -261,6 +226,6 @@ if __name__ == '__main__':
 
     app = QApplication(sys.argv)
     #app.setStyleSheet("background-color: yellow")
-    
+    #app.setStyle('Fusion')
     ex = Example()
     sys.exit(app.exec_())

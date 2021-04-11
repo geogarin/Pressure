@@ -2,20 +2,26 @@ import spidev
 import Odroid.GPIO as GPIO
 import time
 
-PINS = [480,483,476]
+# dif
+PINS_DIF = [480,483,476,477]
+
+# abs
+PINS_ABS = [434,490,492,479]
 GPIO.setmode(GPIO.SOC)
 
 
 # sensor HSCDRRD2.5MDSA3
-OUTPUT_MIN = 1638 
-OUTPUT_MAX = 14746
-PRESSURE_MIN = -6
-PRESSURE_MAX = 6
+OUTPUT_MIN = {'ABS': 1638, 'DIF' : 1638 }
+OUTPUT_MAX = {'ABS':14746, 'DIF' : 14746}
+#PRESSURE_MIN = -6
+#PRESSURE_MAX = 6
+PRESSURE_MIN = {'ABS': 0, 'DIF' : -6}
+PRESSURE_MAX = {'ABS': 60,'DIF' :  6}
 
 TEMPERATURE_MAX = 2047
 
 
-def readSensor(sensorPin:int):
+def readSensor(sensorPin,sensorType):
     GPIO.setup(sensorPin,GPIO.OUT)
     spi = spidev.SpiDev()
     GPIO.output(sensorPin,GPIO.LOW)
@@ -29,7 +35,7 @@ def readSensor(sensorPin:int):
     status_bits = res[0] >> 6
 
     output = ((res[0]&63)<<8)|res[1]
-    pressure = (output-OUTPUT_MIN)*(PRESSURE_MAX-PRESSURE_MIN)/(OUTPUT_MAX-OUTPUT_MIN)+PRESSURE_MIN
+    pressure = (output-OUTPUT_MIN[sensorType])*(PRESSURE_MAX[sensorType]-PRESSURE_MIN[sensorType])/(OUTPUT_MAX[sensorType]-OUTPUT_MIN[sensorType])+PRESSURE_MIN[sensorType]
 
     output_t = ((res[2]<<8) | (res[3])) >> 5
     temperature = output_t*200/TEMPERATURE_MAX-50
@@ -50,7 +56,10 @@ def readSensor(sensorPin:int):
 
 while True:
     s = ""
-    for p in PINS:
-        res = readSensor(p)
+    for p in PINS_DIF:
+        res = readSensor(p,'DIF')
+        s += f'Датчик {res[0]}: P={res[1]:.5f}; T={res[2]:.2f} | '
+    for p in PINS_ABS:
+        res = readSensor(p,'ABS')
         s += f'Датчик {res[0]}: P={res[1]:.5f}; T={res[2]:.2f} | '
     print(s)
