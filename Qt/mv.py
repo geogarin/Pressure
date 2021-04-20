@@ -2,6 +2,8 @@ import sys
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import Qt,QObject,pyqtSignal,pyqtSlot,QTimer
 from PyQt5.QtWidgets import QApplication,QMainWindow,QGroupBox,QPushButton,QLineEdit,QVBoxLayout,QGridLayout,QDialog,QLabel
+import subprocess
+
 
 class Model(QObject):
     amountChanged = pyqtSignal(int)
@@ -50,6 +52,20 @@ class Model(QObject):
         self.amountChanged.emit(value)
 
 
+class MatchBoxLineEdit(QLineEdit):
+    def focusInEvent(self, e):
+        print('focus in')
+        try:
+            subprocess.Popen(["onboard"])
+        except FileNotFoundError:
+            pass
+
+
+
+    def focusOutEvent(self,e):
+        print('focus out')
+        subprocess.Popen(["killall","onboard"])
+
 class MainView(QMainWindow): # QDialog
     def __init__(self,model):
         super(MainView,self).__init__()
@@ -69,6 +85,11 @@ class MainView(QMainWindow): # QDialog
 
 
         self.lineEdit = QLineEdit('',centralWidget)
+        #self.lineEdit.focusInEvent()
+        #self.lineEdit = MatchBoxLineEdit('',centralWidget)
+        #self.Show
+
+
         self.button = QPushButton(self._model.butName,centralWidget)
         lay.addWidget(self.lineEdit)
         lay.addWidget(self.button)
@@ -132,6 +153,7 @@ class MainView(QMainWindow): # QDialog
         self._model.butNameChanged.connect(self.onButtonNameChanged)
         self.button.clicked.connect(lambda: self._model.buttonPressed())
 
+    
 
     def onMyToolBarButtonClick(self):
         print('click')

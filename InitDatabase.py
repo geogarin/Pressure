@@ -3,8 +3,8 @@ from Config import DATABASE_NAME,DATABASE_PATH
 
 
 # Типы датчиков
-SENSOR_TYPES = {"Absolute":
-                    {"Description"           : "HSCDANN060PGSA3",
+SENSOR_TYPES = {"Differential":
+                    {"Description"           : "HSCDRRD006MDSA3",
                     "SensorUnitOfMeasure"    : "mBar",
                     "SensorPressureMin"      : -6,
                     "SensorPressureMax"      : 6,
@@ -16,8 +16,8 @@ SENSOR_TYPES = {"Absolute":
                     "DigitalCounts90Percent" : 14746,
                     "TemperatureMax"         : 2047
                     },
-                "Differential":
-                    {"Description"           : "HSCDRRD006MDSA3",
+                "Absolute":
+                    {"Description"           : "HSCDANN060PGSA3",
                     "SensorUnitOfMeasure"    : "psi",
                     "SensorPressureMin"      : 0,
                     "SensorPressureMax"      : 60,
