@@ -6,7 +6,7 @@ import spidev
 import Odroid.GPIO as GPIO
 
 
-class PressureModel(QObject):
+class ChannelModel(QObject):
     absValueChanged = pyqtSignal(float)
     butNameChanged = pyqtSignal(str)
 
@@ -90,11 +90,11 @@ class PressureModel(QObject):
         status_bits = res[0] >> 6
 
         output = ((res[0]&63)<<8)|res[1]
-        pressure = (output-PressureModel.OUTPUT_MIN[sensorType])*(PressureModel.PRESSURE_MAX[sensorType]-PressureModel.PRESSURE_MIN[sensorType])/(PressureModel.OUTPUT_MAX[sensorType]-PressureModel.OUTPUT_MIN[sensorType])+PressureModel.PRESSURE_MIN[sensorType]
+        pressure = (output-ChannelModel.OUTPUT_MIN[sensorType])*(ChannelModel.PRESSURE_MAX[sensorType]-ChannelModel.PRESSURE_MIN[sensorType])/(ChannelModel.OUTPUT_MAX[sensorType]-ChannelModel.OUTPUT_MIN[sensorType])+ChannelModel.PRESSURE_MIN[sensorType]
         
         output_t = ((res[2]<<8) | (res[3])) >> 5
-        temperature = output_t*200/PressureModel.TEMPERATURE_MAX-50
-        #print(f'Датчик {sensorPin}: давление={pressure:.5f}; температура={temperature:.2f}; status={status_bits}')
+        temperature = output_t*200/ChannelModel.TEMPERATURE_MAX-50
+        print(f'Датчик {sensorPin}: давление={pressure:.5f}; температура={temperature:.2f}; status={status_bits}')
         if (status_bits==0):
             if (sensorType == 'ABS'):
                 self.valueAbs = pressure

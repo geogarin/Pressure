@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import (QWidget,QGroupBox,QPushButton,QVBoxLayout,QHBoxLayo
 from PyQt5.QtCore import pyqtSlot
 import stylesheets
 
-class PressureChannel(QWidget):
+class ChannelView(QWidget):
     def __init__(self,name,model):
         super().__init__()
         self._model = model
