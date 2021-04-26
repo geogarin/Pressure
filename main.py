@@ -1,7 +1,4 @@
 import sys
-from Interface.channel import PressureChannel
-from Interface.model import PressureModel
-from PyQt5.QtWidgets import QWidget,QGridLayout,QApplication,QProgressBar
 
 
 # dif
