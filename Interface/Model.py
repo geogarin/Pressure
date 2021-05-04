@@ -8,6 +8,7 @@ import Odroid.GPIO as GPIO
 GPIO.setmode(GPIO.SOC)
 class ChannelModel(QObject):
     absValueChanged = pyqtSignal(float)
+    difValueChanged = pyqtSignal(float)
     butNameChanged = pyqtSignal(str)
 
     
@@ -25,17 +26,24 @@ class ChannelModel(QObject):
         super().__init__()
         self.pinAbs = pinAbs
         self.pinDiff = pinDiff
-        self._valueAbs = [0] * Config.SAMPLES_QUANTITY
-        self._valueAbsIdx = 0
+        self.initSensorValues()
 
         self.timer = QTimer()
         self.timer.timeout.connect(self.upd)
         self.started = False
         self._butName = 'Start'
     
+    def initSensorValues(self):
+        self._valueAbs = [0] * Config.SAMPLES_QUANTITY
+        self._valueAbsIdx = 0
+
+        self._valueDif = [0] * Config.SAMPLES_QUANTITY
+        self._valueDifIdx = 0
+
     @property
     def valueAbs(self):
-        return(round(sum(self._valueAbs)/Config.SAMPLES_QUANTITY,3))
+        #return(round(sum(self._valueAbs)/Config.SAMPLES_QUANTITY,Config.ABS_PRESSURE_ROUNDING_PRECISION))
+        return(abs(sum(self._valueAbs)/Config.SAMPLES_QUANTITY))
 
     @valueAbs.setter
     def valueAbs(self,value):
@@ -45,8 +53,28 @@ class ChannelModel(QObject):
         if (self._valueAbsIdx==Config.SAMPLES_QUANTITY):
             self._valueAbsIdx = 0
         #print(f'array={self._valueAbs} avg={round(sum(self._valueAbs)/Config.SAMPLES_QUANTITY,5)}')
-        self.absValueChanged.emit(round(sum(self._valueAbs)/Config.SAMPLES_QUANTITY,3))
+        #self.absValueChanged.emit(round(sum(self._valueAbs)/Config.SAMPLES_QUANTITY,Config.ABS_PRESSURE_ROUNDING_PRECISION))
+        
+        self.absValueChanged.emit(abs(sum(self._valueAbs)/Config.SAMPLES_QUANTITY))
     
+    @property
+    def valueDif(self):
+        #return(round(sum(self._valueDif)/Config.SAMPLES_QUANTITY,Config.DIF_PRESSURE_ROUNDING_PRECISION))
+        return(sum(self._valueDif)/Config.SAMPLES_QUANTITY)
+
+    @valueDif.setter
+    def valueDif(self,value):
+        #print(f'index={self._valueAbsIdx} curValue={value}')  
+        self._valueDif[self._valueDifIdx] = value
+        self._valueDifIdx += 1
+        if (self._valueDifIdx==Config.SAMPLES_QUANTITY):
+            self._valueDifIdx = 0
+        #print(f'array={self._valueAbs} avg={round(sum(self._valueAbs)/Config.SAMPLES_QUANTITY,5)}')
+        #self.difValueChanged.emit(round(sum(self._valueDif)/Config.SAMPLES_QUANTITY,Config.DIF_PRESSURE_ROUNDING_PRECISION))
+        #if (self.pinDiff==477):
+        #    print(f'idx={self._valueDifIdx} avg={sum(self._valueDif)/Config.SAMPLES_QUANTITY}')
+        self.difValueChanged.emit(sum(self._valueDif)/Config.SAMPLES_QUANTITY)
+
     @property
     def butName(self):
         return self._butName
@@ -94,12 +122,13 @@ class ChannelModel(QObject):
         
         output_t = ((res[2]<<8) | (res[3])) >> 5
         temperature = output_t*200/ChannelModel.TEMPERATURE_MAX-50
-        print(f'Датчик {sensorPin}: давление={pressure:.5f}; температура={temperature:.2f}; status={status_bits}')
+        #if (sensorPin==477):
+        #    print(f'Датчик {sensorPin}: давление={pressure:.5f}; температура={temperature:.2f}; status={status_bits}')
         if (status_bits==0):
             if (sensorType == 'ABS'):
                 self.valueAbs = pressure
-            #else:
-            #    sensorPin = pressure
+            else:
+                self.valueDif = pressure
         """
         qqq
         print(f'Sensor data {res}')

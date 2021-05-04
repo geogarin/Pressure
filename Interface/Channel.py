@@ -2,6 +2,8 @@ import sys
 from PyQt5 import QtGui
 from PyQt5.QtWidgets import (QWidget,QGroupBox,QPushButton,QVBoxLayout,QHBoxLayout,QLabel,QLineEdit,QGridLayout)
 from PyQt5.QtCore import pyqtSlot
+import Config
+
 import stylesheets
 
 class ChannelView(QWidget):
@@ -16,12 +18,12 @@ class ChannelView(QWidget):
         self.measureFont = QtGui.QFont("Times",35)
 
         
-        self.measureAbs = QLineEdit('Abs')
+        self.measureAbs = QLineEdit('')
         self.measureAbs.setReadOnly(True)
         self.measureAbs.setFont(self.measureFont)
         
 
-        self.measureDiff = QLineEdit('Diff')
+        self.measureDiff = QLineEdit('')
         self.measureDiff.setReadOnly(True)
         self.measureDiff.setFont(self.measureFont)
 
@@ -56,12 +58,23 @@ class ChannelView(QWidget):
         #self.setLayout(self.lay)
 
         self._model.absValueChanged.connect(self.onValueAbsChanged)
+        self._model.difValueChanged.connect(self.onValueDifChanged)
+
+
         self._model.butNameChanged.connect(self.onButtonNameChanged)
         self.button.clicked.connect(lambda: self._model.buttonPressed())
 
     @pyqtSlot(float)
     def onValueAbsChanged(self,value):
-        self.measureAbs.setText(str(value))
+        #self.measureAbs.setText(str(value))
+        #self.measureAbs.setText("{:.2f}".format(value))
+        self.measureAbs.setText(str.format("{:.{}f}",value,Config.ABS_PRESSURE_ROUNDING_PRECISION))    
+
+    @pyqtSlot(float)
+    def onValueDifChanged(self,value):
+        #self.measureDiff.setText(str(value))
+        self.measureDiff.setText(str.format("{:.{}f}",value,Config.DIF_PRESSURE_ROUNDING_PRECISION))        
+
 
     @pyqtSlot(str)
     def onButtonNameChanged(self,value):

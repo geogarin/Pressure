@@ -7,7 +7,7 @@ from PyQt5 import QtGui
 from PyQt5.QtCore import pyqtSlot
 
 # dif
-PINS_DIF = [480,483,476,477]
+PINS_DIF = [477,476,483,480]
 
 # abs
 PINS_ABS = [479,492,490,434]

@@ -11,4 +11,8 @@ BUTTON_STOP_TEST = 'Стоп'
 # Кол-во отсчетов для усреднения
 SAMPLES_QUANTITY = 50
 
+# Точность округления показаний давления (знаков после запятой)
+ABS_PRESSURE_ROUNDING_PRECISION = 3
+DIF_PRESSURE_ROUNDING_PRECISION = 3
+
 

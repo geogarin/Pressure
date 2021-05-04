@@ -26,14 +26,22 @@ class MainModel(QObject):
     def startTestButtonPressed(self):
         self.testStarted = not self.testStarted
         if self.testStarted:
+            self.initSensorValuesList()
+
             self.timer.start(100)
             self.startTestButtonName = Config.BUTTON_STOP_TEST
+
+            
             #self.readSensor('ABS')
         else:
             self.timer.stop()
             self.startTestButtonName = Config.BUTTON_START_TEST
     
+    def initSensorValuesList(self):
+        for i in range(self.channelsQuantity):
+            self.channelModels[i].initSensorValues()
+        
     def upd(self):
         for i in range(self.channelsQuantity):
             self.channelModels[i].readSensor('ABS')
-            #self.channelModels[i].readSensor('DIF')
+            self.channelModels[i].readSensor('DIF')
