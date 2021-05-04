@@ -36,3 +36,4 @@ class MainModel(QObject):
     def upd(self):
         for i in range(self.channelsQuantity):
             self.channelModels[i].readSensor('ABS')
+            #self.channelModels[i].readSensor('DIF')

@@ -5,12 +5,12 @@ import Config
 import spidev
 import Odroid.GPIO as GPIO
 
-
+GPIO.setmode(GPIO.SOC)
 class ChannelModel(QObject):
     absValueChanged = pyqtSignal(float)
     butNameChanged = pyqtSignal(str)
 
-    GPIO.setmode(GPIO.SOC)
+    
 
     OUTPUT_MIN = {'ABS': 1638, 'DIF' : 1638 }
     OUTPUT_MAX = {'ABS':14746, 'DIF' : 14746}
