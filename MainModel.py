@@ -1,13 +1,23 @@
 import Config 
+from Model import ChannelModel
+from Database.database import data
 from PyQt5.QtCore import Qt,QObject,pyqtSignal,QTimer
 
 class MainModel(QObject):
     startTestButtonNameChanged = pyqtSignal(str)
-    def __init__(self,channelsQty):
+    def __init__(self):
         super().__init__()
-        self.channelsQuantity = channelsQty
-        self.channelModels = [None] * channelsQty
+        d = data()
+        channels = d.getChannels()
+
+        self.channelsQuantity = len(channels)
+        self.channelModels = []
         
+        
+        for channel in channels:
+            #print(f"{channel['Name']},{channel['PinAbs']},{channel['PinDif']}") 
+            self.channelModels.append(ChannelModel(channel['Name'],channel['PinAbs'],channel['PinDif']))
+
         self.timer = QTimer()
         self.timer.timeout.connect(self.upd)
 

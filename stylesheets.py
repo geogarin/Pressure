@@ -9,7 +9,51 @@ QCheckBoxStyle="""
 
 
 #QGRoupBox  rgb(67,145,228);
+QLabelStyle="""
+QLabel {
+        qproperty-alignment: AlignCenter;
+	border: 1px solid #FF17365D;
+	border-top-left-radius: 15px;
+	border-top-right-radius: 15px;
+	background-color: #FF17365D;
+	padding: 5px 10px;
+	color: rgb(255, 255, 255);
+	max-height: 25px;
+        font-size: 21px;
+}
+"""
+
+QFrameStyle="""
+QFrame {
+	border: 1px solid #FF17365D;
+	border-bottom-left-radius: 15px;
+	border-bottom-right-radius: 15px;
+}
+"""
+
+
 QGroupBoxStyle="""
+QGroupBox {
+    border: 1px solid gray;
+    border-color: #FF17365D;
+    margin-top: 27px;
+    font-size: 25px;
+    border-bottom-left-radius: 15px;
+    border-bottom-right-radius: 15px;
+}
+
+QGroupBox::title {
+    subcontrol-origin: margin;
+    subcontrol-position: top center;
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
+    padding: 5px 150px;
+    background-color: #FF17365D;
+    color: rgb(255, 255, 255);
+}
+"""
+
+QGroupBoxStyle2="""
                 QGroupBox {
                     background-color: qlineargradient(x1: 0.3, y1: 0.1, x2: 0.7, y2: 0.9,
                                                     stop: 0 #5ec7ff, stop: 1 #5e6dd2);
@@ -20,11 +64,10 @@ QGroupBoxStyle="""
                 }
                 QGroupBox::title {
                     subcontrol-origin: margin;
-                    subcontrol-position: top center; /* position at the top center */
-                    padding: 0 3px;
-                    font: 30px;
-                    background-color: qlineargradient(x1: 0, y1: 0, x2: 0.5, y2: 1,
-                                                    stop: 0 #FF0ECE, stop: 1 #FFFFFF);
+                    subcontrol-position: top left; 
+                    padding: 0 30px;
+                    font: 700px;
+                    
                 }
                 """
 

@@ -1,72 +1,117 @@
-from PyQt5.QtWidgets import QGroupBox,QPushButton,QDial,QSlider,QVBoxLayout,QCheckBox
-from PyQt5.QtCore import Qt,QTimer
-import random
+import sys
+from PyQt5 import QtGui
+from PyQt5.QtWidgets import (QFrame, QWidget,QGroupBox,QPushButton,QVBoxLayout,QHBoxLayout,QLabel,QLineEdit,QGridLayout)
+from PyQt5.QtCore import Qt,QPoint, QRect, QSize, pyqtSlot
+import Config
+from Model import ChannelModel
+
 import stylesheets
 
+class ChannelView(QWidget):
+    def __init__(self,model):
+        super().__init__()
+        self._model = model
 
-class Channel():
-    def __init__(self,name):
+        #self.group = QGroupBox(self._model.channelName)
+        self.group = QVBoxLayout(self)
+        self.group.setSpacing(0)
+
+        self.title = QLabel(self._model.channelName)
+        self.title.setStyleSheet(stylesheets.QLabelStyle)
+
+        self.frame = QFrame()
+        self.frame.setStyleSheet(stylesheets.QFrameStyle)
+        #self.group.setCheckable(False)
         
-        self.group = QGroupBox(name)
-        self.group.setCheckable(False)
-        self.group.setStyleSheet(stylesheets.QGroupBoxStyle)
+        #self.mainLayout.setGeometry(QRect(QPoint(0,0),QSize(200,100)))
+        #self.group.setStyleSheet(stylesheets.QGroupBoxStyle)
 
-        self.button = QPushButton("N")
-        #self.button.setFixedHeight(200)
-        #self.button.setFixedWidth(200)
-        self.button.setStyleSheet(stylesheets.QPushButtonReceipt)
+        self.measureFont = QtGui.QFont("Times",35)
 
-        self.button2 = QPushButton("Hello")
-        self.button2.setStyleSheet(stylesheets.QPushButton3)
+        # единицы измерения >>
+        self.unitOfMeasureDiff = QLabel(ChannelModel.DISPLAY_UNIT_OF_MEASURE['DIF'])
+        #self.unitOfMeasureDiff.setFrameStyle(QLabel.Box)
+        #self.unitOfMeasureDiff.setReadOnly(True)
+        self.unitOfMeasureDiff.setFont(self.measureFont)
 
-        self.checkBox = QCheckBox('qqq')
+        self.unitOfMeasureAbs = QLabel(ChannelModel.DISPLAY_UNIT_OF_MEASURE['ABS'])
+        #self.unitOfMeasureAbs.setFrameStyle(QLabel.Box)
+        #self.unitOfMeasureAbs.setReadOnly(True)
+        self.unitOfMeasureAbs.setFont(self.measureFont)
+
+        self.unitOfMeasureLay = QHBoxLayout()
+        self.unitOfMeasureLay.addWidget(self.unitOfMeasureDiff)
+        #self.unitOfMeasureLay.addStretch(1)
+        self.unitOfMeasureLay.addWidget(self.unitOfMeasureAbs)
+        # единицы измерения <<
         
-        self.checkBox.setStyleSheet(stylesheets.QCheckBoxStyle)
+
+        # значения с датчиков >>
+        self.measureDiff = QLineEdit('')
+        self.measureDiff.setReadOnly(True)
+        self.measureDiff.setFont(self.measureFont)
+
+        self.measureAbs = QLineEdit('')
+        self.measureAbs.setReadOnly(True)
+        self.measureAbs.setFont(self.measureFont)
+        # значения с датчиков <<
+        
+        #self.measureLay = QHBoxLayout()
+        #self.measureLay.addWidget(self.measureDiff)
+        #self.measureLay.addStretch(1)
+        #self.measureLay.addWidget(self.measureAbs)
+
+
+        #self.button = QPushButton(self._model.butName)
+        #self.button.setFont(self.measureFont)
+
 
         
-        #self.dial = QDial(self.group)
-        #self.dial.setValue(random.randint(0,100))
-        #self.dial.setNotchesVisible(True)
-
-        self.slider = QSlider(Qt.Horizontal, self.group)
-        self.slider.setValue(random.randint(0,100))
-
-        lay = QVBoxLayout()
-        lay.addWidget(self.button)
-        lay.addWidget(self.button2)
-        lay.addWidget(self.checkBox)
-        #lay.addWidget(self.dial)
-        lay.addWidget(self.slider)
-
-        self.dx1=1
-        self.dx2=1
-        self.timer = QTimer()
-        self.timer.timeout.connect(self.processTimer)
-        self.timer.start(random.randint(20,70))
+        #self.lay = QHBoxLayout()
         
-        self.group.setLayout(lay)
+        #self.lay.addWidget(self.measureAbs)
+        #self.lay.addWidget(self.measureLay)
 
-    def getGroup(self)->QGroupBox:
-        return self.group
+        self.mainLayout = QGridLayout(self.frame)
+           
+        self.mainLayout.addWidget(self.unitOfMeasureDiff,0,0,Qt.AlignTop)
+        self.mainLayout.addWidget(self.unitOfMeasureAbs,0,1,Qt.AlignTop)
+        self.mainLayout.addWidget(self.measureDiff,1,0,Qt.AlignTop)
+        self.mainLayout.addWidget(self.measureAbs,1,1,Qt.AlignTop)
+        
+        
+        #self.lay = QVBoxLayout()
+        #self.lay.addStretch(1)
+        #self.mainLayout.addLayout(self.lay,2,0)
+        
 
-    def processTimer(self):
-        n = self.slider.value()
-        ma = self.slider.maximum()
-        mi = self.slider.minimum()
-        #print(f'n={n}, ma={ma}, mi={mi}')
-        if n >= ma: self.dx1=-1
-        if n<=mi: self.dx1=1
-        self.slider.setValue(n+self.dx1)
+        #self.group.setLayout(self.mainLayout)
+        self.group.addWidget(self.title)    
+        self.group.addWidget(self.frame)
+        self.group.addStretch()
+        #self.group.addLayout(self.mainLayout)
+        
+        
+        
+        
 
-"""
-        n = self.dial.value()
-        ma = self.dial.maximum()
-        mi = self.dial.minimum()
-        if n >= ma: self.dx2=-1
-        if n<=mi: self.dx2=1
-        self.dial.setValue(n+self.dx2)
-"""
+        self._model.absValueChanged.connect(self.onValueAbsChanged)
+        self._model.difValueChanged.connect(self.onValueDifChanged)
 
 
+        self._model.butNameChanged.connect(self.onButtonNameChanged)
+        #self.button.clicked.connect(lambda: self._model.buttonPressed())
 
-    
+    @pyqtSlot(float)
+    def onValueAbsChanged(self,value):       
+        self.measureAbs.setText(str.format("{:.{}f}",value,Config.ABS_PRESSURE_ROUNDING_PRECISION))    
+
+    @pyqtSlot(float)
+    def onValueDifChanged(self,value):
+        self.measureDiff.setText(str.format("{:.{}f}",value,Config.DIF_PRESSURE_ROUNDING_PRECISION))        
+
+
+    @pyqtSlot(str)
+    def onButtonNameChanged(self,value):
+        self.button.setText(value)
+        

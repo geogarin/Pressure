@@ -2,6 +2,7 @@ import sys
 from PyQt5 import QtCore
 from PyQt5.QtCore import Qt,QObject,pyqtSignal,QTimer
 import Config
+from Database.database import data
 import spidev
 import Odroid.GPIO as GPIO
 
@@ -11,19 +12,25 @@ class ChannelModel(QObject):
     difValueChanged = pyqtSignal(float)
     butNameChanged = pyqtSignal(str)
 
-    
+    d = data()
+    absSensor = d.getSensorParameters('Absolute')
+    difSensor = d.getSensorParameters('Differential')
 
-    OUTPUT_MIN = {'ABS': 1638, 'DIF' : 1638 }
-    OUTPUT_MAX = {'ABS':14746, 'DIF' : 14746}
+    OUTPUT_MIN = {'ABS': absSensor['DigitalCounts10Percent'], 'DIF' : difSensor['DigitalCounts10Percent'] }
+    OUTPUT_MAX = {'ABS': absSensor['DigitalCounts90Percent'], 'DIF' : difSensor['DigitalCounts90Percent']}
 
-    PRESSURE_MIN = {'ABS': 0, 'DIF' : -6}
-    PRESSURE_MAX = {'ABS': 60,'DIF' :  6}
+    PRESSURE_MIN = {'ABS': absSensor['SensorPressureMin'], 'DIF' : difSensor['SensorPressureMin']}
+    PRESSURE_MAX = {'ABS': absSensor['SensorPressureMax'],'DIF' :  difSensor['SensorPressureMax']}
 
-    TEMPERATURE_MAX = 2047
+    DISPLAY_RATIO = {'ABS': absSensor['Ratio'], 'DIF': difSensor['Ratio']}
+    DISPLAY_UNIT_OF_MEASURE = {'ABS': absSensor['DisplayUnitOfMeasure'], 'DIF': difSensor['DisplayUnitOfMeasure']}
 
+    TEMPERATURE_MAX = absSensor['TemperatureMax']
 
-    def __init__(self,pinAbs,pinDiff):
+    def __init__(self,channelName,pinAbs,pinDiff):
         super().__init__()
+        self.channelName = channelName
+        
         self.pinAbs = pinAbs
         self.pinDiff = pinDiff
         self.initSensorValues()
@@ -43,7 +50,8 @@ class ChannelModel(QObject):
     @property
     def valueAbs(self):
         #return(round(sum(self._valueAbs)/Config.SAMPLES_QUANTITY,Config.ABS_PRESSURE_ROUNDING_PRECISION))
-        return(abs(sum(self._valueAbs)/Config.SAMPLES_QUANTITY))
+        return(ChannelModel.DISPLAY_RATIO['ABS']*sum(self._valueAbs)/Config.SAMPLES_QUANTITY)
+        
 
     @valueAbs.setter
     def valueAbs(self,value):
@@ -52,15 +60,12 @@ class ChannelModel(QObject):
         self._valueAbsIdx += 1
         if (self._valueAbsIdx==Config.SAMPLES_QUANTITY):
             self._valueAbsIdx = 0
-        #print(f'array={self._valueAbs} avg={round(sum(self._valueAbs)/Config.SAMPLES_QUANTITY,5)}')
-        #self.absValueChanged.emit(round(sum(self._valueAbs)/Config.SAMPLES_QUANTITY,Config.ABS_PRESSURE_ROUNDING_PRECISION))
-        
-        self.absValueChanged.emit(abs(sum(self._valueAbs)/Config.SAMPLES_QUANTITY))
+        self.absValueChanged.emit(ChannelModel.DISPLAY_RATIO['ABS']*sum(self._valueAbs)/Config.SAMPLES_QUANTITY)
     
     @property
     def valueDif(self):
         #return(round(sum(self._valueDif)/Config.SAMPLES_QUANTITY,Config.DIF_PRESSURE_ROUNDING_PRECISION))
-        return(sum(self._valueDif)/Config.SAMPLES_QUANTITY)
+        return(ChannelModel.DISPLAY_RATIO['DIF']*sum(self._valueDif)/Config.SAMPLES_QUANTITY)
 
     @valueDif.setter
     def valueDif(self,value):
@@ -69,11 +74,7 @@ class ChannelModel(QObject):
         self._valueDifIdx += 1
         if (self._valueDifIdx==Config.SAMPLES_QUANTITY):
             self._valueDifIdx = 0
-        #print(f'array={self._valueAbs} avg={round(sum(self._valueAbs)/Config.SAMPLES_QUANTITY,5)}')
-        #self.difValueChanged.emit(round(sum(self._valueDif)/Config.SAMPLES_QUANTITY,Config.DIF_PRESSURE_ROUNDING_PRECISION))
-        #if (self.pinDiff==477):
-        #    print(f'idx={self._valueDifIdx} avg={sum(self._valueDif)/Config.SAMPLES_QUANTITY}')
-        self.difValueChanged.emit(sum(self._valueDif)/Config.SAMPLES_QUANTITY)
+        self.difValueChanged.emit(ChannelModel.DISPLAY_RATIO['DIF']*sum(self._valueDif)/Config.SAMPLES_QUANTITY)
 
     @property
     def butName(self):
@@ -142,3 +143,7 @@ class ChannelModel(QObject):
         #print(f'Датчик {sensorPin}: давление={pressure:.5f}; температура={temperature:.2f}')
         return [sensorPin,pressure,temperature]
         """
+
+
+if __name__ == '__main__':
+    print(f'm = {ChannelModel.PRESSURE_MAX["DIF"]}')
