@@ -6,6 +6,20 @@ print(sys.path)
 #subprocess.Popen("onboard")
 #subprocess.Popen(["pkill", "onboard"])
 
+
+
+
+aa="font=123"
+
+bb='''
+{
+asd: 123;
+DefaultFontStyle
+}'''.replace('DefaultFontStyle',aa)
+
+print(bb)
+
+
 d=2/3
 
 s=str.format("{:.{}f}",d,3)

@@ -3,7 +3,7 @@ from MainModel import MainModel
 
 from PyQt5.QtWidgets import QDialog,QWidget,QGridLayout,QProgressBar,QPushButton
 from PyQt5 import QtGui
-from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtCore import Qt,pyqtSlot
 
 class MainInterface(QWidget):
     def __init__(self,model):
@@ -27,7 +27,7 @@ class MainInterface(QWidget):
             self.channels.append(ch)
             #self.mainLayout.addWidget(self.channels[i].group,2,i,1,1)
             #self.mainLayout.addLayout(self.channels[i].group,2,i,1,1)
-            self.mainLayout.addWidget(self.channels[i],2,i,1,1)
+            self.mainLayout.addWidget(self.channels[i],2,i,1,1,Qt.AlignVCenter)
 
         #self.progressBar = QProgressBar()
         #self.progressBar.setRange(0, 10000)

@@ -9,27 +9,7 @@ QCheckBoxStyle="""
 
 
 #QGRoupBox  rgb(67,145,228);
-QLabelStyle="""
-QLabel {
-        qproperty-alignment: AlignCenter;
-	border: 1px solid #FF17365D;
-	border-top-left-radius: 15px;
-	border-top-right-radius: 15px;
-	background-color: #FF17365D;
-	padding: 5px 10px;
-	color: rgb(255, 255, 255);
-	max-height: 25px;
-        font-size: 21px;
-}
-"""
 
-QFrameStyle="""
-QFrame {
-	border: 1px solid #FF17365D;
-	border-bottom-left-radius: 15px;
-	border-bottom-right-radius: 15px;
-}
-"""
 
 
 QGroupBoxStyle="""
@@ -115,3 +95,87 @@ background-color: white;
  min-width:100px;
  min-height:100px;
  """
+
+
+#-------------------------------------------------
+DefaultFontStyle="""
+    font-family: "Times";
+    font-size: 33pt;
+"""
+
+
+QComboBoxReceipt="""
+QComboBox QAbstractItemView {
+  border: 1px solid grey;
+  background: white;
+  selection-background-color: blue;
+}
+QComboBox {
+  background: rgb(97,197,255);
+  DefaultFontStyle
+}
+""".replace('DefaultFontStyle',DefaultFontStyle)
+
+QCheckBoxStyle2="""
+QCheckBox {
+    spacing: 10px;
+    min-height: 80px; 
+    DefaultFontStyle
+}
+QCheckBox::indicator {
+    width: 30px;
+    height: 30px;
+}
+""".replace('DefaultFontStyle',DefaultFontStyle)
+
+
+HeaderStyle="""
+QLabel {
+    qproperty-alignment: AlignCenter;
+	border: 1px solid #FF17365D;
+	border-top-left-radius: 15px;
+	border-top-right-radius: 15px;
+	background-color: #FF17365D;
+	padding: 5px 10px;
+	color: rgb(255, 255, 255);
+	max-height: 33px;    
+    font-size: 21pt;
+}
+"""
+
+BodyStyle="""
+QFrame {
+	border: 1px solid #FF17365D;
+	border-bottom-left-radius: 15px;
+	border-bottom-right-radius: 15px;
+    background-color: rgb(70, 140, 226);
+}
+"""
+
+QLabelStyle="""
+QLabel {
+	border: 1px solid #FF17365D;
+	border-bottom-right-radius: 20px;
+    background-color: rgb(1, 255, 255);
+    DefaultFontStyle
+}
+""".replace('DefaultFontStyle',DefaultFontStyle)
+
+QLabelStyle2="""
+QLabel {
+	border: 1px solid #FF17365D;
+    background-color: rgb(185, 200, 237);
+    DefaultFontStyle
+}
+""".replace('DefaultFontStyle',DefaultFontStyle)
+
+
+QLineEditStyle="""
+QLineEdit {
+	border: 1px solid #FF17365D;
+	border-bottom-right-radius: 20px;
+    background-color: rgb(135, 250, 211);
+    DefaultFontStyle
+}
+""".replace('DefaultFontStyle',DefaultFontStyle)
+

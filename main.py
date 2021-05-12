@@ -6,6 +6,7 @@ from PyQt5.QtWidgets import QApplication
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
+    #app.setStyle("fusion")
     
     m = MainModel()
     p = MainInterface(m)
