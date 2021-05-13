@@ -4,6 +4,7 @@ from PyQt5.QtWidgets import (QCheckBox, QFrame,QComboBox,QWidget,QGroupBox,QPush
 from PyQt5.QtCore import Qt,QPoint, QRect, QSize, pyqtSlot
 import Config
 from Model import ChannelModel
+from CircularProgressBar import QRoundProgressBar
 
 import stylesheets
 
@@ -11,8 +12,6 @@ class ChannelView(QWidget):
     def __init__(self,model):
         super().__init__()
         self._model = model
-
-        #self.group = QGroupBox(self._model.channelName)
         self.group = QVBoxLayout(self)
         self.group.setSpacing(0)
 
@@ -21,25 +20,13 @@ class ChannelView(QWidget):
         self.title.setProperty('type',1)
         self.title.setStyleSheet(stylesheets.HeaderStyle)
         
-        #self.title.style().unpolish(self.title)
-        #self.title.style().polish(self.title)
-        
-
-
         self.frame = QFrame()
         self.frame.setStyleSheet(stylesheets.BodyStyle)
         
-        self.measureFont = QtGui.QFont("Times",35)
-        
-        
-        
-
         # Выбор теста >>
         self.testName = QComboBox()
-        self.testName.addItems(["Ubuntu", "Mandriva",
-                        "Fedora", "Arch", "Gentoo"])
-       # self.testName.setFont(self.measureFont)  
-
+        self.testName.addItems(["Майонез", "Сок","Дет.питание","Радиатор"])
+      
         #self.pal = self.testName.palette()
         #self.pal.setColor(QtGui.QPalette.Button, QtGui.QColor(97,197,255))
         #self.testName.setPalette(self.pal) 
@@ -49,15 +36,11 @@ class ChannelView(QWidget):
         # Тест прочности >>
         self.testStrength = QCheckBox(Config.CHECKBOX_STRENGTH_TEST)
         self.testStrength.setStyleSheet(stylesheets.QCheckBoxStyle2)
-        #self.testStrength.setFont(self.measureFont)
-        #self.testStrength.toggled(True)
         # Тест прочности <<
 
         # Тест герметичности >>
         self.testSealed = QCheckBox(Config.CHECKBOX_SEALED_TEST)
         self.testSealed.setStyleSheet(stylesheets.QCheckBoxStyle2)
-        #self.testSealed.setFont(self.measureFont)
-        #self.testSealed.toggled(True)
         # Тест герметичности <<
 
         # Название теста >>
@@ -73,29 +56,40 @@ class ChannelView(QWidget):
         # единицы измерения >>
         self.unitOfMeasureDiff = QLabel(ChannelModel.DISPLAY_UNIT_OF_MEASURE['DIF'])
         self.unitOfMeasureDiff.setStyleSheet(stylesheets.QLabelStyle)
-        #self.unitOfMeasureDiff.setFont(self.measureFont)
-
+        
         self.unitOfMeasureAbs = QLabel(ChannelModel.DISPLAY_UNIT_OF_MEASURE['ABS'])
         self.unitOfMeasureAbs.setStyleSheet(stylesheets.QLabelStyle)
-        #self.unitOfMeasureAbs.setFont(self.measureFont)
-
-        #self.unitOfMeasureLay = QHBoxLayout()
-        #self.unitOfMeasureLay.addWidget(self.unitOfMeasureDiff)
-        #self.unitOfMeasureLay.addWidget(self.unitOfMeasureAbs)
         # единицы измерения <<
         
-
         # значения с датчиков >>
         self.measureDiff = QLineEdit('')
         self.measureDiff.setReadOnly(True)
         self.measureDiff.setStyleSheet(stylesheets.QLineEditStyle)
-        #self.measureDiff.setFont(self.measureFont)
 
         self.measureAbs = QLineEdit('')
         self.measureAbs.setReadOnly(True)
         self.measureAbs.setStyleSheet(stylesheets.QLineEditStyle)
-        #self.measureAbs.setFont(self.measureFont)
         # значения с датчиков <<
+
+        # таймер >>
+        self.stepDuration = QRoundProgressBar()
+        self.stepDuration.setFixedSize(200, 200)
+
+        self.stepDuration.setDataPenWidth(0)
+        self.stepDuration.setOutlinePenWidth(0)
+        self.stepDuration.setDecimals(2)
+        #self.stepDuration.setFormat('%v | %p %')
+        self.stepDuration.setFormat('%v')
+        # self.stepDuration.resetFormat()
+        self.stepDuration.setNullPosition(90)
+        self.stepDuration.setBarStyle(QRoundProgressBar.StyleDonut)
+        self.stepDuration.setDataColors([(0., QtGui.QColor.fromRgb(255,0,0)), (0.5, QtGui.QColor.fromRgb(255,255,0)), (1., QtGui.QColor.fromRgb(0,255,0))])
+        self.stepDuration.setMaximun(5)
+        self.stepDuration.setMinimun(0)
+        self.stepDuration.setRange(0, 5)
+        self.stepDuration.setValue(0)
+        # таймер <<
+
         curRow = 0
         curCol = 0
         self.mainLayout = QGridLayout(self.frame) 
@@ -115,23 +109,17 @@ class ChannelView(QWidget):
         self.mainLayout.addWidget(self.measureDiff,curRow,curCol)
         self.mainLayout.addWidget(self.measureAbs,curRow,curCol+1)
         curRow += 1
+        self.mainLayout.addWidget(self.stepDuration,curRow,curCol,1,2,Qt.AlignCenter) 
+        curRow += 1
 
 
         self.group.addWidget(self.title)    
         self.group.addWidget(self.frame)
         self.group.addStretch()
         
-        
-        
-        
-        
-
         self._model.absValueChanged.connect(self.onValueAbsChanged)
         self._model.difValueChanged.connect(self.onValueDifChanged)
-
-
-        #self._model.butNameChanged.connect(self.onButtonNameChanged)
-        #self.button.clicked.connect(lambda: self._model.buttonPressed())
+        self._model.durationValueChanged.connect(self.onDurationValueChanged)
 
     @pyqtSlot(float)
     def onValueAbsChanged(self,value):       
@@ -141,8 +129,8 @@ class ChannelView(QWidget):
     def onValueDifChanged(self,value):
         self.measureDiff.setText(str.format("{:.{}f}",value,Config.DIF_PRESSURE_ROUNDING_PRECISION))        
 
+    @pyqtSlot(float)
+    def onDurationValueChanged(self,value):
+        self.stepDuration.setValue(value)
 
-    @pyqtSlot(str)
-    def onButtonNameChanged(self,value):
-        self.button.setText(value)
         

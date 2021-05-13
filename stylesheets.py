@@ -98,6 +98,8 @@ background-color: white;
 
 
 #-------------------------------------------------
+TimerInnerBackGround = (232,250,128) # желтый фон на таймере
+DefaultBackgroundColor = "background-color: rgb(70, 140, 226);"
 DefaultFontStyle="""
     font-family: "Times";
     font-size: 33pt;
@@ -148,14 +150,15 @@ QFrame {
 	border: 1px solid #FF17365D;
 	border-bottom-left-radius: 15px;
 	border-bottom-right-radius: 15px;
-    background-color: rgb(70, 140, 226);
+    DefaultBackgroundColor
 }
-"""
+""".replace('DefaultBackgroundColor',DefaultBackgroundColor)
 
 QLabelStyle="""
 QLabel {
 	border: 1px solid #FF17365D;
 	border-bottom-right-radius: 20px;
+    border-bottom-left-radius: 0px;
     background-color: rgb(1, 255, 255);
     DefaultFontStyle
 }
@@ -164,6 +167,8 @@ QLabel {
 QLabelStyle2="""
 QLabel {
 	border: 1px solid #FF17365D;
+    border-bottom-right-radius: 0px;
+    border-bottom-left-radius: 0px;
     background-color: rgb(185, 200, 237);
     DefaultFontStyle
 }
@@ -179,3 +184,41 @@ QLineEdit {
 }
 """.replace('DefaultFontStyle',DefaultFontStyle)
 
+ButtonStartStyle="""
+QPushButton#StartTestButton
+{
+    background-color: rgb(165,229,174);
+    
+    border-style: outset;
+    border-width: 1px;
+    border-radius: 30px;
+    border-color: beige;
+    font-family: "Times";
+    font-size: 75pt;
+}
+"""
+ButtonStopStyle="""
+QPushButton#StartTestButton
+{
+    background-color: rgb(255,60,91);
+    border-style: outset;
+    border-width: 1px;
+    border-radius: 30px;
+    border-color: beige;
+    font-family: "Times";
+    font-size: 75pt;
+}
+"""
+MenuButtonStyle="""
+QPushButton
+{
+    background-color: rgb(173,173,174);   
+    border-style: outset;
+    border-width: 5px;
+    border-radius: 10px;
+    border-color: beige;
+    font-family: "Times";
+    font-size: 30pt;
+    min-width: 300px;
+}
+"""

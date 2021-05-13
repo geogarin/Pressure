@@ -23,6 +23,8 @@ class MainModel(QObject):
 
         self.testStarted = False
         self._startTestButtonName = Config.BUTTON_START_TEST
+        self.buttonSetupName = Config.BUTTON_SETUP
+        self.buttonManualName = Config.BUTTON_MANUAL
     
     @property
     def startTestButtonName(self):
@@ -35,6 +37,7 @@ class MainModel(QObject):
 
     def startTestButtonPressed(self):
         self.testStarted = not self.testStarted
+        self.startDurationTimer(self.testStarted)
         if self.testStarted:
             self.initSensorValuesList()
 
@@ -47,6 +50,12 @@ class MainModel(QObject):
             self.timer.stop()
             self.startTestButtonName = Config.BUTTON_START_TEST
     
+    def startDurationTimer(self,start):
+        for i in range(self.channelsQuantity):
+            self.channelModels[i].startDurationTimer(start)
+
+
+
     def initSensorValuesList(self):
         for i in range(self.channelsQuantity):
             self.channelModels[i].initSensorValues()

@@ -10,7 +10,9 @@ GPIO.setmode(GPIO.SOC)
 class ChannelModel(QObject):
     absValueChanged = pyqtSignal(float)
     difValueChanged = pyqtSignal(float)
-    butNameChanged = pyqtSignal(str)
+    durationValueChanged = pyqtSignal(float)
+
+    #butNameChanged = pyqtSignal(str)
 
     d = data()
     absSensor = d.getSensorParameters('Absolute')
@@ -35,10 +37,13 @@ class ChannelModel(QObject):
         self.pinDiff = pinDiff
         self.initSensorValues()
 
-        self.timer = QTimer()
-        self.timer.timeout.connect(self.upd)
-        self.started = False
-        self._butName = 'Start'
+        self.minDurationValue = 0
+        self.maxDurationValue = 5
+        self.curDurationValue = 0
+        self.durationTimerStep = 0.1    
+        self.durationTimer = QTimer()
+        self.durationTimer.timeout.connect(self.durationTimerUpdate)
+        self.durationTimerStarted = False
     
     def initSensorValues(self):
         self._valueAbs = [0] * Config.SAMPLES_QUANTITY
@@ -76,16 +81,6 @@ class ChannelModel(QObject):
             self._valueDifIdx = 0
         self.difValueChanged.emit(ChannelModel.DISPLAY_RATIO['DIF']*sum(self._valueDif)/Config.SAMPLES_QUANTITY)
 
-    @property
-    def butName(self):
-        return self._butName
-
-    @butName.setter
-    def butName(self,value):
-        self._butName = value
-        self.butNameChanged.emit(value)
-
-    
     def buttonPressed(self):
         self.started = not self.started
         if self.started:
@@ -96,9 +91,21 @@ class ChannelModel(QObject):
             self.timer.stop()
             self.butName = 'Start'
 
+    def startDurationTimer(self,start):
+        if (start):
+            self.curDurationValue = 0
+            self.durationTimer.start(self.durationTimerStep*1000)
+            self.durationTimerStarted = True
+        else:
+            self.durationTimer.stop()
 
-    def upd(self):
-        self.readSensor('ABS')
+    def durationTimerUpdate(self):
+        if (self.durationTimerStarted):
+            self.curDurationValue += self.durationTimerStep
+            if (self.curDurationValue>self.maxDurationValue):
+                self.curDurationValue = self.maxDurationValue
+                self.durationTimerStarted = False
+            self.durationValueChanged.emit(self.curDurationValue)
 
     def readSensor(self,sensorType):
         #while (self.butName=='Stop'):

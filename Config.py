@@ -7,8 +7,12 @@ DATABASE_PATH = './Data/'
 BUTTON_START_TEST = 'Старт'
 BUTTON_STOP_TEST = 'Стоп'
 
-CHECKBOX_STRENGTH_TEST = 'Тест прочности'
-CHECKBOX_SEALED_TEST = 'Тест герметичности'
+BUTTON_SETUP = 'Настройки'
+BUTTON_MANUAL = 'Сервис'
+
+
+CHECKBOX_STRENGTH_TEST = 'Прочность'
+CHECKBOX_SEALED_TEST = 'Герметичность'
 
 
 # Кол-во отсчетов для усреднения
