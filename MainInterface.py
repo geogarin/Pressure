@@ -35,8 +35,7 @@ class MainInterface(QWidget):
         for i in range(self._model.channelsQuantity):
             #print(i)
             ch = ChannelView(self._model.channelModels[i])
-            self.channels.append(ch)
-            
+            self.channels.append(ch)           
             self.mainLayout.addWidget(self.channels[i],2,i,1,1,Qt.AlignVCenter)
 
 
@@ -51,20 +50,8 @@ class MainInterface(QWidget):
 
         self._model.startTestButtonNameChanged.connect(self.onStartTestButtonNameChanged)
         self.startTestButton.clicked.connect(lambda: self._model.startTestButtonPressed())
-
-        # >>
-        self.setupButton.clicked.connect(self.stpBtn)
-
-    def stpBtn(self):
-        dlg = QDialog(self)
-        dlg.setWindowTitle("HELLO!")
+        self.setupButton.clicked.connect(lambda: self._model.openSetupDialogButtonPressed())
         
-        dlg.exec_()
-    # <<
-
-
-
-
     @pyqtSlot(str)
     def onStartTestButtonNameChanged(self,value):
         self.startTestButton.setText(value)

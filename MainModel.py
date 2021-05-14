@@ -1,5 +1,8 @@
 import Config 
 from Model import ChannelModel
+from SetupModel import SetupModel
+from SetupInterface import SetupView
+
 from Database.database import data
 from PyQt5.QtCore import Qt,QObject,pyqtSignal,QTimer
 
@@ -43,17 +46,22 @@ class MainModel(QObject):
 
             self.timer.start(100)
             self.startTestButtonName = Config.BUTTON_STOP_TEST
-
-            
-            #self.readSensor('ABS')
         else:
             self.timer.stop()
             self.startTestButtonName = Config.BUTTON_START_TEST
     
+    def openSetupDialogButtonPressed(self):
+        print('open setup')
+        setupModel = SetupModel()
+        setupDialog = SetupView(setupModel)
+        setupDialog.exec_()
+        
+
     def startDurationTimer(self,start):
         for i in range(self.channelsQuantity):
             self.channelModels[i].startDurationTimer(start)
 
+    
 
 
     def initSensorValuesList(self):

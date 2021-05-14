@@ -15,17 +15,21 @@ class ChannelModel(QObject):
     #butNameChanged = pyqtSignal(str)
 
     d = data()
+    absSensorAlias = 'ABS'
+    difSensorAlias = 'DIF'
+
+
     absSensor = d.getSensorParameters('Absolute')
     difSensor = d.getSensorParameters('Differential')
 
-    OUTPUT_MIN = {'ABS': absSensor['DigitalCounts10Percent'], 'DIF' : difSensor['DigitalCounts10Percent'] }
-    OUTPUT_MAX = {'ABS': absSensor['DigitalCounts90Percent'], 'DIF' : difSensor['DigitalCounts90Percent']}
+    OUTPUT_MIN = {absSensorAlias: absSensor['DigitalCounts10Percent'], difSensorAlias : difSensor['DigitalCounts10Percent'] }
+    OUTPUT_MAX = {absSensorAlias: absSensor['DigitalCounts90Percent'], difSensorAlias : difSensor['DigitalCounts90Percent']}
 
-    PRESSURE_MIN = {'ABS': absSensor['SensorPressureMin'], 'DIF' : difSensor['SensorPressureMin']}
-    PRESSURE_MAX = {'ABS': absSensor['SensorPressureMax'],'DIF' :  difSensor['SensorPressureMax']}
+    PRESSURE_MIN = {absSensorAlias: absSensor['SensorPressureMin'], difSensorAlias : difSensor['SensorPressureMin']}
+    PRESSURE_MAX = {absSensorAlias: absSensor['SensorPressureMax'],difSensorAlias :  difSensor['SensorPressureMax']}
 
-    DISPLAY_RATIO = {'ABS': absSensor['Ratio'], 'DIF': difSensor['Ratio']}
-    DISPLAY_UNIT_OF_MEASURE = {'ABS': absSensor['DisplayUnitOfMeasure'], 'DIF': difSensor['DisplayUnitOfMeasure']}
+    DISPLAY_RATIO = {absSensorAlias: absSensor['Ratio'], difSensorAlias: difSensor['Ratio']}
+    DISPLAY_UNIT_OF_MEASURE = {absSensorAlias: absSensor['DisplayUnitOfMeasure'], difSensorAlias: difSensor['DisplayUnitOfMeasure']}
 
     TEMPERATURE_MAX = absSensor['TemperatureMax']
 
@@ -54,42 +58,27 @@ class ChannelModel(QObject):
 
     @property
     def valueAbs(self):
-        #return(round(sum(self._valueAbs)/Config.SAMPLES_QUANTITY,Config.ABS_PRESSURE_ROUNDING_PRECISION))
-        return(ChannelModel.DISPLAY_RATIO['ABS']*sum(self._valueAbs)/Config.SAMPLES_QUANTITY)
+        return(ChannelModel.DISPLAY_RATIO[ChannelModel.absSensorAlias]*sum(self._valueAbs)/Config.SAMPLES_QUANTITY)
         
-
     @valueAbs.setter
     def valueAbs(self,value):
-        #print(f'index={self._valueAbsIdx} curValue={value}')  
         self._valueAbs[self._valueAbsIdx] = value
         self._valueAbsIdx += 1
         if (self._valueAbsIdx==Config.SAMPLES_QUANTITY):
             self._valueAbsIdx = 0
-        self.absValueChanged.emit(ChannelModel.DISPLAY_RATIO['ABS']*sum(self._valueAbs)/Config.SAMPLES_QUANTITY)
+        self.absValueChanged.emit(ChannelModel.DISPLAY_RATIO[ChannelModel.absSensorAlias]*sum(self._valueAbs)/Config.SAMPLES_QUANTITY)
     
     @property
     def valueDif(self):
-        #return(round(sum(self._valueDif)/Config.SAMPLES_QUANTITY,Config.DIF_PRESSURE_ROUNDING_PRECISION))
-        return(ChannelModel.DISPLAY_RATIO['DIF']*sum(self._valueDif)/Config.SAMPLES_QUANTITY)
+        return(ChannelModel.DISPLAY_RATIO[ChannelModel.difSensorAlias]*sum(self._valueDif)/Config.SAMPLES_QUANTITY)
 
     @valueDif.setter
-    def valueDif(self,value):
-        #print(f'index={self._valueAbsIdx} curValue={value}')  
+    def valueDif(self,value): 
         self._valueDif[self._valueDifIdx] = value
         self._valueDifIdx += 1
         if (self._valueDifIdx==Config.SAMPLES_QUANTITY):
             self._valueDifIdx = 0
-        self.difValueChanged.emit(ChannelModel.DISPLAY_RATIO['DIF']*sum(self._valueDif)/Config.SAMPLES_QUANTITY)
-
-    def buttonPressed(self):
-        self.started = not self.started
-        if self.started:
-            self.timer.start(100)
-            self.butName = 'Stop'
-            #self.readSensor('ABS')
-        else:
-            self.timer.stop()
-            self.butName = 'Start'
+        self.difValueChanged.emit(ChannelModel.DISPLAY_RATIO[ChannelModel.difSensorAlias]*sum(self._valueDif)/Config.SAMPLES_QUANTITY)
 
     def startDurationTimer(self,start):
         if (start):
@@ -108,8 +97,7 @@ class ChannelModel(QObject):
             self.durationValueChanged.emit(self.curDurationValue)
 
     def readSensor(self,sensorType):
-        #while (self.butName=='Stop'):
-        if (sensorType == 'ABS'):
+        if (sensorType == ChannelModel.absSensorAlias):
             sensorPin = self.pinAbs
         else:
             sensorPin = self.pinDiff
@@ -130,15 +118,12 @@ class ChannelModel(QObject):
         
         output_t = ((res[2]<<8) | (res[3])) >> 5
         temperature = output_t*200/ChannelModel.TEMPERATURE_MAX-50
-        #if (sensorPin==477):
-        #    print(f'Датчик {sensorPin}: давление={pressure:.5f}; температура={temperature:.2f}; status={status_bits}')
         if (status_bits==0):
-            if (sensorType == 'ABS'):
+            if (sensorType == ChannelModel.absSensorAlias):
                 self.valueAbs = pressure
             else:
                 self.valueDif = pressure
         """
-        qqq
         print(f'Sensor data {res}')
         print('Decoded:')
 
