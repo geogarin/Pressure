@@ -1,12 +1,14 @@
 import sys
 import subprocess
+import os
 
 print(sys.path)
 
 #subprocess.Popen("onboard")
 #subprocess.Popen(["pkill", "onboard"])
 
-
+#command = "matchbox-keyboard"
+#os.system(command)
 
 
 aa="font=123"

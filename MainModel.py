@@ -51,7 +51,6 @@ class MainModel(QObject):
             self.startTestButtonName = Config.BUTTON_START_TEST
     
     def openSetupDialogButtonPressed(self):
-        print('open setup')
         setupModel = SetupModel()
         setupDialog = SetupView(setupModel)
         setupDialog.exec_()

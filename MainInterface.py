@@ -12,7 +12,7 @@ class MainInterface(QWidget):
         super().__init__()
         self._model = model
         self.initUI()
-
+        
     def initUI(self):
         self.showFullScreen()
 

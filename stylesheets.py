@@ -222,3 +222,38 @@ QPushButton
     min-width: 300px;
 }
 """
+
+# Setup Dialog Styles (SDS_)>>
+
+SDS_Button="""
+QPushButton
+{
+    border-width: 5px;
+    font-family: "Times";
+    font-size: 30pt;
+    min-width: 300px;
+}
+"""
+
+SDS_GroupBox="""
+QGroupBox
+{
+    DefaultFontStyle
+}
+QGroupBox::title {
+    subcontrol-origin: margin;
+    subcontrol-position: top left;
+    padding: 5 5px;
+    
+}
+""".replace('DefaultFontStyle',DefaultFontStyle)
+
+SDS_SpinBox="""
+QSpinBox
+{
+	border: 1px solid #FF17365D;
+    DefaultFontStyle
+}
+""".replace('DefaultFontStyle',DefaultFontStyle)
+# Setup Dialog Styles (SDS_)<<
+
