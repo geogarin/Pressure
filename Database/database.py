@@ -22,8 +22,15 @@ class data():
         return msgs
 
     def getSensorParameters(self,sensorType):
-        r = self.cursor.execute('SELECT * FROM SensorType WHERE Type = ?',(sensorType,)).fetchone()
+        r = self.cursor.execute('select * from SensorType where Type = ?',(sensorType,)).fetchone()
         return r
+
+    def getSetup(self):
+        r = self.cursor.execute('select * from Setup where Entry = 0').fetchone()
+        return r
+    
+    def saveSetup(self,fieldName,fieldValue):
+        r = self.cursor.execute('update Setup set ?=? where Entry = 0',(fieldName,fieldValue))
 
     def __del__(self):
         self.connection.close() 

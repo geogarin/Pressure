@@ -174,12 +174,29 @@ QLabel {
 }
 """.replace('DefaultFontStyle',DefaultFontStyle)
 
+QLabelStyle3="""
+QLabel#Label {
+    font-family: "Times";
+    font-size: 22pt;
+    font-weight:bold;
+    border: none;
+}
+"""
 
 QLineEditStyle="""
 QLineEdit {
 	border: 1px solid #FF17365D;
 	border-bottom-right-radius: 20px;
     background-color: rgb(135, 250, 211);
+    DefaultFontStyle
+}
+""".replace('DefaultFontStyle',DefaultFontStyle)
+
+SwitchButtonStyle="""
+QPushButton {
+	border: 1px solid #FF17365D;
+	border-bottom-right-radius: 20px;
+    
     DefaultFontStyle
 }
 """.replace('DefaultFontStyle',DefaultFontStyle)
@@ -224,7 +241,10 @@ QPushButton
 """
 
 # Setup Dialog Styles (SDS_)>>
-
+SDS_DefaultFontStyle="""
+    font-family: "Times";
+    font-size: 25pt;
+"""
 SDS_Button="""
 QPushButton
 {
@@ -238,7 +258,7 @@ QPushButton
 SDS_GroupBox="""
 QGroupBox
 {
-    DefaultFontStyle
+    SDS_DefaultFontStyle
 }
 QGroupBox::title {
     subcontrol-origin: margin;
@@ -246,14 +266,30 @@ QGroupBox::title {
     padding: 5 5px;
     
 }
-""".replace('DefaultFontStyle',DefaultFontStyle)
+""".replace('SDS_DefaultFontStyle',SDS_DefaultFontStyle)
 
-SDS_SpinBox="""
-QSpinBox
+SDS_LineEdit="""
+QLineEdit
 {
 	border: 1px solid #FF17365D;
-    DefaultFontStyle
+    SDS_DefaultFontStyle
+}
+""".replace('SDS_DefaultFontStyle',SDS_DefaultFontStyle)
+
+SDS_Label="""
+QLabel
+{
+    SDS_DefaultFontStyle
+}
+""".replace('SDS_DefaultFontStyle',SDS_DefaultFontStyle)
+# Setup Dialog Styles (SDS_)<<
+
+# Virtual keyboard >>
+VK_Button="""
+QPushButton
+{
+    DefaultFontStyle   
 }
 """.replace('DefaultFontStyle',DefaultFontStyle)
-# Setup Dialog Styles (SDS_)<<
+# Virtual keyboard <<
 

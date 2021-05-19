@@ -1,60 +1,62 @@
-import subprocess
+
 from SetupModel import SetupModel
 
-from PyQt5.QtWidgets import QDialog, QDialogButtonBox,QLineEdit, QGroupBox, QVBoxLayout,QWidget,QGridLayout,QProgressBar,QPushButton,QHBoxLayout,QMessageBox,QSpinBox
+from PyQt5.QtWidgets import QDialog, QDialogButtonBox, QFormLayout, QLabel,QLineEdit, QGroupBox, QVBoxLayout,QGridLayout,QPushButton,QHBoxLayout,QMessageBox
 from PyQt5 import QtGui
-from PyQt5.QtCore import QElapsedTimer, Qt,pyqtSlot
+from PyQt5.QtCore import Qt,pyqtSlot
 
 from VirtualKeyboard import VirtualKeyboard
+from QLineEditVK import QLineEditVK
 
 import Config
 import stylesheets
 
-class MatchBoxLineEdit(QLineEdit):
-    def __init__(self,parent):
-        super().__init__()
-        self.mainWindowObj = parent
-        #self.setFocusPolicy(Qt.ClickFocus)
-
-    def focusInEvent(self, e):
-        print(f'focus in {e.reason()}')
-        if (e.reason()==Qt.MouseFocusReason):
-            self.mainWindowObj.virtualKeyboardWidget.currentTextBox = self
-            self.mainWindowObj.virtualKeyboardWidget.show()
-        super(MatchBoxLineEdit, self).focusInEvent(e)
-
-
 class SetupView(QDialog):
     def __init__(self,model):
         super().__init__()
-        self.showFullScreen()
-        self.virtualKeyboardWidget = VirtualKeyboard(self)
         self._model = model
+        
 
+        self.virtualKeyboardWidget = VirtualKeyboard(self,int(self._model.setup['KeyboardButtonSize']),True)
+        
+        self.showFullScreen()
         self.setWindowTitle(Config.SETUP_DIALOG_NAME)
         self.mainLayout = QVBoxLayout()
         # Общие настройки >>
         self.groupCommon = QGroupBox(Config.SETUP_DIALOG_COMMON)
         self.groupCommon.setStyleSheet(stylesheets.SDS_GroupBox)
 
-        self.spinBoxHBox = QHBoxLayout()
-        le = QLineEdit('ssss')
-        self.spinBox = MatchBoxLineEdit(self) #QSpinBox()
-        #self.spinBox.setValue(50)
-        #self.spinBox.setText('50')
-        #self.spinBox.setStyleSheet(stylesheets.SDS_SpinBox)
-        self.spinBoxHBox.addWidget(le)
-        self.spinBoxHBox.addWidget(self.spinBox)
-        #QDialogButtonBox.C
+        self.formL = QFormLayout()
+        self.labelFilterDepth = QLabel(Config.SD_FILTER_DEPTH)
+        self.labelFilterDepth.setStyleSheet(stylesheets.SDS_Label)
 
+        self.filterDepthValue = QLineEditVK()
+        self.filterDepthValue.keyboard = VirtualKeyboard(self,1.5*int(self._model.setup['KeyboardButtonSize']),True) 
+        self.filterDepthValue.setStyleSheet(stylesheets.SDS_LineEdit)
+        self.filterDepthValue.setText(self._model.setup['FilterDepth'])
+        self.filterDepthValue.setFixedWidth(Config.SETUP_DIALOG_LINE_EDIT_FIELD_WIDTH)
+
+        self.formL.addRow(self.labelFilterDepth,self.filterDepthValue)
+
+        self.formR = QFormLayout()
+        self.labelKbButtonSize = QLabel(Config.SD_KEYBOARD_BUTTON_SIZE)
+        self.labelKbButtonSize.setStyleSheet(stylesheets.SDS_Label)
+
+        self.kbButtonSizeValue = QLineEditVK()
+        self.kbButtonSizeValue.keyboard = VirtualKeyboard(self,int(self._model.setup['KeyboardButtonSize']),False) 
+        self.kbButtonSizeValue.setStyleSheet(stylesheets.SDS_LineEdit)
+        self.kbButtonSizeValue.setFixedWidth(Config.SETUP_DIALOG_LINE_EDIT_FIELD_WIDTH)
+
+        self.formR.addRow(self.labelKbButtonSize,self.kbButtonSizeValue)
+        
         curRow = 0
         self.gridLayCommon = QGridLayout()
-        self.gridLayCommon.addLayout(self.spinBoxHBox,curRow,0)
+        self.gridLayCommon.addLayout(self.formL,curRow,0)
+        self.gridLayCommon.addLayout(self.formR,curRow,1)
         
-
-
         self.groupCommon.setLayout(self.gridLayCommon)
-        """
+
+        """        
         SAMPLES_QUANTITY = 50
         ABS_PRESSURE_ROUNDING_PRECISION = 2
         DIF_PRESSURE_ROUNDING_PRECISION = 2
@@ -105,4 +107,6 @@ class SetupView(QDialog):
             if returnValue == QMessageBox.Yes:
                 self._model.onSaveButtonPressed()         
         self.close()
+
+
 

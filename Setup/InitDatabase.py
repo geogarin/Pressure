@@ -62,60 +62,6 @@ CHANNELS = {
 #[tuple(_.values()) for _ in list(SENSORS.values())]
 #print(b)
 
-
-
-"""
-# Список датчиков
-SENSORS = {
-    "ABS_1":
-        {"Type"    : "Absolute",
-         "Name"    : "Abs 1",
-         "PIN"     : 479,
-         "Enabled" : 1},
-    "ABS_2":
-        {"Type"    : "Absolute",
-         "Name"    : "Abs 2",
-         "PIN"     : 492,
-         "Enabled" : 1},
-    "ABS_3":
-        {"Type"    : "Absolute",
-         "Name"    : "Abs 3",
-         "PIN"     : 490,
-         "Enabled" : 1},
-    "ABS_4":
-        {"Type"    : "Absolute",
-         "Name"    : "Abs 4",
-         "PIN"     : 434,
-         "Enabled" : 1},
-
-    "DIF_1":
-        {"Type"    : "Differential",
-         "Name"    : "Dif 1",
-         "PIN"     : 477,
-         "Enabled" : 1},
-
-    "DIF_2":
-        {"Type"    : "Differential",
-         "Name"    : "Dif 2",
-         "PIN"     : 476,
-         "Enabled" : 1},
-
-    "DIF_3":
-        {"Type"    : "Differential",
-         "Name"    : "Dif 3",
-         "PIN"     : 483,
-         "Enabled" : 1},
-
-    "DIF_4":
-        {"Type"    : "Differential",
-         "Name"    : "Dif 4",
-         "PIN"     : 480,
-         "Enabled" : 1}         
-} 
-"""
-
-
-
 connection = sqlite3.connect(DATABASE_PATH+DATABASE_NAME)
 connection.row_factory = sqlite3.Row
 connection.isolation_level = None
@@ -197,6 +143,17 @@ cursor.execute('''create table if not exists Channels (
                ''')
 connection.commit()
 cursor.executemany('insert into Channels (Name,PinDif,PinAbs,Enabled) values (?,?,?,?)',[(k,*v.values()) for k,v in CHANNELS.items()])
+
+cursor.execute('drop table if exists Setup')
+cursor.execute('''create table if not exists Setup (
+                    Entry integer primary key not null,
+                    FilterDepth integer,
+                    KeyboardButtonSize integer
+                    )
+               ''')
+connection.commit()
+cursor.execute('insert into Setup (Entry,FilterDepth,KeyboardButtonSize) values (?,?,?)',(0,50,70))
+connection.commit()
 
 print('-------------')
 cursor.execute(f'select * from SensorType')

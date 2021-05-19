@@ -10,10 +10,10 @@ class SetupModel(QObject):
         self.setupSaved = True
         self.d = data()
         
-        r = self.d.getSetup()
-        self.setup = [list(r1) for r1 in r] 
-
-        self.setupKeys = r.keys()
+        stp = self.d.getSetup()
+        self.setupKeys = stp.keys()
+        self.setup = {k:str(stp[k]) for k in self.setupKeys if k!='Entry'}
+        
 
     def onSaveButtonPressed(self):
         print('saving')
@@ -28,8 +28,9 @@ if __name__=='__main__':
     r = d.getSetup()
     k = r.keys()
     z = zip(r,k)
-    setup = [list(r1) for r1 in r] 
-    print()
+    #setup = [list(r1) for r1 in r] 
+    setup = {k1:str(r[k1]) for k1 in k if k1!='Entry'}
+    print(f'{setup} ')
     for position, name in zip(k, r):
         print(f'{position} = {name}')
 

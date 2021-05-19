@@ -5,6 +5,8 @@ from PyQt5.QtCore import Qt,QPoint, QRect, QSize, pyqtSlot
 import Config
 from Model import ChannelModel
 from CircularProgressBar import QRoundProgressBar
+from SwitchButton import SwitchButton
+from RoundedRect import RoundedRect
 
 import stylesheets
 
@@ -34,13 +36,23 @@ class ChannelView(QWidget):
         # Выбор теста <<
 
         # Тест прочности >>
-        self.testStrength = QCheckBox(Config.CHECKBOX_STRENGTH_TEST)
-        self.testStrength.setStyleSheet(stylesheets.QCheckBoxStyle2)
+        #self.testStrength = QCheckBox(Config.CHECKBOX_STRENGTH_TEST)
+        #self.testStrength.setStyleSheet(stylesheets.QCheckBoxStyle2)
+        self.testStrengthLabel = QLabel(Config.CHECKBOX_STRENGTH_TEST)
+        self.testStrengthLabel.setObjectName('Label')
+        self.testStrengthLabel.setStyleSheet(stylesheets.QLabelStyle3)
+        self.testStrength = SwitchButton(None,'',Config.BUTTON_VALUE_ON,Config.BUTTON_VALUE_OFF,200,50,10,100)
+        self.testStrength.setStyleSheet(stylesheets.SwitchButtonStyle)
         # Тест прочности <<
 
         # Тест герметичности >>
-        self.testSealed = QCheckBox(Config.CHECKBOX_SEALED_TEST)
-        self.testSealed.setStyleSheet(stylesheets.QCheckBoxStyle2)
+        #self.testSealed = QCheckBox(Config.CHECKBOX_SEALED_TEST)
+        #self.testSealed.setStyleSheet(stylesheets.QCheckBoxStyle2)
+        self.testSealedLabel = QLabel(Config.CHECKBOX_SEALED_TEST)
+        self.testSealedLabel.setObjectName('Label')
+        self.testSealedLabel.setStyleSheet(stylesheets.QLabelStyle3)
+        self.testSealed = SwitchButton(None,'',Config.BUTTON_VALUE_ON,Config.BUTTON_VALUE_OFF,200,50,10,100)
+        self.testSealed.setStyleSheet(stylesheets.SwitchButtonStyle)
         # Тест герметичности <<
 
         # Название теста >>
@@ -71,6 +83,11 @@ class ChannelView(QWidget):
         self.measureAbs.setStyleSheet(stylesheets.QLineEditStyle)
         # значения с датчиков <<
 
+        # результат прочности >>
+        self.resultStrength = RoundedRect()
+        self.resultStrength.setValue(1)
+        # результат прочности <<
+        
         # таймер >>
         self.stepDuration = QRoundProgressBar()
         self.stepDuration.setFixedSize(200, 200)
@@ -90,14 +107,30 @@ class ChannelView(QWidget):
         self.stepDuration.setValue(0)
         # таймер <<
 
+        # результат герметичности >>
+        self.resultSealed = RoundedRect()
+        self.resultSealed.setValue(-1)
+        # результат герметичности <<
+
+        self.res = QHBoxLayout()
+        self.res.addWidget(self.resultStrength)
+        self.res.addWidget(self.stepDuration)
+        self.res.addWidget(self.resultSealed )
+
+
         curRow = 0
         curCol = 0
         self.mainLayout = QGridLayout(self.frame) 
         self.mainLayout.addWidget(self.testName,curRow,curCol,1,2) 
         curRow += 1
-        self.mainLayout.addWidget(self.testStrength,curRow,curCol,1,2)
+        #self.mainLayout.addWidget(self.testStrength,curRow,curCol,1,2)
+        #curRow += 1
+        #self.mainLayout.addWidget(self.testSealed,curRow,curCol,1,2)
+        self.mainLayout.addWidget(self.testStrengthLabel,curRow,curCol,1,1,Qt.AlignCenter)
+        self.mainLayout.addWidget(self.testSealedLabel,curRow,curCol+1,1,1,Qt.AlignCenter)
         curRow += 1
-        self.mainLayout.addWidget(self.testSealed,curRow,curCol,1,2)
+        self.mainLayout.addWidget(self.testStrength,curRow,curCol)
+        self.mainLayout.addWidget(self.testSealed,curRow,curCol+1)
         curRow += 1
         self.mainLayout.addWidget(self.testStage,curRow,curCol,1,2)
         curRow += 1
@@ -109,7 +142,8 @@ class ChannelView(QWidget):
         self.mainLayout.addWidget(self.measureDiff,curRow,curCol)
         self.mainLayout.addWidget(self.measureAbs,curRow,curCol+1)
         curRow += 1
-        self.mainLayout.addWidget(self.stepDuration,curRow,curCol,1,2,Qt.AlignCenter) 
+        #self.mainLayout.addWidget(self.stepDuration,curRow,curCol,1,2,Qt.AlignCenter) 
+        self.mainLayout.addLayout(self.res,curRow,curCol,1,2,Qt.AlignCenter) 
         curRow += 1
 
 
