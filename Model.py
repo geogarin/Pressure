@@ -39,6 +39,12 @@ class ChannelModel(QObject):
         
         self.pinAbs = pinAbs
         self.pinDiff = pinDiff
+
+        self.deltaAbs = 0
+        self.deltaDif = 0
+
+
+
         self.initSensorValues()
 
         self.minDurationValue = 0
@@ -50,35 +56,56 @@ class ChannelModel(QObject):
         self.durationTimerStarted = False
     
     def initSensorValues(self):
-        self._valueAbs = [0] * Config.SAMPLES_QUANTITY
+        #self._valueAbs = [0] * Config.SAMPLES_QUANTITY
         self._valueAbsIdx = 0
+        self._curValAbs = 0
+        self._prevValAbs = 0
 
-        self._valueDif = [0] * Config.SAMPLES_QUANTITY
+        #self._valueDif = [0] * Config.SAMPLES_QUANTITY
         self._valueDifIdx = 0
+        self._curValDif = 0
+        self._prevValDif = 0
 
     @property
     def valueAbs(self):
-        return(ChannelModel.DISPLAY_RATIO[ChannelModel.absSensorAlias]*sum(self._valueAbs)/Config.SAMPLES_QUANTITY)
+        #return(ChannelModel.DISPLAY_RATIO[ChannelModel.absSensorAlias]*sum(self._valueAbs)/Config.SAMPLES_QUANTITY)
+        return(ChannelModel.DISPLAY_RATIO[ChannelModel.absSensorAlias]*self._curValAbs)
         
     @valueAbs.setter
     def valueAbs(self,value):
-        self._valueAbs[self._valueAbsIdx] = value
-        self._valueAbsIdx += 1
-        if (self._valueAbsIdx==Config.SAMPLES_QUANTITY):
-            self._valueAbsIdx = 0
-        self.absValueChanged.emit(ChannelModel.DISPLAY_RATIO[ChannelModel.absSensorAlias]*sum(self._valueAbs)/Config.SAMPLES_QUANTITY)
+        if (self._valueAbsIdx < Config.SAMPLES_QUANTITY):
+            self._valueAbsIdx += 1
+        self._curValAbs = (self._prevValAbs*(self._valueAbsIdx-1)+value)/self._valueAbsIdx
+
+        #if (self.channelName=='Канал 1'):
+        #    print(f'{self._valueAbsIdx};{self._prevValAbs};{value};{self._curValAbs};{self._curValAbs*ChannelModel.DISPLAY_RATIO[ChannelModel.absSensorAlias]}')
+        self._prevValAbs = self._curValAbs
+        self.absValueChanged.emit(self.deltaAbs+ChannelModel.DISPLAY_RATIO[ChannelModel.absSensorAlias]*self._curValAbs)
+
+
+        #self._valueAbs[self._valueAbsIdx] = value
+        #self._valueAbsIdx += 1
+        #if (self._valueAbsIdx==Config.SAMPLES_QUANTITY):
+        #    self._valueAbsIdx = 0
+        #self.absValueChanged.emit(ChannelModel.DISPLAY_RATIO[ChannelModel.absSensorAlias]*sum(self._valueAbs)/Config.SAMPLES_QUANTITY)
     
     @property
     def valueDif(self):
-        return(ChannelModel.DISPLAY_RATIO[ChannelModel.difSensorAlias]*sum(self._valueDif)/Config.SAMPLES_QUANTITY)
+        #return(ChannelModel.DISPLAY_RATIO[ChannelModel.difSensorAlias]*sum(self._valueDif)/Config.SAMPLES_QUANTITY)
+        return(ChannelModel.DISPLAY_RATIO[ChannelModel.difSensorAlias]*self._curValDif+self.deltaDif)
 
     @valueDif.setter
-    def valueDif(self,value): 
-        self._valueDif[self._valueDifIdx] = value
-        self._valueDifIdx += 1
-        if (self._valueDifIdx==Config.SAMPLES_QUANTITY):
-            self._valueDifIdx = 0
-        self.difValueChanged.emit(ChannelModel.DISPLAY_RATIO[ChannelModel.difSensorAlias]*sum(self._valueDif)/Config.SAMPLES_QUANTITY)
+    def valueDif(self,value):
+        if (self._valueDifIdx < Config.SAMPLES_QUANTITY):
+            self._valueDifIdx += 1
+        self._curValDif = (self._prevValDif*(self._valueDifIdx-1)+value)/self._valueDifIdx
+        self._prevValDif = self._curValDif
+        self.difValueChanged.emit(self.deltaDif+ChannelModel.DISPLAY_RATIO[ChannelModel.difSensorAlias]*self._curValDif) 
+        #self._valueDif[self._valueDifIdx] = value
+        #self._valueDifIdx += 1
+        #if (self._valueDifIdx==Config.SAMPLES_QUANTITY):
+        #    self._valueDifIdx = 0
+        #self.difValueChanged.emit(ChannelModel.DISPLAY_RATIO[ChannelModel.difSensorAlias]*sum(self._valueDif)/Config.SAMPLES_QUANTITY)
 
     def startDurationTimer(self,start):
         if (start):
@@ -114,15 +141,18 @@ class ChannelModel(QObject):
         status_bits = res[0] >> 6
 
         output = ((res[0]&63)<<8)|res[1]
-        pressure = (output-ChannelModel.OUTPUT_MIN[sensorType])*(ChannelModel.PRESSURE_MAX[sensorType]-ChannelModel.PRESSURE_MIN[sensorType])/(ChannelModel.OUTPUT_MAX[sensorType]-ChannelModel.OUTPUT_MIN[sensorType])+ChannelModel.PRESSURE_MIN[sensorType]
-        
-        output_t = ((res[2]<<8) | (res[3])) >> 5
-        temperature = output_t*200/ChannelModel.TEMPERATURE_MAX-50
-        if (status_bits==0):
-            if (sensorType == ChannelModel.absSensorAlias):
-                self.valueAbs = pressure
-            else:
-                self.valueDif = pressure
+        if ((output>=ChannelModel.OUTPUT_MIN[sensorType])and(output<=ChannelModel.OUTPUT_MAX[sensorType])):
+            pressure = (output-ChannelModel.OUTPUT_MIN[sensorType])*(ChannelModel.PRESSURE_MAX[sensorType]-ChannelModel.PRESSURE_MIN[sensorType])/(ChannelModel.OUTPUT_MAX[sensorType]-ChannelModel.OUTPUT_MIN[sensorType])+ChannelModel.PRESSURE_MIN[sensorType]
+            #output_t = ((res[2]<<8) | (res[3])) >> 5
+            #temperature = output_t*200/ChannelModel.TEMPERATURE_MAX-50
+            #if (self.channelName=='Канал 1') and (sensorType=='ABS'):
+            #    print(f'{sensorType};min={ChannelModel.OUTPUT_MIN[sensorType]};output={output};max={ChannelModel.OUTPUT_MAX[sensorType]};pressure={pressure};pressure(Pa)={pressure*100};t={temperature}')
+            
+            if (status_bits==0):
+                if (sensorType == ChannelModel.absSensorAlias):
+                    self.valueAbs = pressure
+                else:
+                    self.valueDif = pressure
         """
         print(f'Sensor data {res}')
         print('Decoded:')

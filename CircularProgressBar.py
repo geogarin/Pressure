@@ -160,7 +160,8 @@ class QRoundProgressBar(QWidget):
         if bs == self.StyleDonut:
             #pen = QtGui.QPen(QtCore.Qt.green, 0)
             #pen.setCapStyle(QtCore.Qt.RoundCap)
-            p.setPen(QtGui.QPen(self.palette().shadow().color(), self.outlinePenWidth))
+            #p.setPen(QtGui.QPen(self.palette().shadow().color(), self.outlinePenWidth))
+            p.setPen(QtGui.QPen(QtGui.QColor(stylesheets.BACKGROUND_COLOR[0],stylesheets.BACKGROUND_COLOR[1],stylesheets.BACKGROUND_COLOR[2]), self.outlinePenWidth))
             #p.setPen(pen)
             p.setBrush(self.palette().base())
             p.drawEllipse(baseRect)

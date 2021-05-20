@@ -1,6 +1,7 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import Qt, QRect
 import Config
+import stylesheets
 
 class SwitchButton(QtWidgets.QPushButton):
     def __init__(self, parent = None,backText='',onText='',offText='',width=200,height=30,radius=10,selectorWidth=50):
@@ -25,7 +26,7 @@ class SwitchButton(QtWidgets.QPushButton):
         painter = QtGui.QPainter(self)
         painter.setRenderHint(QtGui.QPainter.Antialiasing)
         painter.translate(center)
-        painter.setBrush(QtGui.QColor(232,250,128))
+        painter.setBrush(QtGui.QColor(stylesheets.TimerInnerBackGround[0],stylesheets.TimerInnerBackGround[1],stylesheets.TimerInnerBackGround[2]))
 
         pen = QtGui.QPen(Qt.black)
         pen.setWidth(2)

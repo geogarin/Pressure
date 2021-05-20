@@ -10,6 +10,12 @@ print(sys.path)
 #command = "matchbox-keyboard"
 #os.system(command)
 
+BACKGROUND_COLOR = (70,140,226)  # голубой фон
+
+DefaultBackgroundColor = f"background-color: rgbBACKGROUND_COLOR;".replace('BACKGROUND_COLOR',str(BACKGROUND_COLOR))
+
+print(DefaultBackgroundColor)
+
 
 aa="font=123"
 

@@ -44,7 +44,7 @@ class MainModel(QObject):
         if self.testStarted:
             self.initSensorValuesList()
 
-            self.timer.start(100)
+            self.timer.start(Config.SENSORS_REQUEST_PERIOD)
             self.startTestButtonName = Config.BUTTON_STOP_TEST
         else:
             self.timer.stop()

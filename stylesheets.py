@@ -98,8 +98,9 @@ background-color: white;
 
 
 #-------------------------------------------------
+BACKGROUND_COLOR = (70,140,226)  # голубой фон
 TimerInnerBackGround = (232,250,128) # желтый фон на таймере
-DefaultBackgroundColor = "background-color: rgb(70, 140, 226);"
+DefaultBackgroundColor = f"background-color: rgbBACKGROUND_COLOR;".replace('BACKGROUND_COLOR',str(BACKGROUND_COLOR))
 DefaultFontStyle="""
     font-family: "Times";
     font-size: 33pt;
