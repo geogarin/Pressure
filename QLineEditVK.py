@@ -11,7 +11,7 @@ class QLineEditVK(QLineEdit):
         self.ignoreOpenKeyboard = False
 
     def focusInEvent(self, e):
-        print(f'focus in {e.reason()}')
+        #print(f'focus in {e.reason()}')
         if (e.reason()==Qt.MouseFocusReason):
         #if (not self.ignoreOpenKeyboard):
         #if (True):

@@ -24,8 +24,9 @@ class VirtualKeyboard(QDialog):
     def initDigitKeyboard(self):
         layout = QGridLayout()
         positions = [(i, j) for i in range(3) for j in range(3)]
-       
-        for position, name in zip(positions, Config.KEYBOARD_CHARS):
+        keys=[((i, j),Config.KEYBOARD_CHARS[i][j]) for i in range(3) for j in range(3)]
+        #for position, name in zip(positions, Config.KEYBOARD_CHARS):
+        for position, name in keys:
             if name == ' ':
                 continue
             button = QPushButton(name)
@@ -37,7 +38,7 @@ class VirtualKeyboard(QDialog):
             self.signalMapper.setMapping(button, button.KEY_CHAR)
             layout.addWidget(button, *position)
 
-        name = Config.KEYBOARD_CHARS[9]
+        name = Config.KEYBOARD_CHARS[0][9]
         buttonZero = QPushButton(name)
         buttonZero.setFixedHeight(self.buttonSize)
         buttonZero.setFixedWidth(self.buttonSize)
@@ -77,9 +78,13 @@ class VirtualKeyboard(QDialog):
 
     def initFullKeyboard(self):
         layout = QGridLayout()
-        positions = [(i, j) for i in range(4) for j in range(10)]
+        cols = len(Config.KEYBOARD_CHARS[0])
+        rows = len(Config.KEYBOARD_CHARS)
+        #positions = [(i, j) for i in range(rows) for j in range(cols))]
+        keys=[((i, j),Config.KEYBOARD_CHARS[i][j]) for i in range(rows) for j in range(cols)]
        
-        for position, name in zip(positions, Config.KEYBOARD_CHARS):
+        #for position, name in zip(positions, Config.KEYBOARD_CHARS):
+        for position, name in keys:
             if name == ' ':
                 continue
             button = QPushButton(name)
@@ -97,7 +102,7 @@ class VirtualKeyboard(QDialog):
         space_button.setFixedWidth(6*self.buttonSize)
         space_button.setStyleSheet(stylesheets.VK_Button)        
         space_button.KEY_CHAR = Qt.Key_Space
-        layout.addWidget(space_button, 5, 2, 1, 6,Qt.AlignCenter)
+        layout.addWidget(space_button, rows+1, 2, 1, cols-2-2,Qt.AlignCenter)
         space_button.clicked.connect(self.signalMapper.map)
         self.signalMapper.setMapping(space_button, space_button.KEY_CHAR)
         
@@ -107,7 +112,7 @@ class VirtualKeyboard(QDialog):
         back_button.setFixedWidth(1.5*self.buttonSize)
         back_button.setStyleSheet(stylesheets.VK_Button)
         back_button.KEY_CHAR = Qt.Key_Backspace
-        layout.addWidget(back_button, 0, 10, 1, 1,Qt.AlignRight)
+        layout.addWidget(back_button, 0, cols, 1, 1,Qt.AlignRight)
         back_button.clicked.connect(self.signalMapper.map)
         self.signalMapper.setMapping(back_button, back_button.KEY_CHAR)
         
@@ -117,12 +122,12 @@ class VirtualKeyboard(QDialog):
         done_button.setFixedWidth(2.5*self.buttonSize)
         done_button.setStyleSheet(stylesheets.VK_Button)
         done_button.KEY_CHAR = Qt.Key_Home
-        layout.addWidget(done_button, 2, 9, 2, 2,Qt.AlignRight|Qt.AlignBottom)
+        layout.addWidget(done_button, 2, cols-1, 2, 2,Qt.AlignRight|Qt.AlignBottom)
         done_button.clicked.connect(self.signalMapper.map)
         self.signalMapper.setMapping(done_button, done_button.KEY_CHAR)
         
 
-        self.setGeometry(0, 0, 11*self.buttonSize, 5*self.buttonSize)
+        self.setGeometry(0, 0, (cols-1)*self.buttonSize, (rows+1)*self.buttonSize)
         fg = self.frameGeometry()
         g=QtGui.QGuiApplication.primaryScreen().geometry()
         

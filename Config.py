@@ -33,7 +33,12 @@ SETUP_DIALOG_CLOSE = 'Закрыть'
 
 SETUP_DIALOG_LINE_EDIT_FIELD_WIDTH = 200
 # Символы клавиатуры
-KEYBOARD_CHARS='1234567890qwertyuiopasdfghjkl zxcvbnm,. ' # 4 ряда по 10 символов (недостающие дополнены пробелами)
+KEYBOARD_CHARS=['1234567890-+',
+                'йцукенгшщзхъ',
+                'фывапролджэ ',
+                'ячсмитьбю., ']
+
+#KEYBOARD_CHARS_ENG='1234567890qwertyuiopasdfghjkl zxcvbnm,. ' # 4 ряда по 10 символов (недостающие дополнены пробелами)
 KEYBOARD_BUTTON_DELETE='Del'
 KEYBOARD_BUTTON_DONE='Enter'
 KEYBOARD_BUTTON_DELETE_DIGIT='<='
@@ -42,14 +47,17 @@ KEYBOARD_BUTTON_DELETE_DIGIT='<='
 SAMPLES_QUANTITY = 50
 
 # Точность округления показаний давления (знаков после запятой)
-ABS_PRESSURE_ROUNDING_PRECISION = 0
-DIF_PRESSURE_ROUNDING_PRECISION = 0
+ABS_PRESSURE_ROUNDING_PRECISION = 2
+DIF_PRESSURE_ROUNDING_PRECISION = 2
 
 if __name__=='__main__':
-    print(f'{len(KEYBOARD_CHARS)}  {KEYBOARD_CHARS[38]}')
+    #print(f'{len(KEYBOARD_CHARS)}  {KEYBOARD_CHARS[38]}')
     #positions = [(i, j) for i in range(4) for j in range(10)]
-    positions = [(i, j) for i in range(3) for j in range(3)]
-    print(positions)
-    
-    for position, name in zip(positions, KEYBOARD_CHARS):
+    p = [((i, j),KEYBOARD_CHARS[i][j]) for i in range(4) for j in range(12)]
+    print(p)
+
+    m = len(KEYBOARD_CHARS)
+    print(f'{KEYBOARD_CHARS[0][3]} {m}') 
+    for position, name in p:
         print(f'{position} = {name}')
+    #for i in range(4):
