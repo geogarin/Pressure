@@ -1,5 +1,5 @@
 from PyQt5 import QtCore
-from PyQt5.QtCore import Qt,QObject,pyqtSignal,QTimer
+from PyQt5.QtCore import Qt,QObject,pyqtSignal,QTimer, pyqtSlot
 
 from Database.database import data
 
@@ -14,9 +14,12 @@ class SetupModel(QObject):
         self.setupKeys = stp.keys()
         self.setup = {k:str(stp[k]) for k in self.setupKeys if k!='Entry'}
         
+    @pyqtSlot(str,str)
+    def onSave(self,name,value):
+        print(f'saving {name}={value}')
+        self.d.saveSetup(name,value)
 
-    def onSaveButtonPressed(self):
-        print('saving')
+
 
     def onCloseButtonPressed(self):
         # что-нибудь сохранить перед выходом
@@ -27,7 +30,9 @@ if __name__=='__main__':
     d = data()
     r = d.getSetup()
     k = r.keys()
+    k2 = [i for i in k if i!='Entry']
     z = zip(r,k)
+    print(f'keys={k2}')
     #setup = [list(r1) for r1 in r] 
     setup = {k1:str(r[k1]) for k1 in k if k1!='Entry'}
     print(f'{setup} ')

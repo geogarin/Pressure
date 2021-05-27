@@ -44,7 +44,9 @@ KEYBOARD_BUTTON_DONE='Enter'
 KEYBOARD_BUTTON_DELETE_DIGIT='<='
 
 # Кол-во отсчетов для усреднения
-SAMPLES_QUANTITY = 50
+MAX_SAMPLES_QUANTITY = 1000
+MIN_KB_BUTTON_SIZE = 50
+MAX_KB_BUTTON_SIZE = 100
 
 # Точность округления показаний давления (знаков после запятой)
 ABS_PRESSURE_ROUNDING_PRECISION = 2

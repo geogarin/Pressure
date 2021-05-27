@@ -1,11 +1,12 @@
 from PyQt5.QtWidgets import QDialog, QGridLayout,QPushButton
 from PyQt5 import QtGui
-from PyQt5.QtCore import  Qt,pyqtSlot,QSignalMapper
+from PyQt5.QtCore import  Qt, pyqtSignal,pyqtSlot,QSignalMapper
 
 import Config
 import stylesheets
 
 class VirtualKeyboard(QDialog):
+    
     def __init__(self,parent=None,buttonSize=70,digitsOnly=False):
         super().__init__(parent)
         self.currentTextBox = None
@@ -24,7 +25,7 @@ class VirtualKeyboard(QDialog):
     def initDigitKeyboard(self):
         layout = QGridLayout()
         positions = [(i, j) for i in range(3) for j in range(3)]
-        keys=[((i, j),Config.KEYBOARD_CHARS[i][j]) for i in range(3) for j in range(3)]
+        keys=[((i, j),Config.KEYBOARD_CHARS[0][3*i+j]) for i in range(3) for j in range(3)]
         #for position, name in zip(positions, Config.KEYBOARD_CHARS):
         for position, name in keys:
             if name == ' ':
@@ -150,4 +151,5 @@ class VirtualKeyboard(QDialog):
 
         if (char_ord==Qt.Key_Home):
             self.hide()
+            self.currentTextBox.editDone.emit()
             

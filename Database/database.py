@@ -30,7 +30,7 @@ class data():
         return r
     
     def saveSetup(self,fieldName,fieldValue):
-        r = self.cursor.execute('update Setup set ?=? where Entry = 0',(fieldName,fieldValue))
+        r = self.cursor.execute('update Setup set '+fieldName+' = ? where Entry = 0',(fieldValue,))
 
     def __del__(self):
         self.connection.close() 

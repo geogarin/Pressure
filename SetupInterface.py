@@ -33,7 +33,8 @@ class SetupView(QDialog):
         self.filterDepthValue = QLineEditVK()
         self.filterDepthValue.keyboard = VirtualKeyboard(self,1.5*int(self._model.setup['KeyboardButtonSize']),True) 
         self.filterDepthValue.setStyleSheet(stylesheets.SDS_LineEdit)
-        self.filterDepthValue.setText(self._model.setup['FilterDepth'])
+        self.filterDepthValue.name = 'FilterDepth'
+        self.filterDepthValue.setText(self._model.setup[self.filterDepthValue.name])
         self.filterDepthValue.setFixedWidth(Config.SETUP_DIALOG_LINE_EDIT_FIELD_WIDTH)
 
         self.formL.addRow(self.labelFilterDepth,self.filterDepthValue)
@@ -43,7 +44,9 @@ class SetupView(QDialog):
         self.labelKbButtonSize.setStyleSheet(stylesheets.SDS_Label)
 
         self.kbButtonSizeValue = QLineEditVK()
-        self.kbButtonSizeValue.keyboard = VirtualKeyboard(self,int(self._model.setup['KeyboardButtonSize']),False) 
+        self.kbButtonSizeValue.keyboard = VirtualKeyboard(self,int(self._model.setup['KeyboardButtonSize']),True)
+        self.kbButtonSizeValue.name = 'KeyboardButtonSize' 
+        self.kbButtonSizeValue.setText(self._model.setup[self.kbButtonSizeValue.name])
         self.kbButtonSizeValue.setStyleSheet(stylesheets.SDS_LineEdit)
         self.kbButtonSizeValue.setFixedWidth(Config.SETUP_DIALOG_LINE_EDIT_FIELD_WIDTH)
 
@@ -95,6 +98,27 @@ class SetupView(QDialog):
         self.closeButton.clicked.connect(lambda: self._model.onCloseButtonPressed())
         self._model.closeButtonPressed.connect(self.onCloseButtonPressed)
 
+    
+        self.filterDepthValue.editDone.connect(self.filterDepthValueEdited)
+        self.kbButtonSizeValue.editDone.connect(self.kbButtonSizeValueEdited)
+
+
+    @pyqtSlot()
+    def filterDepthValueEdited(self):
+        val = int(self.filterDepthValue.text())
+        if (val<0): val=0
+        if (val>Config.MAX_SAMPLES_QUANTITY): val=Config.MAX_SAMPLES_QUANTITY
+        self.filterDepthValue.setText(str(val))
+        self._model.onSave(self.filterDepthValue.name,val)
+
+    @pyqtSlot()
+    def kbButtonSizeValueEdited(self):
+        val = int(self.kbButtonSizeValue.text())
+        if (val<Config.MIN_KB_BUTTON_SIZE): val=Config.MIN_KB_BUTTON_SIZE
+        if (val>Config.MAX_KB_BUTTON_SIZE): val=Config.MAX_KB_BUTTON_SIZE
+        self.kbButtonSizeValue.setText(str(val))
+        self._model.onSave(self.kbButtonSizeValue.name,val)
+        
     @pyqtSlot(bool)
     def onCloseButtonPressed(self,setupSaved):
         if (not setupSaved):
@@ -104,8 +128,8 @@ class SetupView(QDialog):
             msgBox.setWindowTitle(Config.SETUP_DIALOG_NAME)
             msgBox.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
             returnValue = msgBox.exec()
-            if returnValue == QMessageBox.Yes:
-                self._model.onSaveButtonPressed()         
+            #if returnValue == QMessageBox.Yes:
+            #    self._model.onSaveButtonPressed()         
         self.close()
 
 

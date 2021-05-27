@@ -15,12 +15,16 @@ class ChannelModel(QObject):
     #butNameChanged = pyqtSignal(str)
 
     d = data()
+    
     absSensorAlias = 'ABS'
     difSensorAlias = 'DIF'
 
 
     absSensor = d.getSensorParameters('Absolute')
     difSensor = d.getSensorParameters('Differential')
+    
+    _setup = d.getSetup()
+    SAMPLES_QUANTITY = _setup['FilterDepth']
 
     OUTPUT_MIN = {absSensorAlias: absSensor['DigitalCounts10Percent'], difSensorAlias : difSensor['DigitalCounts10Percent'] }
     OUTPUT_MAX = {absSensorAlias: absSensor['DigitalCounts90Percent'], difSensorAlias : difSensor['DigitalCounts90Percent']}
@@ -56,24 +60,24 @@ class ChannelModel(QObject):
         self.durationTimerStarted = False
     
     def initSensorValues(self):
-        #self._valueAbs = [0] * Config.SAMPLES_QUANTITY
+        #self._valueAbs = [0] * ChannelModel.SAMPLES_QUANTITY
         self._valueAbsIdx = 0
         self._curValAbs = 0
         self._prevValAbs = 0
 
-        #self._valueDif = [0] * Config.SAMPLES_QUANTITY
+        #self._valueDif = [0] * ChannelModel.SAMPLES_QUANTITY
         self._valueDifIdx = 0
         self._curValDif = 0
         self._prevValDif = 0
 
     @property
     def valueAbs(self):
-        #return(ChannelModel.DISPLAY_RATIO[ChannelModel.absSensorAlias]*sum(self._valueAbs)/Config.SAMPLES_QUANTITY)
+        #return(ChannelModel.DISPLAY_RATIO[ChannelModel.absSensorAlias]*sum(self._valueAbs)/ChannelModel.SAMPLES_QUANTITY)
         return(ChannelModel.DISPLAY_RATIO[ChannelModel.absSensorAlias]*self._curValAbs)
         
     @valueAbs.setter
     def valueAbs(self,value):
-        if (self._valueAbsIdx < Config.SAMPLES_QUANTITY):
+        if (self._valueAbsIdx < ChannelModel.SAMPLES_QUANTITY):
             self._valueAbsIdx += 1
         self._curValAbs = (self._prevValAbs*(self._valueAbsIdx-1)+value)/self._valueAbsIdx
 
@@ -85,27 +89,27 @@ class ChannelModel(QObject):
 
         #self._valueAbs[self._valueAbsIdx] = value
         #self._valueAbsIdx += 1
-        #if (self._valueAbsIdx==Config.SAMPLES_QUANTITY):
+        #if (self._valueAbsIdx==ChannelModel.SAMPLES_QUANTITY):
         #    self._valueAbsIdx = 0
-        #self.absValueChanged.emit(ChannelModel.DISPLAY_RATIO[ChannelModel.absSensorAlias]*sum(self._valueAbs)/Config.SAMPLES_QUANTITY)
+        #self.absValueChanged.emit(ChannelModel.DISPLAY_RATIO[ChannelModel.absSensorAlias]*sum(self._valueAbs)/ChannelModel.SAMPLES_QUANTITY)
     
     @property
     def valueDif(self):
-        #return(ChannelModel.DISPLAY_RATIO[ChannelModel.difSensorAlias]*sum(self._valueDif)/Config.SAMPLES_QUANTITY)
+        #return(ChannelModel.DISPLAY_RATIO[ChannelModel.difSensorAlias]*sum(self._valueDif)/ChannelModel.SAMPLES_QUANTITY)
         return(ChannelModel.DISPLAY_RATIO[ChannelModel.difSensorAlias]*self._curValDif+self.deltaDif)
 
     @valueDif.setter
     def valueDif(self,value):
-        if (self._valueDifIdx < Config.SAMPLES_QUANTITY):
+        if (self._valueDifIdx < ChannelModel.SAMPLES_QUANTITY):
             self._valueDifIdx += 1
         self._curValDif = (self._prevValDif*(self._valueDifIdx-1)+value)/self._valueDifIdx
         self._prevValDif = self._curValDif
         self.difValueChanged.emit(self.deltaDif+ChannelModel.DISPLAY_RATIO[ChannelModel.difSensorAlias]*self._curValDif) 
         #self._valueDif[self._valueDifIdx] = value
         #self._valueDifIdx += 1
-        #if (self._valueDifIdx==Config.SAMPLES_QUANTITY):
+        #if (self._valueDifIdx==ChannelModel.SAMPLES_QUANTITY):
         #    self._valueDifIdx = 0
-        #self.difValueChanged.emit(ChannelModel.DISPLAY_RATIO[ChannelModel.difSensorAlias]*sum(self._valueDif)/Config.SAMPLES_QUANTITY)
+        #self.difValueChanged.emit(ChannelModel.DISPLAY_RATIO[ChannelModel.difSensorAlias]*sum(self._valueDif)/ChannelModel.SAMPLES_QUANTITY)
 
     def startDurationTimer(self,start):
         if (start):
