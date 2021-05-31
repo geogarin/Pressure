@@ -8,6 +8,7 @@ from PyQt5.QtCore import Qt,QObject,pyqtSignal,QTimer
 
 class MainModel(QObject):
     startTestButtonNameChanged = pyqtSignal(str)
+    setupDialogClosed = pyqtSignal()
     def __init__(self):
         super().__init__()
         d = data()
@@ -54,14 +55,12 @@ class MainModel(QObject):
         setupModel = SetupModel()
         setupDialog = SetupView(setupModel)
         setupDialog.exec_()
-        
 
+        self.updateChannelsModel()
+        
     def startDurationTimer(self,start):
         for i in range(self.channelsQuantity):
             self.channelModels[i].startDurationTimer(start)
-
-    
-
 
     def initSensorValuesList(self):
         for i in range(self.channelsQuantity):
@@ -71,3 +70,8 @@ class MainModel(QObject):
         for i in range(self.channelsQuantity):
             self.channelModels[i].readSensor('ABS')
             self.channelModels[i].readSensor('DIF')
+
+    def updateChannelsModel(self):       
+        for i in range(self.channelsQuantity):
+            self.channelModels[i].updateModel()
+

@@ -32,13 +32,60 @@ SETUP_DIALOG_SAVE = 'Сохранить'
 SETUP_DIALOG_CLOSE = 'Закрыть'
 
 SETUP_DIALOG_LINE_EDIT_FIELD_WIDTH = 200
+
+# Форма настройки рецепта
+RC_NAME = 'Название'
+RC_ENABLED = 'Разрешен'
+RC_CONNECTION_DURATION = 'Стыковка'
+RC_INFLATING_DURATION = 'Напуск'
+RC_STABILIZATION_DURATION = 'Стабилизация'
+
+RC_STRENGTH_TEST_PRESSURE = 'Давление теста прочности'
+RC_STRENGTH_TEST_PRESSURE_UNIT_OF_MEASURE = 'мБар'
+RC_STRENGTH_TEST_DURATION = 'Длительность теста прочности'
+
+RC_SEALED_TEST_PRESSURE = 'Давление теста герметичности'
+RC_SEALED_TEST_PRESSURE_UNIT_OF_MEASURE = 'мБар'
+RC_SEALED_TEST_DURATION = 'Длительность теста герметичности'
+
+RC_SAVE = 'Сохранить'
+RC_DELETE = 'Удалить'
+RC_NEW = 'Создать'
+
+RC_DIALOG_NAME = 'Настройка рецепта'
+RC_DIALOG_RECEIPT_EXISTS = 'Рецепт с таким названием уже существует.\nПерезаписать?'
+
+RC_DURATION_UNIT_OF_MEASURE = 'сек'
+
+RC_CONNECTION_DURATION_MIN = 1
+RC_CONNECTION_DURATION_MAX = 30
+
+RC_INFLATING_DURATION_MIN = 1
+RC_INFLATING_DURATION_MAX = 30
+
+RC_STABILIZATION_DURATION_MIN = 1
+RC_STABILIZATION_DURATION_MAX = 30 
+
+RC_STRENGTH_TEST_PRESSURE_MIN = 300
+RC_STRENGTH_TEST_PRESSURE_MAX = 900
+
+RC_STRENGTH_TEST_DURATION_MIN = 1
+RC_STRENGTH_TEST_DURATION_MAX = 30
+
+RC_SEALED_TEST_PRESSURE_MIN = 100
+RC_SEALED_TEST_PRESSURE_MAX = 400
+
+RC_SEALED_TEST_DURATION_MIN = 1
+RC_SEALED_TEST_DURATION_MAX = 30 
+
+RC_LIST_WIDTH=300 # Ширина списка рецептов
+
 # Символы клавиатуры
 KEYBOARD_CHARS=['1234567890-+',
                 'йцукенгшщзхъ',
                 'фывапролджэ ',
                 'ячсмитьбю., ']
 
-#KEYBOARD_CHARS_ENG='1234567890qwertyuiopasdfghjkl zxcvbnm,. ' # 4 ряда по 10 символов (недостающие дополнены пробелами)
 KEYBOARD_BUTTON_DELETE='Del'
 KEYBOARD_BUTTON_DONE='Enter'
 KEYBOARD_BUTTON_DELETE_DIGIT='<='

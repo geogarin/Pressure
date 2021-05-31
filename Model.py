@@ -3,6 +3,7 @@ from PyQt5 import QtCore
 from PyQt5.QtCore import Qt,QObject,pyqtSignal,QTimer
 import Config
 from Database.database import data
+from ReceiptModel import ReceiptModel
 import spidev
 import Odroid.GPIO as GPIO
 
@@ -11,6 +12,7 @@ class ChannelModel(QObject):
     absValueChanged = pyqtSignal(float)
     difValueChanged = pyqtSignal(float)
     durationValueChanged = pyqtSignal(float)
+    modelUpdated = pyqtSignal()
 
     #butNameChanged = pyqtSignal(str)
 
@@ -47,7 +49,7 @@ class ChannelModel(QObject):
         self.deltaAbs = 0
         self.deltaDif = 0
 
-
+        self.testNameModel = ReceiptModel(enabledReceipts=1)
 
         self.initSensorValues()
 
@@ -69,6 +71,13 @@ class ChannelModel(QObject):
         self._valueDifIdx = 0
         self._curValDif = 0
         self._prevValDif = 0
+
+    def updateModel(self):
+        print(f'update channel {self.channelName}')
+
+        self.modelUpdated.emit()
+        
+
 
     @property
     def valueAbs(self):

@@ -59,3 +59,5 @@ class MainInterface(QWidget):
             self.startTestButton.setStyleSheet(ButtonStartStyle)
         else:
             self.startTestButton.setStyleSheet(ButtonStopStyle)
+
+    

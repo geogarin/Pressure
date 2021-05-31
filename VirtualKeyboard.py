@@ -10,18 +10,19 @@ class VirtualKeyboard(QDialog):
     def __init__(self,parent=None,buttonSize=70,digitsOnly=False):
         super().__init__(parent)
         self.currentTextBox = None
+        self.p = parent
         self.buttonSize=buttonSize
         
         self.setWindowTitle(' ')
         self.signalMapper = QSignalMapper(self)
         self.signalMapper.mapped[int].connect(self.onButtonPressed)
-        
+        self.p.hideKeyboard.connect(self.onHideKeyboard)
 
         if (digitsOnly):
             self.initDigitKeyboard()
         else:
             self.initFullKeyboard()
-   
+    
     def initDigitKeyboard(self):
         layout = QGridLayout()
         positions = [(i, j) for i in range(3) for j in range(3)]
@@ -150,6 +151,10 @@ class VirtualKeyboard(QDialog):
         self.currentTextBox.setText(txt)
 
         if (char_ord==Qt.Key_Home):
-            self.hide()
+            #self.hide()
+            self.onHideKeyboard()
             self.currentTextBox.editDone.emit()
             
+    @pyqtSlot()
+    def onHideKeyboard(self):
+        self.hide()

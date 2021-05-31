@@ -3,22 +3,23 @@ from SetupModel import SetupModel
 
 from PyQt5.QtWidgets import QDialog, QDialogButtonBox, QFormLayout, QLabel,QLineEdit, QGroupBox, QVBoxLayout,QGridLayout,QPushButton,QHBoxLayout,QMessageBox
 from PyQt5 import QtGui
-from PyQt5.QtCore import Qt,pyqtSlot
+from PyQt5.QtCore import Qt,pyqtSlot,pyqtSignal
 
 from VirtualKeyboard import VirtualKeyboard
 from QLineEditVK import QLineEditVK
+from ReceiptView import ReceiptView
 
 import Config
 import stylesheets
 
 class SetupView(QDialog):
+    hideKeyboard = pyqtSignal()
     def __init__(self,model):
         super().__init__()
         self._model = model
         
 
-        self.virtualKeyboardWidget = VirtualKeyboard(self,int(self._model.setup['KeyboardButtonSize']),True)
-        
+        self.virtualKeyboardWidget = VirtualKeyboard(self,int(self._model.setup['KeyboardButtonSize']),True)        
         self.showFullScreen()
         self.setWindowTitle(Config.SETUP_DIALOG_NAME)
         self.mainLayout = QVBoxLayout()
@@ -31,7 +32,7 @@ class SetupView(QDialog):
         self.labelFilterDepth.setStyleSheet(stylesheets.SDS_Label)
 
         self.filterDepthValue = QLineEditVK()
-        self.filterDepthValue.keyboard = VirtualKeyboard(self,1.5*int(self._model.setup['KeyboardButtonSize']),True) 
+        self.filterDepthValue.keyboard = VirtualKeyboard(self,int(self._model.setup['KeyboardButtonSize']),True) 
         self.filterDepthValue.setStyleSheet(stylesheets.SDS_LineEdit)
         self.filterDepthValue.name = 'FilterDepth'
         self.filterDepthValue.setText(self._model.setup[self.filterDepthValue.name])
@@ -70,19 +71,28 @@ class SetupView(QDialog):
         # Рецепты >>
         self.groupReceipts = QGroupBox(Config.SETUP_DIALOG_RECEIPTS)
         self.groupReceipts.setStyleSheet(stylesheets.SDS_GroupBox)
+
+        receiptView = ReceiptView(receiptModel=self._model.receiptModel)
+
+        self.groupLayout = QHBoxLayout()
+        self.groupLayout.addWidget(receiptView)
+
+        self.groupReceipts.setLayout(self.groupLayout)
+
+        #self.groupReceipts.
         # Рецепты <<
 
         # Кнопки нижнего ряда >>
         self.buttonsLayout = QHBoxLayout()
 
-        self.saveButton = QPushButton(Config.SETUP_DIALOG_SAVE)
-        self.saveButton.setStyleSheet(stylesheets.SDS_Button)
+        #self.saveButton = QPushButton(Config.SETUP_DIALOG_SAVE)
+        #self.saveButton.setStyleSheet(stylesheets.SDS_Button)
 
         self.closeButton = QPushButton(Config.SETUP_DIALOG_CLOSE)
         self.closeButton.setStyleSheet(stylesheets.SDS_Button)
 
         self.buttonsLayout.addStretch()
-        self.buttonsLayout.addWidget(self.saveButton,0,Qt.AlignRight)
+        #self.buttonsLayout.addWidget(self.saveButton,0,Qt.AlignRight)
         self.buttonsLayout.addWidget(self.closeButton,0,Qt.AlignRight)
         # Кнопки нижнего ряда <<
 
@@ -94,9 +104,10 @@ class SetupView(QDialog):
         self.mainLayout.addLayout(self.buttonsLayout)
         self.setLayout(self.mainLayout)
 
-        self.saveButton.clicked.connect(lambda: self._model.onSaveButtonPressed())
-        self.closeButton.clicked.connect(lambda: self._model.onCloseButtonPressed())
-        self._model.closeButtonPressed.connect(self.onCloseButtonPressed)
+        #self.saveButton.clicked.connect(lambda: self._model.onSaveButtonPressed())
+        #self.closeButton.clicked.connect(lambda: self._model.onCloseButtonPressed())
+        #self._model.closeButtonPressed.connect(self.onCloseButtonPressed)
+        self.closeButton.clicked.connect(self.onCloseButtonPressed)
 
     
         self.filterDepthValue.editDone.connect(self.filterDepthValueEdited)
@@ -121,6 +132,8 @@ class SetupView(QDialog):
         
     @pyqtSlot(bool)
     def onCloseButtonPressed(self,setupSaved):
+        self.hideKeyboard.emit()
+        """
         if (not setupSaved):
             msgBox = QMessageBox(self)
             msgBox.setIcon(QMessageBox.Information)
@@ -130,6 +143,7 @@ class SetupView(QDialog):
             returnValue = msgBox.exec()
             #if returnValue == QMessageBox.Yes:
             #    self._model.onSaveButtonPressed()         
+        """
         self.close()
 
 

@@ -32,6 +32,54 @@ class data():
     def saveSetup(self,fieldName,fieldValue):
         r = self.cursor.execute('update Setup set '+fieldName+' = ? where Entry = 0',(fieldValue,))
 
+    def getReceipt(self,name):
+        r = self.cursor.execute('select * from Receipts where Name=?',(name,)).fetchone()
+        return r
+
+    def saveReceipt(self,receipt):
+        r = self.cursor.execute('select * from Receipts where Name=?',(receipt["Name"],)).fetchone()
+        if r is None:
+            self.cursor.execute('insert into Receipts (Name) values (?)',(receipt["Name"],))
+        #print(receipt)
+        self.cursor.execute('''update Receipts set
+              Enabled = ?,
+              ConnectionDuration = ?,
+              InflatingDuration = ?,
+              StabilizationDuration = ?,
+              StrengthTestPressure = ?,
+              StrengthTestDuration = ?,
+              SealedTestPressure = ?,
+              SealedTestDuration = ?
+              where Name=?
+        ''',
+        (receipt["Enabled"],
+         receipt["ConnectionDuration"],
+         receipt["InflatingDuration"],
+         receipt["StabilizationDuration"],
+         receipt["StrengthTestPressure"],
+         receipt["StrengthTestDuration"],
+         receipt["SealedTestPressure"],
+         receipt["SealedTestDuration"],
+         receipt["Name"])
+        )
+        self.connection.commit()
+
+    def deleteReceipt(self,name):
+        self.cursor.execute('delete from Receipts where Name=?',(name,))
+        self.connection.commit()
+
+    def getReceipts(self):
+        r = self.cursor.execute('select * from Receipts').fetchall()
+        return r
+
+    def getEnabledReceipts(self):
+        r = self.cursor.execute('select * from Receipts where Enabled=1').fetchall()
+        return r
+    
+    def saveReceipts(self,receiptName,fieldName,fieldValue):
+        r = self.cursor.execute('update Receipts set '+ fieldName+'=? where Name=?',(fieldValue,receiptName))
+
+
     def __del__(self):
         self.connection.close() 
 """            
@@ -45,6 +93,12 @@ class data():
 
 if __name__ == '__main__':
     d = data()
+
+    p=d.getActiveReceipts()
+    print(f'receipts={len(p)} val0={p[0]["Name"]}')
+
+
+
     p=d.getChannels()
     print(len(p))
     print(p)

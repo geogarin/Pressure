@@ -273,6 +273,9 @@ SDS_LineEdit="""
 QLineEdit
 {
 	border: 1px solid #FF17365D;
+    max-width: 400px;
+    border-width: 5px;
+    border-color: palette(window);
     SDS_DefaultFontStyle
 }
 """.replace('SDS_DefaultFontStyle',SDS_DefaultFontStyle)
@@ -283,6 +286,21 @@ QLabel
     SDS_DefaultFontStyle
 }
 """.replace('SDS_DefaultFontStyle',SDS_DefaultFontStyle)
+
+SDS_ListView="""
+QListView
+{
+    SDS_DefaultFontStyle
+}
+""".replace('SDS_DefaultFontStyle',SDS_DefaultFontStyle)
+
+SDS_CheckBox="""
+QCheckBox::indicator {
+    width: 50px;
+    height: 50px;
+    
+}
+"""
 # Setup Dialog Styles (SDS_)<<
 
 # Virtual keyboard >>

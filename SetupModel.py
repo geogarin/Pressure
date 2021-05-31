@@ -1,10 +1,12 @@
 from PyQt5 import QtCore
 from PyQt5.QtCore import Qt,QObject,pyqtSignal,QTimer, pyqtSlot
 
+from ReceiptModel import ReceiptModel
+
 from Database.database import data
 
 class SetupModel(QObject):
-    closeButtonPressed = pyqtSignal(bool)
+    #closeButtonPressed = pyqtSignal(bool)
     def __init__(self):
         super().__init__()
         self.setupSaved = True
@@ -13,6 +15,8 @@ class SetupModel(QObject):
         stp = self.d.getSetup()
         self.setupKeys = stp.keys()
         self.setup = {k:str(stp[k]) for k in self.setupKeys if k!='Entry'}
+
+        self.receiptModel = ReceiptModel(enabledReceipts=0)
         
     @pyqtSlot(str,str)
     def onSave(self,name,value):
@@ -21,9 +25,9 @@ class SetupModel(QObject):
 
 
 
-    def onCloseButtonPressed(self):
-        # что-нибудь сохранить перед выходом
-        self.closeButtonPressed.emit(self.setupSaved)
+    #def onCloseButtonPressed(self):
+    #    # что-нибудь сохранить перед выходом
+    #    self.closeButtonPressed.emit(self.setupSaved)
 
 
 if __name__=='__main__':

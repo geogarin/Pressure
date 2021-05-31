@@ -27,7 +27,7 @@ class ChannelView(QWidget):
         
         # Выбор теста >>
         self.testName = QComboBox()
-        self.testName.addItems(["Майонез", "Сок","Дет.питание","Радиатор"])
+        self.testName.setModel(self._model.testNameModel)
       
         #self.pal = self.testName.palette()
         #self.pal.setColor(QtGui.QPalette.Button, QtGui.QColor(97,197,255))
