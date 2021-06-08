@@ -35,8 +35,7 @@ class ReceiptModel(QAbstractListModel):
     def deleteReceipt(self,name):
         self.d.deleteReceipt(name)
 
-    def getReceipts(self):
-        
+    def getReceipts(self):       
         if (self.enabledReceipts):
             self.receipts = self.d.getEnabledReceipts()
         else:

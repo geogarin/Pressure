@@ -10,8 +10,11 @@ class QLineEditVK(QLineEdit):
     def focusInEvent(self, e):
         #print(f'focus in {e.reason()}')
         if (e.reason()==Qt.MouseFocusReason):
+            #if not (self.keyboard.currentTextBox is None):
+            #    self.keyboard.currentTextBox.editDone.emit()
             self.keyboard.currentTextBox = self           
             self.keyboard.show()
-            self.clearFocus()           
+            #self.clearFocus()           
         super(QLineEditVK, self).focusInEvent(e)
+    
     

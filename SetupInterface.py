@@ -132,7 +132,7 @@ class SetupView(QDialog):
         
     @pyqtSlot(bool)
     def onCloseButtonPressed(self,setupSaved):
-        self.hideKeyboard.emit()
+        #self.hideKeyboard.emit()
         """
         if (not setupSaved):
             msgBox = QMessageBox(self)

@@ -16,7 +16,8 @@ class VirtualKeyboard(QDialog):
         self.setWindowTitle(' ')
         self.signalMapper = QSignalMapper(self)
         self.signalMapper.mapped[int].connect(self.onButtonPressed)
-        self.p.hideKeyboard.connect(self.onHideKeyboard)
+        #self.p.hideKeyboard.connect(self.onHideKeyboard)
+        self.setModal(True)
 
         if (digitsOnly):
             self.initDigitKeyboard()
@@ -152,9 +153,14 @@ class VirtualKeyboard(QDialog):
 
         if (char_ord==Qt.Key_Home):
             #self.hide()
-            self.onHideKeyboard()
+            #self.onHideKeyboard()
+            self.hide()
+            self.currentTextBox.clearFocus()
             self.currentTextBox.editDone.emit()
             
+    """        
     @pyqtSlot()
     def onHideKeyboard(self):
+        self.currentTextBox.clearFocus()
         self.hide()
+    """

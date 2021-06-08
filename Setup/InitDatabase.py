@@ -155,17 +155,17 @@ connection.commit()
 cursor.execute('insert into Setup (Entry,FilterDepth,KeyboardButtonSize) values (?,?,?)',(0,50,70))
 connection.commit()
 
-
 cursor.execute('drop table if exists Receipts')
 cursor.execute('''create table if not exists Receipts (
                     Name text primary key not null,
-                    ConnectionDuration real,
-                    InflatingDuration real,
-                    StabilizationDuration real,
+                    ConnectionDuration integer,
+                    InflatingDuration integer,
+                    StabilizationDuration integer,
                     StrengthTestPressure integer,
-                    StrengthTestDuration real,
+                    StrengthTestDuration integer,
                     SealedTestPressure integer,
-                    SealedTestDuration real,
+                    SealedTestDeltaThreshold integer,
+                    SealedTestDuration integer,
                     Enabled integer)
                ''')
 connection.commit()

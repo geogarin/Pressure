@@ -1,7 +1,7 @@
 import sys
 from PyQt5 import QtGui
 from PyQt5.QtWidgets import (QCheckBox, QFormLayout, QFrame,QComboBox, QListView,QWidget,QGroupBox,QPushButton,QVBoxLayout,QHBoxLayout,QLabel,QLineEdit,QGridLayout,QApplication,QMessageBox)
-from PyQt5.QtCore import QModelIndex, Qt,QPoint, QRect, QSize, pyqtSignal, pyqtSlot
+from PyQt5.QtCore import QModelIndex, QObject, Qt,QPoint, QRect, QSize, pyqtSignal, pyqtSlot,QSignalMapper
 import Config
 from ReceiptModel import ReceiptModel
 from QLineEditVK import QLineEditVK
@@ -11,68 +11,79 @@ import stylesheets
 
 class ReceiptView(QWidget):
     listSelectionChanged = pyqtSignal(QModelIndex)
-    hideKeyboard = pyqtSignal()
     def __init__(self,parent = None,receiptModel=None):
 
         super(QWidget,self).__init__(parent)
-         
+
+        self.fieldsQty = 9
+
+        self.fieldNames = ['Name','ConnectionDuration','InflatingDuration','StabilizationDuration','StrengthTestPressure','StrengthTestDuration','SealedTestPressure',
+                          'SealedTestDeltaThreshold','SealedTestDuration','Enabled']
+        self.labelTexts = [
+            Config.RC_NAME,
+            Config.RC_CONNECTION_DURATION+', '+Config.RC_DURATION_UNIT_OF_MEASURE+' ('+ str(Config.RC_CONNECTION_DURATION_MIN) +'-'+ str(Config.RC_CONNECTION_DURATION_MAX) +')',
+            Config.RC_INFLATING_DURATION+', '+Config.RC_DURATION_UNIT_OF_MEASURE+' ('+ str(Config.RC_INFLATING_DURATION_MIN) +'-'+ str(Config.RC_INFLATING_DURATION_MAX) +')',
+            Config.RC_STABILIZATION_DURATION+', '+Config.RC_DURATION_UNIT_OF_MEASURE+' ('+ str(Config.RC_STABILIZATION_DURATION_MIN) +'-'+ str(Config.RC_STABILIZATION_DURATION_MAX) +')',
+            Config.RC_STRENGTH_TEST_PRESSURE+', '+Config.RC_STRENGTH_TEST_PRESSURE_UNIT_OF_MEASURE+' ('+ str(Config.RC_STRENGTH_TEST_PRESSURE_MIN) +'-'+ str(Config.RC_STRENGTH_TEST_PRESSURE_MAX) +')',
+            Config.RC_STRENGTH_TEST_DURATION+', '+Config.RC_DURATION_UNIT_OF_MEASURE+' ('+ str(Config.RC_STRENGTH_TEST_DURATION_MIN) +'-'+ str(Config.RC_STRENGTH_TEST_DURATION_MAX) +')',
+            Config.RC_SEALED_TEST_PRESSURE+', '+Config.RC_SEALED_TEST_PRESSURE_UNIT_OF_MEASURE+' ('+ str(Config.RC_SEALED_TEST_PRESSURE_MIN) +'-'+ str(Config.RC_SEALED_TEST_PRESSURE_MAX) +')',
+            Config.RC_SEALED_TEST_DELTA_THRESHOLD+', '+Config.RC_SEALED_TEST_PRESSURE_UNIT_OF_MEASURE+' ('+ str(Config.RC_SEALED_TEST_DELTA_THRESHOLD_MIN) +'-'+ str(Config.RC_SEALED_TEST_DELTA_THRESHOLD_MAX) +')',
+            Config.RC_SEALED_TEST_DURATION+', '+Config.RC_DURATION_UNIT_OF_MEASURE+' ('+ str(Config.RC_SEALED_TEST_DURATION_MIN) +'-'+ str(Config.RC_SEALED_TEST_DURATION_MAX) +')',
+            Config.RC_ENABLED]
+
+        self.fieldRanges = [
+            (),
+            (Config.RC_CONNECTION_DURATION_MIN,Config.RC_CONNECTION_DURATION_MAX),
+            (Config.RC_INFLATING_DURATION_MIN,Config.RC_INFLATING_DURATION_MAX),
+            (Config.RC_STABILIZATION_DURATION_MIN,Config.RC_STABILIZATION_DURATION_MAX),
+            (Config.RC_STRENGTH_TEST_PRESSURE_MIN,Config.RC_STRENGTH_TEST_PRESSURE_MAX),
+            (Config.RC_STRENGTH_TEST_DURATION_MIN,Config.RC_STRENGTH_TEST_DURATION_MAX),
+            (Config.RC_SEALED_TEST_PRESSURE_MIN,Config.RC_SEALED_TEST_PRESSURE_MAX),
+            (Config.RC_SEALED_TEST_DELTA_THRESHOLD_MIN,Config.RC_SEALED_TEST_DELTA_THRESHOLD_MAX),
+            (Config.RC_SEALED_TEST_DURATION_MIN,Config.RC_SEALED_TEST_DURATION_MAX),
+            ()
+        ]
+                 
         self.receiptList = QListView()
         self.receiptList.setMaximumWidth(Config.RC_LIST_WIDTH)
         self.receiptList.setStyleSheet(stylesheets.SDS_ListView)
         self.receiptList.setModel(receiptModel)
-        self.receiptListSelectionModel = self.receiptList.selectionModel()        
+        self.receiptListSelectionModel = self.receiptList.selectionModel() 
+        
+
+        self.signalMapper = QSignalMapper(self) 
+        self.signalMapper.mapped[int].connect(self.validateFieldValue)      
 
         self.receiptName = QLineEditVK()
         self.receiptName.keyboard = VirtualKeyboard(self,self.receiptList.model().keyboardButtonSize,False)
         self.receiptName.setStyleSheet(stylesheets.SDS_LineEdit)
-        self.receiptNameLabel = QLabel(Config.RC_NAME) 
+        self.receiptName.editDone.connect(self.signalMapper.map)
+        self.signalMapper.setMapping(self.receiptName,self.fieldNames[0])    
+        self.receiptNameLabel = QLabel(self.labelTexts[0]) 
         self.receiptNameLabel.setStyleSheet(stylesheets.SDS_Label)
 
-        self.connection = QLineEditVK()
-        self.connection.keyboard = VirtualKeyboard(self,self.receiptList.model().keyboardButtonSize,True)
-        self.connection.setStyleSheet(stylesheets.SDS_LineEdit)
-        self.connectionLabel = QLabel(Config.RC_CONNECTION_DURATION+', '+Config.RC_DURATION_UNIT_OF_MEASURE)
-        self.connectionLabel.setStyleSheet(stylesheets.SDS_Label)
 
-        self.inflating = QLineEditVK()
-        self.inflating.keyboard = VirtualKeyboard(self,self.receiptList.model().keyboardButtonSize,True)
-        self.inflating.setStyleSheet(stylesheets.SDS_LineEdit)
-        self.inflatingLabel = QLabel(Config.RC_INFLATING_DURATION+', '+Config.RC_DURATION_UNIT_OF_MEASURE)
-        self.inflatingLabel.setStyleSheet(stylesheets.SDS_Label)
-
-        self.stabilization = QLineEditVK()
-        self.stabilization.keyboard = VirtualKeyboard(self,self.receiptList.model().keyboardButtonSize,True)
-        self.stabilization.setStyleSheet(stylesheets.SDS_LineEdit)
-        self.stabilizationLabel = QLabel(Config.RC_STABILIZATION_DURATION+', '+Config.RC_DURATION_UNIT_OF_MEASURE)
-        self.stabilizationLabel.setStyleSheet(stylesheets.SDS_Label)
-
-        self.strengthPressure = QLineEditVK()
-        self.strengthPressure.keyboard = VirtualKeyboard(self,self.receiptList.model().keyboardButtonSize,True)
-        self.strengthPressure.setStyleSheet(stylesheets.SDS_LineEdit)
-        self.strengthPressureLabel = QLabel(Config.RC_STRENGTH_TEST_PRESSURE+', '+Config.RC_STRENGTH_TEST_PRESSURE_UNIT_OF_MEASURE)
-        self.strengthPressureLabel.setStyleSheet(stylesheets.SDS_Label)
-
-        self.strengthDuration = QLineEditVK()
-        self.strengthDuration.keyboard = VirtualKeyboard(self,self.receiptList.model().keyboardButtonSize,True)
-        self.strengthDuration.setStyleSheet(stylesheets.SDS_LineEdit)
-        self.strengthDurationLabel = QLabel(Config.RC_STRENGTH_TEST_DURATION+', '+Config.RC_DURATION_UNIT_OF_MEASURE)
-        self.strengthDurationLabel.setStyleSheet(stylesheets.SDS_Label)
-
-        self.sealedPressure = QLineEditVK()
-        self.sealedPressure.keyboard = VirtualKeyboard(self,self.receiptList.model().keyboardButtonSize,True)
-        self.sealedPressure.setStyleSheet(stylesheets.SDS_LineEdit)
-        self.sealedPressureLabel = QLabel(Config.RC_SEALED_TEST_PRESSURE+', '+Config.RC_SEALED_TEST_PRESSURE_UNIT_OF_MEASURE)
-        self.sealedPressureLabel.setStyleSheet(stylesheets.SDS_Label)
-
-        self.sealedDuration = QLineEditVK()
-        self.sealedDuration.keyboard = VirtualKeyboard(self,self.receiptList.model().keyboardButtonSize,True)
-        self.sealedDuration.setStyleSheet(stylesheets.SDS_LineEdit)
-        self.sealedDurationLabel = QLabel(Config.RC_SEALED_TEST_DURATION+', '+Config.RC_DURATION_UNIT_OF_MEASURE)
-        self.sealedDurationLabel.setStyleSheet(stylesheets.SDS_Label)
+        self.receiptEditForm = QFormLayout()
+        self.receiptEditForm.addRow(self.receiptNameLabel,self.receiptName)
+        self.field = [None]*self.fieldsQty
+        self.label = [None]*self.fieldsQty
+        #self.vk = VirtualKeyboard(self,self.receiptList.model().keyboardButtonSize,True)
+        for i in range(1,self.fieldsQty):
+            self.field[i] = QLineEditVK()
+            self.field[i].keyboard = VirtualKeyboard(self,self.receiptList.model().keyboardButtonSize,True)
+            #self.field[i].keyboard = self.vk
+            self.field[i].range = self.fieldRanges[i]
+            self.field[i].setStyleSheet(stylesheets.SDS_LineEdit)
+            self.field[i].editDone.connect(self.signalMapper.map)
+            self.signalMapper.setMapping(self.field[i],i)
+            
+            self.label[i] = QLabel(self.labelTexts[i])
+            self.label[i].setStyleSheet(stylesheets.SDS_Label)
+            self.receiptEditForm.addRow(self.label[i],self.field[i])
 
         self.receiptEnabled = QCheckBox()
         self.receiptEnabled.setStyleSheet(stylesheets.SDS_CheckBox)
-        self.receiptEnabledLabel = QLabel(Config.RC_ENABLED)
+        self.receiptEnabledLabel = QLabel(self.labelTexts[9])
         self.receiptEnabledLabel.setStyleSheet(stylesheets.SDS_Label)
 
         self.buttonNew = QPushButton(Config.RC_NEW)
@@ -88,22 +99,8 @@ class ReceiptView(QWidget):
         hBox.addStretch()
         hBox.addWidget(self.buttonDelete)
         
-
-
-        self.receiptEditForm = QFormLayout()
-        self.receiptEditForm.addRow(self.receiptNameLabel,self.receiptName)
-        self.receiptEditForm.addRow(self.connectionLabel,self.connection)
-        self.receiptEditForm.addRow(self.inflatingLabel,self.inflating)
-        self.receiptEditForm.addRow(self.stabilizationLabel,self.stabilization)
-        self.receiptEditForm.addRow(self.strengthPressureLabel,self.strengthPressure)
-        self.receiptEditForm.addRow(self.strengthDurationLabel,self.strengthDuration)
-        self.receiptEditForm.addRow(self.sealedPressureLabel,self.sealedPressure)
-        self.receiptEditForm.addRow(self.sealedDurationLabel,self.sealedDuration)
         self.receiptEditForm.addRow(self.receiptEnabledLabel,self.receiptEnabled)
-
         self.receiptEditForm.addRow(hBox)
-
-
 
         self.mainLayout = QGridLayout()
         self.mainLayout.addWidget(self.receiptList,0,0)
@@ -116,16 +113,20 @@ class ReceiptView(QWidget):
         self.buttonSave.clicked.connect(self.onButtonSaveClicked)
         self.buttonDelete.clicked.connect(self.onButtonDeleteClicked)
         
+        self.receiptList.setCurrentIndex(receiptModel.index(0,0) )
+        self.onReceiptSelected(receiptModel.index(0,0))
+
         self.show()
 
-    def onButtonNewClicked(self):
-        self.hideKeyboard.emit()
+    def onButtonNewClicked(self):       
         self.receiptList.model().insertNewReceipt = True
         self.receiptName.setText('')
+        for i in range(1,self.fieldsQty):
+            self.field[i].setText('')
+            self.validateFieldValue(i)
         self.receiptEnabled.setChecked(False)
 
     def onButtonSaveClicked(self):
-        self.hideKeyboard.emit()
         recName = self.receiptName.text()
         if recName!='':
             retVal = QMessageBox.Yes
@@ -145,49 +146,31 @@ class ReceiptView(QWidget):
                 receipt = {}
                 receipt['Name'] = recName
 
-                
-                if self.connection.text()!='':
-                    receipt['ConnectionDuration'] = float(self.connection.text())
-                else:
-                    receipt['ConnectionDuration'] = 0
-
-                if self.inflating.text()!='':
-                    receipt['InflatingDuration'] = float(self.inflating.text())
-                else: 
-                    receipt['InflatingDuration'] = 0
-
-                if self.stabilization.text()!='':
-                    receipt['StabilizationDuration'] = float(self.stabilization.text())
-                else:
-                    receipt['StabilizationDuration'] = 0
-
-                if self.strengthPressure.text()!='':
-                    receipt['StrengthTestPressure'] = int(self.strengthPressure.text())
-                else:
-                    receipt['StrengthTestPressure'] = 0
-
-                if  self.strengthDuration.text()!='':   
-                    receipt['StrengthTestDuration'] = float(self.strengthDuration.text())
-                else:
-                    receipt['StrengthTestDuration'] = 0
-
-                if self.sealedPressure.text()!='':
-                    receipt['SealedTestPressure'] = int(self.sealedPressure.text())
-                else:
-                    receipt['SealedTestPressure'] = 0
-
-                if self.sealedDuration.text()!='':
-                    receipt['SealedTestDuration'] = float(self.sealedDuration.text())
-                else:
-                    receipt['SealedTestDuration'] = 0
+                for i in range(1,self.fieldsQty):
+                    self.validateFieldValue(i)
+                    if self.field[i].text()!='':
+                        receipt[self.fieldNames[i]] = int(self.field[i].text())
+                    else:
+                        receipt[self.fieldNames[i]] = 0 
 
                 receipt['Enabled'] = 1 if self.receiptEnabled.isChecked() else 0
 
                 self.receiptList.model().saveReceipt(receipt)
                 self.receiptList.model().layoutChanged.emit()
+        
+    def validateFieldValue(self,idx):
+        if (idx in range(1,self.fieldsQty)):
+            if self.field[idx].text()!='':
+                val = int(self.field[idx].text())
+                if val<self.field[idx].range[0]:
+                    val = self.field[idx].range[0]
+                if val>self.field[idx].range[1]:
+                    val = self.field[idx].range[1]
+            else:
+                val = self.field[idx].range[0]
+            self.field[idx].setText(str(val))
 
     def onButtonDeleteClicked(self):
-        self.hideKeyboard.emit()
         self.receiptList.model().deleteReceipt(self.receiptName.text())
         self.receiptList.model().layoutChanged.emit()
         self.receiptList.clearSelection()
@@ -201,32 +184,16 @@ class ReceiptView(QWidget):
             #print(f'selected = {item.data()}  row={item.row()}')
             rcpt = self.receiptList.model().getReceipt(item.data())
             self.receiptName.setText(rcpt['Name'])
-            if not (rcpt['ConnectionDuration'] is None):
-                self.connection.setText(str(rcpt['ConnectionDuration']))
-
-            if not( rcpt['InflatingDuration']is None):    
-                self.inflating.setText(str(rcpt['InflatingDuration']))
-
-            if not(rcpt['StabilizationDuration'] is None):
-                self.stabilization.setText(str(rcpt['StabilizationDuration']))
-
-            if not(rcpt['StrengthTestPressure'] is None):
-                self.strengthPressure.setText(str(rcpt['StrengthTestPressure']))
-
-            if not(rcpt['StrengthTestDuration'] is None):
-                self.strengthDuration.setText(str(rcpt['StrengthTestDuration']))
-
-            if not(rcpt['SealedTestPressure'] is None):
-                self.sealedPressure.setText(str(rcpt['SealedTestPressure']))
-
-            if not(rcpt['SealedTestDuration'] is None):
-                self.sealedDuration.setText(str(rcpt['SealedTestDuration']))
+            for i in range(1,self.fieldsQty):
+                if not (rcpt[self.fieldNames[i]] is None):
+                    self.field[i].setText(str(rcpt[self.fieldNames[i]]))    
             self.receiptEnabled.setChecked(rcpt['Enabled']==1)
             
 
 
 if __name__ == '__main__':
 
+    
     app = QApplication(sys.argv)
     rm = ReceiptModel(enabledReceipts=0)
     rv = ReceiptView(receiptModel=rm)

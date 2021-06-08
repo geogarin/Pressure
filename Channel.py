@@ -154,6 +154,7 @@ class ChannelView(QWidget):
         self._model.absValueChanged.connect(self.onValueAbsChanged)
         self._model.difValueChanged.connect(self.onValueDifChanged)
         self._model.durationValueChanged.connect(self.onDurationValueChanged)
+        #self._model.modelUpdated.connect(self.onModelUpdated)
 
     @pyqtSlot(float)
     def onValueAbsChanged(self,value):       
@@ -166,5 +167,10 @@ class ChannelView(QWidget):
     @pyqtSlot(float)
     def onDurationValueChanged(self,value):
         self.stepDuration.setValue(value)
+
+    #@pyqtSlot()
+    #def onModelUpdated(self):
+
+
 
         

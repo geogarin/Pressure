@@ -74,6 +74,7 @@ class ChannelModel(QObject):
 
     def updateModel(self):
         print(f'update channel {self.channelName}')
+        self.testNameModel.layoutChanged.emit()
 
         self.modelUpdated.emit()
         

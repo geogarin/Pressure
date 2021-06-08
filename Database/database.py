@@ -49,6 +49,7 @@ class data():
               StrengthTestPressure = ?,
               StrengthTestDuration = ?,
               SealedTestPressure = ?,
+              SealedTestDeltaThreshold = ?,
               SealedTestDuration = ?
               where Name=?
         ''',
@@ -59,6 +60,7 @@ class data():
          receipt["StrengthTestPressure"],
          receipt["StrengthTestDuration"],
          receipt["SealedTestPressure"],
+         receipt["SealedTestDeltaThreshold"],
          receipt["SealedTestDuration"],
          receipt["Name"])
         )
@@ -82,14 +84,6 @@ class data():
 
     def __del__(self):
         self.connection.close() 
-"""            
-    def new_user(self,user_id: int,username: str):
-        self.cursor.execute('SELECT * FROM users WHERE user_id = ?',(user_id,))
-        if self.cursor.fetchone() is None:
-            self.cursor.execute('INSERT INTO users VALUES(?,?,?,?)',(user_id,username,'main',1))
-        else:
-            pass
-"""
 
 if __name__ == '__main__':
     d = data()
