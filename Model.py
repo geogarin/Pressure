@@ -4,40 +4,15 @@ from PyQt5.QtCore import Qt,QObject,pyqtSignal,QTimer
 import Config
 from Database.database import data
 from ReceiptModel import ReceiptModel
-import spidev
-import Odroid.GPIO as GPIO
+from PressureSensor import PressureSensor
 
-GPIO.setmode(GPIO.SOC)
+
+
 class ChannelModel(QObject):
     absValueChanged = pyqtSignal(float)
     difValueChanged = pyqtSignal(float)
     durationValueChanged = pyqtSignal(float)
     modelUpdated = pyqtSignal()
-
-    #butNameChanged = pyqtSignal(str)
-
-    d = data()
-    
-    absSensorAlias = 'ABS'
-    difSensorAlias = 'DIF'
-
-
-    absSensor = d.getSensorParameters('Absolute')
-    difSensor = d.getSensorParameters('Differential')
-    
-    _setup = d.getSetup()
-    SAMPLES_QUANTITY = _setup['FilterDepth']
-
-    OUTPUT_MIN = {absSensorAlias: absSensor['DigitalCounts10Percent'], difSensorAlias : difSensor['DigitalCounts10Percent'] }
-    OUTPUT_MAX = {absSensorAlias: absSensor['DigitalCounts90Percent'], difSensorAlias : difSensor['DigitalCounts90Percent']}
-
-    PRESSURE_MIN = {absSensorAlias: absSensor['SensorPressureMin'], difSensorAlias : difSensor['SensorPressureMin']}
-    PRESSURE_MAX = {absSensorAlias: absSensor['SensorPressureMax'],difSensorAlias :  difSensor['SensorPressureMax']}
-
-    DISPLAY_RATIO = {absSensorAlias: absSensor['Ratio'], difSensorAlias: difSensor['Ratio']}
-    DISPLAY_UNIT_OF_MEASURE = {absSensorAlias: absSensor['DisplayUnitOfMeasure'], difSensorAlias: difSensor['DisplayUnitOfMeasure']}
-
-    TEMPERATURE_MAX = absSensor['TemperatureMax']
 
     def __init__(self,channelName,pinAbs,pinDiff):
         super().__init__()
@@ -49,12 +24,16 @@ class ChannelModel(QObject):
         self.deltaAbs = 0
         self.deltaDif = 0
 
+        self.absPressureSensor = PressureSensor(PressureSensor.absSensorAlias,self.pinAbs)
+        self.difPressureSensor = PressureSensor(PressureSensor.difSensorAlias,self.pinDiff)
+
         self.testNameModel = ReceiptModel(enabledReceipts=1)
 
         self.initSensorValues()
 
         self.minDurationValue = 0
-        self.maxDurationValue = 5
+        self.maxDurationValue = 5 + Config.SENSORS_INIT_PERIOD/1000
+        print(f'max dur val = {self.maxDurationValue}')
         self.curDurationValue = 0
         self.durationTimerStep = 0.1    
         self.durationTimer = QTimer()
@@ -62,64 +41,38 @@ class ChannelModel(QObject):
         self.durationTimerStarted = False
     
     def initSensorValues(self):
-        #self._valueAbs = [0] * ChannelModel.SAMPLES_QUANTITY
-        self._valueAbsIdx = 0
-        self._curValAbs = 0
-        self._prevValAbs = 0
-
-        #self._valueDif = [0] * ChannelModel.SAMPLES_QUANTITY
-        self._valueDifIdx = 0
+        self.absPressureSensor.zeroSensor()
+        self.difPressureSensor.zeroSensor()
+        self._curValAbs = 0       
         self._curValDif = 0
-        self._prevValDif = 0
+        
 
     def updateModel(self):
         print(f'update channel {self.channelName}')
         self.testNameModel.layoutChanged.emit()
 
         self.modelUpdated.emit()
-        
-
-
+           
     @property
     def valueAbs(self):
-        #return(ChannelModel.DISPLAY_RATIO[ChannelModel.absSensorAlias]*sum(self._valueAbs)/ChannelModel.SAMPLES_QUANTITY)
-        return(ChannelModel.DISPLAY_RATIO[ChannelModel.absSensorAlias]*self._curValAbs)
-        
+        print('abs value getter')
+        return(PressureSensor.DISPLAY_RATIO[PressureSensor.absSensorAlias]*self._curValAbs)
+          
     @valueAbs.setter
     def valueAbs(self,value):
-        if (self._valueAbsIdx < ChannelModel.SAMPLES_QUANTITY):
-            self._valueAbsIdx += 1
-        self._curValAbs = (self._prevValAbs*(self._valueAbsIdx-1)+value)/self._valueAbsIdx
-
-        #if (self.channelName=='Канал 1'):
-        #    print(f'{self._valueAbsIdx};{self._prevValAbs};{value};{self._curValAbs};{self._curValAbs*ChannelModel.DISPLAY_RATIO[ChannelModel.absSensorAlias]}')
-        self._prevValAbs = self._curValAbs
-        self.absValueChanged.emit(self.deltaAbs+ChannelModel.DISPLAY_RATIO[ChannelModel.absSensorAlias]*self._curValAbs)
-
-
-        #self._valueAbs[self._valueAbsIdx] = value
-        #self._valueAbsIdx += 1
-        #if (self._valueAbsIdx==ChannelModel.SAMPLES_QUANTITY):
-        #    self._valueAbsIdx = 0
-        #self.absValueChanged.emit(ChannelModel.DISPLAY_RATIO[ChannelModel.absSensorAlias]*sum(self._valueAbs)/ChannelModel.SAMPLES_QUANTITY)
-    
+        self._curValAbs = value
+        self.absValueChanged.emit(PressureSensor.DISPLAY_RATIO[PressureSensor.absSensorAlias]*self._curValAbs)
+   
     @property
     def valueDif(self):
-        #return(ChannelModel.DISPLAY_RATIO[ChannelModel.difSensorAlias]*sum(self._valueDif)/ChannelModel.SAMPLES_QUANTITY)
-        return(ChannelModel.DISPLAY_RATIO[ChannelModel.difSensorAlias]*self._curValDif+self.deltaDif)
+        print('dif value getter')
+        return(PressureSensor.DISPLAY_RATIO[PressureSensor.difSensorAlias]*self._curValDif)
 
     @valueDif.setter
     def valueDif(self,value):
-        if (self._valueDifIdx < ChannelModel.SAMPLES_QUANTITY):
-            self._valueDifIdx += 1
-        self._curValDif = (self._prevValDif*(self._valueDifIdx-1)+value)/self._valueDifIdx
-        self._prevValDif = self._curValDif
-        self.difValueChanged.emit(self.deltaDif+ChannelModel.DISPLAY_RATIO[ChannelModel.difSensorAlias]*self._curValDif) 
-        #self._valueDif[self._valueDifIdx] = value
-        #self._valueDifIdx += 1
-        #if (self._valueDifIdx==ChannelModel.SAMPLES_QUANTITY):
-        #    self._valueDifIdx = 0
-        #self.difValueChanged.emit(ChannelModel.DISPLAY_RATIO[ChannelModel.difSensorAlias]*sum(self._valueDif)/ChannelModel.SAMPLES_QUANTITY)
+        self._curValDif = value
+        self.difValueChanged.emit(PressureSensor.DISPLAY_RATIO[PressureSensor.difSensorAlias]*self._curValDif) 
+       
 
     def startDurationTimer(self,start):
         if (start):
@@ -138,35 +91,13 @@ class ChannelModel(QObject):
             self.durationValueChanged.emit(self.curDurationValue)
 
     def readSensor(self,sensorType):
-        if (sensorType == ChannelModel.absSensorAlias):
-            sensorPin = self.pinAbs
+        if (sensorType == PressureSensor.absSensorAlias):
+            if (self.absPressureSensor.zeroed):
+                self.valueAbs = self.absPressureSensor.getFilteredValue()
         else:
-            sensorPin = self.pinDiff
-        GPIO.setup(sensorPin,GPIO.OUT)
-        spi = spidev.SpiDev()
-        GPIO.output(sensorPin,GPIO.LOW)
-        spi.open(0,0)
-        spi.max_speed_hz = 122000
-
-        res = spi.xfer2([0,0,0,0])
-        spi.close()
-        GPIO.output(sensorPin, GPIO.HIGH)
-
-        status_bits = res[0] >> 6
-
-        output = ((res[0]&63)<<8)|res[1]
-        if ((output>=ChannelModel.OUTPUT_MIN[sensorType])and(output<=ChannelModel.OUTPUT_MAX[sensorType])):
-            pressure = (output-ChannelModel.OUTPUT_MIN[sensorType])*(ChannelModel.PRESSURE_MAX[sensorType]-ChannelModel.PRESSURE_MIN[sensorType])/(ChannelModel.OUTPUT_MAX[sensorType]-ChannelModel.OUTPUT_MIN[sensorType])+ChannelModel.PRESSURE_MIN[sensorType]
-            #output_t = ((res[2]<<8) | (res[3])) >> 5
-            #temperature = output_t*200/ChannelModel.TEMPERATURE_MAX-50
-            #if (self.channelName=='Канал 1') and (sensorType=='ABS'):
-            #    print(f'{sensorType};min={ChannelModel.OUTPUT_MIN[sensorType]};output={output};max={ChannelModel.OUTPUT_MAX[sensorType]};pressure={pressure};pressure(Pa)={pressure*100};t={temperature}')
-            
-            if (status_bits==0):
-                if (sensorType == ChannelModel.absSensorAlias):
-                    self.valueAbs = pressure
-                else:
-                    self.valueDif = pressure
+            if (self.difPressureSensor.zeroed):
+                self.valueDif = self.difPressureSensor.getFilteredValue()
+        
         """
         print(f'Sensor data {res}')
         print('Decoded:')
@@ -182,4 +113,4 @@ class ChannelModel(QObject):
 
 
 if __name__ == '__main__':
-    print(f'm = {ChannelModel.PRESSURE_MAX["DIF"]}')
+    print(f'm = {PressureSensor.PRESSURE_MAX["DIF"]}')

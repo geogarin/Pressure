@@ -6,6 +6,9 @@ DATABASE_PATH = './Data/'
 # Период опроса датчиков (мс)
 SENSORS_REQUEST_PERIOD = 5
 
+# Длительность обнуления датчиков (мс)
+SENSORS_INIT_PERIOD = 2000
+
 # Названия контролов
 BUTTON_START_TEST = 'Старт'
 BUTTON_STOP_TEST = 'Стоп'
@@ -100,8 +103,8 @@ MIN_KB_BUTTON_SIZE = 50
 MAX_KB_BUTTON_SIZE = 100
 
 # Точность округления показаний давления (знаков после запятой)
-ABS_PRESSURE_ROUNDING_PRECISION = 2
-DIF_PRESSURE_ROUNDING_PRECISION = 2
+ABS_PRESSURE_ROUNDING_PRECISION = 1
+DIF_PRESSURE_ROUNDING_PRECISION = 1
 
 if __name__=='__main__':
     #print(f'{len(KEYBOARD_CHARS)}  {KEYBOARD_CHARS[38]}')

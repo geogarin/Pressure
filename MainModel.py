@@ -1,3 +1,4 @@
+from time import sleep
 import Config 
 from Model import ChannelModel
 from SetupModel import SetupModel
@@ -65,6 +66,7 @@ class MainModel(QObject):
     def initSensorValuesList(self):
         for i in range(self.channelsQuantity):
             self.channelModels[i].initSensorValues()
+        
         
     def upd(self):
         for i in range(self.channelsQuantity):

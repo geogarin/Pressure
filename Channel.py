@@ -4,6 +4,7 @@ from PyQt5.QtWidgets import (QCheckBox, QFrame,QComboBox,QWidget,QGroupBox,QPush
 from PyQt5.QtCore import Qt,QPoint, QRect, QSize, pyqtSlot
 import Config
 from Model import ChannelModel
+from PressureSensor import PressureSensor
 from CircularProgressBar import QRoundProgressBar
 from SwitchButton import SwitchButton
 from RoundedRect import RoundedRect
@@ -66,10 +67,10 @@ class ChannelView(QWidget):
         # Название этапа <<
 
         # единицы измерения >>
-        self.unitOfMeasureDiff = QLabel(ChannelModel.DISPLAY_UNIT_OF_MEASURE['DIF'])
+        self.unitOfMeasureDiff = QLabel(PressureSensor.DISPLAY_UNIT_OF_MEASURE['DIF'])
         self.unitOfMeasureDiff.setStyleSheet(stylesheets.QLabelStyle)
         
-        self.unitOfMeasureAbs = QLabel(ChannelModel.DISPLAY_UNIT_OF_MEASURE['ABS'])
+        self.unitOfMeasureAbs = QLabel(PressureSensor.DISPLAY_UNIT_OF_MEASURE['ABS'])
         self.unitOfMeasureAbs.setStyleSheet(stylesheets.QLabelStyle)
         # единицы измерения <<
         
@@ -101,9 +102,9 @@ class ChannelView(QWidget):
         self.stepDuration.setNullPosition(90)
         self.stepDuration.setBarStyle(QRoundProgressBar.StyleDonut)
         self.stepDuration.setDataColors([(0., QtGui.QColor.fromRgb(255,0,0)), (0.5, QtGui.QColor.fromRgb(255,255,0)), (1., QtGui.QColor.fromRgb(0,255,0))])
-        self.stepDuration.setMaximun(5)
+        self.stepDuration.setMaximun(self._model.maxDurationValue)
         self.stepDuration.setMinimun(0)
-        self.stepDuration.setRange(0, 5)
+        self.stepDuration.setRange(0, self._model.maxDurationValue)
         self.stepDuration.setValue(0)
         # таймер <<
 
