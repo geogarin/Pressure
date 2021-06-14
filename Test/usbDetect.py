@@ -35,9 +35,9 @@ def get_usb_devices():
     @return: list of tuples (dev_idVendor, dev_idProduct, dev_name)
     '''
 
-    return [(device.idVendor, device.idProduct, _get_dev_string_info(device),device.serial_number) 
+    return [(device.idVendor, device.idProduct, _get_dev_string_info(device),device.serial_number,device.bDeviceClass) 
                 for device in usb.core.find(find_all=True)
-                    if device.idProduct > 2
+                    if (device.idProduct > 2) and (device.bDeviceClass==0)
                     ]
 
 if __name__=='__main__':
