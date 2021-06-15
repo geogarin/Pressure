@@ -9,8 +9,8 @@ from PressureSensor import PressureSensor
 
 
 class ChannelModel(QObject):
-    absValueChanged = pyqtSignal(float)
-    difValueChanged = pyqtSignal(float)
+    absValueChanged = pyqtSignal(str)
+    difValueChanged = pyqtSignal(str)
     durationValueChanged = pyqtSignal(float)
     modelUpdated = pyqtSignal()
 
@@ -20,9 +20,6 @@ class ChannelModel(QObject):
         
         self.pinAbs = pinAbs
         self.pinDiff = pinDiff
-
-        self.deltaAbs = 0
-        self.deltaDif = 0
 
         self.absPressureSensor = PressureSensor(PressureSensor.absSensorAlias,self.pinAbs)
         self.difPressureSensor = PressureSensor(PressureSensor.difSensorAlias,self.pinDiff)
@@ -60,7 +57,12 @@ class ChannelModel(QObject):
     @valueAbs.setter
     def valueAbs(self,value):
         self._curValAbs = value
-        self.absValueChanged.emit(PressureSensor.DISPLAY_RATIO[PressureSensor.absSensorAlias]*self._curValAbs)
+        #str.format("{:.{}f}",value,Config.ABS_PRESSURE_ROUNDING_PRECISION)
+        v = PressureSensor.DISPLAY_RATIO[PressureSensor.absSensorAlias]*self._curValAbs
+        vr = round(v,Config.ABS_PRESSURE_ROUNDING_PRECISION)
+        if (abs(vr)<1/pow(10,Config.ABS_PRESSURE_ROUNDING_PRECISION)): 
+            vr = 0
+        self.absValueChanged.emit(str.format("{:.{}f}",vr,Config.ABS_PRESSURE_ROUNDING_PRECISION))
    
     @property
     def valueDif(self):
@@ -70,7 +72,12 @@ class ChannelModel(QObject):
     @valueDif.setter
     def valueDif(self,value):
         self._curValDif = value
-        self.difValueChanged.emit(PressureSensor.DISPLAY_RATIO[PressureSensor.difSensorAlias]*self._curValDif) 
+        #str.format("{:.{}f}",value,Config.DIF_PRESSURE_ROUNDING_PRECISION)
+        v = PressureSensor.DISPLAY_RATIO[PressureSensor.difSensorAlias]*self._curValDif
+        vr = round(v,Config.DIF_PRESSURE_ROUNDING_PRECISION)
+        if (abs(vr)<1/pow(10,Config.DIF_PRESSURE_ROUNDING_PRECISION)): 
+            vr = 0
+        self.difValueChanged.emit(str.format("{:.{}f}",vr,Config.DIF_PRESSURE_ROUNDING_PRECISION)) 
        
 
     def startDurationTimer(self,start):
@@ -113,3 +120,5 @@ class ChannelModel(QObject):
 
 if __name__ == '__main__':
     print(f'm = {PressureSensor.PRESSURE_MAX["DIF"]}')
+    k = 1/pow(10,2)
+    print(f'{k}')

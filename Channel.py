@@ -157,13 +157,13 @@ class ChannelView(QWidget):
         self._model.durationValueChanged.connect(self.onDurationValueChanged)
         #self._model.modelUpdated.connect(self.onModelUpdated)
 
-    @pyqtSlot(float)
+    @pyqtSlot(str)
     def onValueAbsChanged(self,value):       
-        self.measureAbs.setText(str.format("{:.{}f}",value,Config.ABS_PRESSURE_ROUNDING_PRECISION))    
+        self.measureAbs.setText(value)    
 
-    @pyqtSlot(float)
+    @pyqtSlot(str)
     def onValueDifChanged(self,value):
-        self.measureDiff.setText(str.format("{:.{}f}",value,Config.DIF_PRESSURE_ROUNDING_PRECISION))        
+        self.measureDiff.setText(value)        
 
     @pyqtSlot(float)
     def onDurationValueChanged(self,value):

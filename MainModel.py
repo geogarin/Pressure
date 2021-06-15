@@ -85,15 +85,12 @@ class MainModel(QObject):
             self.channelModels[i].updateModel()
 
     def onCheckUsbTimer(self):
-        
-        print('check usb')
         isSetup = self.db.isSetupFlashInstalled()
         isMaster = self.db.isMasterFlashInstalled()
 
         if (isSetup!=self.buttonSetupVisible) or (isMaster!=self.buttonManualVisible):
             self.buttonSetupVisible = isSetup
             self.buttonManualVisible = isMaster
-            print(f'setup={isSetup} master={isMaster}')
             self.buttonsVisibleChanged.emit()
 
 
