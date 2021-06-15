@@ -33,7 +33,6 @@ class ChannelModel(QObject):
 
         self.minDurationValue = 0
         self.maxDurationValue = 5 + Config.SENSORS_INIT_PERIOD/1000
-        print(f'max dur val = {self.maxDurationValue}')
         self.curDurationValue = 0
         self.durationTimerStep = 0.1    
         self.durationTimer = QTimer()

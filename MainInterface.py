@@ -26,6 +26,7 @@ class MainInterface(QWidget):
         self.setupButton.setStyleSheet(MenuButtonStyle)
         self.manualButton = QPushButton(self._model.buttonManualName)
         self.manualButton.setStyleSheet(MenuButtonStyle)
+        self.setButtonsVisible()
 
         self.menu.addWidget(self.setupButton)
         self.menu.addWidget(self.manualButton)
@@ -49,6 +50,7 @@ class MainInterface(QWidget):
         self.setLayout(self.mainLayout)
 
         self._model.startTestButtonNameChanged.connect(self.onStartTestButtonNameChanged)
+        self._model.buttonsVisibleChanged.connect(self.setButtonsVisible)
         self.startTestButton.clicked.connect(lambda: self._model.startTestButtonPressed())
         self.setupButton.clicked.connect(lambda: self._model.openSetupDialogButtonPressed())
         
@@ -59,5 +61,10 @@ class MainInterface(QWidget):
             self.startTestButton.setStyleSheet(ButtonStartStyle)
         else:
             self.startTestButton.setStyleSheet(ButtonStopStyle)
+    
+    @pyqtSlot()
+    def setButtonsVisible(self):
+        self.setupButton.setVisible(self._model.buttonSetupVisible)
+        self.manualButton.setVisible(self._model.buttonManualVisible)
 
     

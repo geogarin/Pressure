@@ -144,6 +144,7 @@ cursor.execute('''create table if not exists Channels (
 connection.commit()
 cursor.executemany('insert into Channels (Name,PinDif,PinAbs,Enabled) values (?,?,?,?)',[(k,*v.values()) for k,v in CHANNELS.items()])
 
+"""
 cursor.execute('drop table if exists Setup')
 cursor.execute('''create table if not exists Setup (
                     Entry integer primary key not null,
@@ -169,10 +170,14 @@ cursor.execute('''create table if not exists Receipts (
                     Enabled integer)
                ''')
 connection.commit()
+"""
 #cursor.execute('insert into Receipts (Name,Enabled) values(?,?)',('test1',1))
 #cursor.execute('insert into Receipts (Name,Enabled) values(?,?)',('test2',1))
 #cursor.execute('insert into Receipts (Name,Enabled) values(?,?)',('test3',1))
 
+
+#cursor.execute('drop table if exists FlashDrives')
+#cursor.execute('create table FlashDrives (Serial text primary key not null, Setup integer,Master integer)')
 
 print('-------------')
 cursor.execute(f'select * from SensorType')
@@ -197,6 +202,11 @@ res= [list(row) for row in cursor.fetchall()]
 print(res)
 print('-------------')
 
+print('-------------')
+cursor.execute(f'select * from FlashDrives')
+res= [list(row) for row in cursor.fetchall()]
+print(res)
+print('-------------')
 
 connection.commit()
 connection.close()

@@ -9,6 +9,9 @@ SENSORS_REQUEST_PERIOD = 5
 # Длительность обнуления датчиков (мс)
 SENSORS_INIT_PERIOD = 2000
 
+# Период проверки вставленных флешек (мс)
+USB_CHECK_PERIOD = 5000
+
 # Названия контролов
 BUTTON_START_TEST = 'Старт'
 BUTTON_STOP_TEST = 'Стоп'

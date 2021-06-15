@@ -10,10 +10,11 @@ from PyQt5.QtCore import Qt,QObject,pyqtSignal,QTimer
 class MainModel(QObject):
     startTestButtonNameChanged = pyqtSignal(str)
     setupDialogClosed = pyqtSignal()
+    buttonsVisibleChanged = pyqtSignal()
     def __init__(self):
         super().__init__()
-        d = data()
-        channels = d.getChannels()
+        self.db = data()
+        channels = self.db.getChannels()
 
         self.channelsQuantity = len(channels)
         self.channelModels = []
@@ -29,7 +30,13 @@ class MainModel(QObject):
         self.testStarted = False
         self._startTestButtonName = Config.BUTTON_START_TEST
         self.buttonSetupName = Config.BUTTON_SETUP
+        self.buttonSetupVisible = False
         self.buttonManualName = Config.BUTTON_MANUAL
+        self.buttonManualVisible = False
+
+        self.checkUsbTimer = QTimer()
+        self.checkUsbTimer.timeout.connect(self.onCheckUsbTimer)
+        self.checkUsbTimer.start(Config.USB_CHECK_PERIOD)
     
     @property
     def startTestButtonName(self):
@@ -76,4 +83,19 @@ class MainModel(QObject):
     def updateChannelsModel(self):       
         for i in range(self.channelsQuantity):
             self.channelModels[i].updateModel()
+
+    def onCheckUsbTimer(self):
+        
+        print('check usb')
+        isSetup = self.db.isSetupFlashInstalled()
+        isMaster = self.db.isMasterFlashInstalled()
+
+        if (isSetup!=self.buttonSetupVisible) or (isMaster!=self.buttonManualVisible):
+            self.buttonSetupVisible = isSetup
+            self.buttonManualVisible = isMaster
+            print(f'setup={isSetup} master={isMaster}')
+            self.buttonsVisibleChanged.emit()
+
+
+
 

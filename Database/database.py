@@ -1,5 +1,6 @@
 import sqlite3
 from datetime import datetime
+import usb
 
 import os,sys,inspect
 current_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
@@ -81,6 +82,37 @@ class data():
     def saveReceipts(self,receiptName,fieldName,fieldValue):
         r = self.cursor.execute('update Receipts set '+ fieldName+'=? where Name=?',(fieldValue,receiptName))
 
+    def getUsbDevices(self):
+        return [device.serial_number for device in usb.core.find(find_all=True) if (device.bDeviceClass==0)]
+    
+    def getSetupDriveList(self):
+        return(self.cursor.execute('select Serial from FlashDrives where Setup=1'))
+
+    def getMasterDriveList(self):
+        return(self.cursor.execute('select Serial from FlashDrives where Master=1'))
+
+    def isSetupFlashInstalled(self):
+        usbs = self.getUsbDevices()    
+        s = [usbDev for usbDev in usbs if usbDev in [rec['Serial'] for rec in self.getSetupDriveList()]]
+        return s!=[]
+    
+    def isMasterFlashInstalled(self):
+        usbs = self.getUsbDevices()    
+        s = [usbDev for usbDev in usbs if usbDev in [rec['Serial'] for rec in self.getMasterDriveList()]]
+        return s!=[]
+
+    def addFlashDrive(self,serial,setup=0,master=0):
+        rec = self.cursor.execute('select * from FlashDrives where Serial=?',(serial,)).fetchone()
+        if rec is None:
+            self.cursor.execute('insert into FlashDrives (Serial,Setup,Master) values (?,?,?)',(serial,setup,master))
+        
+        #self.cursor.execute('update FlashDrives set Setup=?,Master=? where Serial=?',(setup,master,serial))
+        self.connection.commit()
+    
+    def addSetupFlashDrive(self):
+        usbs = self.getUsbDevices()
+        for usbDev in usbs:
+            self.addFlashDrive(usbDev,1)
 
     def __del__(self):
         self.connection.close() 
@@ -88,15 +120,27 @@ class data():
 if __name__ == '__main__':
     d = data()
 
-    p=d.getActiveReceipts()
-    print(f'receipts={len(p)} val0={p[0]["Name"]}')
+    #p=d.getActiveReceipts()
+    #print(f'receipts={len(p)} val0={p[0]["Name"]}')
 
+    t=d.getUsbDevices()
+    print(t)
+    """
+    for usbDev in t:
+        d.addFlashDrive(usbDev,1) # setup
+        #d.addFlashDrive(usbDev,0,1) # master
+    """
+    si = d.isSetupFlashInstalled()
+    mi = d.isMasterFlashInstalled()
+    print(f'isSetup={si} isMaster={mi}')     
 
-
-    p=d.getChannels()
-    print(len(p))
-    print(p)
+    #d.addFlashDrive(t[0])
+    """
+    #p=d.getChannels()
+    #print(len(p))
+    #print(p)
     for r in p:
         print (r['Name'])
         print (r)
+    """
 

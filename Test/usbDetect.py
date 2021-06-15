@@ -38,6 +38,7 @@ def get_usb_devices():
     return [(device.idVendor, device.idProduct, _get_dev_string_info(device),device.serial_number,device.bDeviceClass) 
                 for device in usb.core.find(find_all=True)
                     if (device.idProduct > 2) and (device.bDeviceClass==0)
+                    #if device.serial_number in ('9000864F11D97D98','E69214006C25')
                     ]
 
 if __name__=='__main__':
