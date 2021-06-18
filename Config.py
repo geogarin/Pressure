@@ -3,6 +3,13 @@
 DATABASE_NAME = 'data.db'
 DATABASE_PATH = './Data/'
 
+# Точность округления показаний давления (знаков после запятой)
+ABS_PRESSURE_ROUNDING_PRECISION = 0
+DIF_PRESSURE_ROUNDING_PRECISION = 0
+
+ABS_MASTER_MODE_PRESSURE_ROUNDING_PRECISION = 2
+DIF_MASTER_MODE_PRESSURE_ROUNDING_PRECISION = 2
+
 # Период опроса датчиков (мс)
 SENSORS_REQUEST_PERIOD = 5
 
@@ -11,6 +18,9 @@ SENSORS_INIT_PERIOD = 2000
 
 # Период проверки вставленных флешек (мс)
 USB_CHECK_PERIOD = 5000
+
+# Максимальное давление по диф. датчику, при котором клапан2 может быть закрыт (-500..500). При превышении-клапан принудительно открывается 
+MAX_PRESSURE_VALVE2_CLOSED = 500
 
 # Названия контролов
 BUTTON_START_TEST = 'Старт'
@@ -90,6 +100,19 @@ RC_SEALED_TEST_DURATION_MAX = 30
 
 RC_LIST_WIDTH=300 # Ширина списка рецептов
 
+# форма сервиса
+SVC_SERVICE_NAME = 'Сервис'
+
+SVC_VALVE1_NAME = 'Клапан 1'
+SVC_VALVE2_NAME = 'Клапан 2'
+SVC_VALVE3_NAME = 'Клапан 3'
+SVC_VALVE4_NAME = 'Клапан 4'
+SVC_VALVE_CLOSED = 'Закр'
+SVC_VALVE_OPEN = 'Откр'
+SVC_ZERO_SENSOR = 'Обнулить'
+SVC_RESET_ZERO_SENSOR = 'Удалить обнуление'
+
+
 # Символы клавиатуры
 KEYBOARD_CHARS=['1234567890-+',
                 'йцукенгшщзхъ',
@@ -105,9 +128,7 @@ MAX_SAMPLES_QUANTITY = 1000
 MIN_KB_BUTTON_SIZE = 50
 MAX_KB_BUTTON_SIZE = 100
 
-# Точность округления показаний давления (знаков после запятой)
-ABS_PRESSURE_ROUNDING_PRECISION = 2
-DIF_PRESSURE_ROUNDING_PRECISION = 2
+
 
 if __name__=='__main__':
     #print(f'{len(KEYBOARD_CHARS)}  {KEYBOARD_CHARS[38]}')

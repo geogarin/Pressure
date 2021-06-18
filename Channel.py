@@ -1,14 +1,12 @@
-import sys
+
 from PyQt5 import QtGui
 from PyQt5.QtWidgets import (QCheckBox, QFrame,QComboBox,QWidget,QGroupBox,QPushButton,QVBoxLayout,QHBoxLayout,QLabel,QLineEdit,QGridLayout)
-from PyQt5.QtCore import Qt,QPoint, QRect, QSize, pyqtSlot
+from PyQt5.QtCore import Qt,pyqtSlot
 import Config
-from Model import ChannelModel
 from PressureSensor import PressureSensor
 from CircularProgressBar import QRoundProgressBar
 from SwitchButton import SwitchButton
 from RoundedRect import RoundedRect
-
 import stylesheets
 
 class ChannelView(QWidget):
@@ -150,7 +148,7 @@ class ChannelView(QWidget):
 
         self.group.addWidget(self.title)    
         self.group.addWidget(self.frame)
-        self.group.addStretch()
+        #self.group.addStretch()
         
         self._model.absValueChanged.connect(self.onValueAbsChanged)
         self._model.difValueChanged.connect(self.onValueDifChanged)

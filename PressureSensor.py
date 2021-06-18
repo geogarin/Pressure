@@ -66,7 +66,7 @@ class PressureSensor():
 
         self.setDelta(0)
         self.initFilterValues()
-        self.zeroSensor()
+        #self.zeroSensor()
     
     def setDelta(self,delta):
         self.delta = delta

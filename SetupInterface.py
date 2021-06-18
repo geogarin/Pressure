@@ -89,7 +89,7 @@ class SetupView(QDialog):
         #self.saveButton.setStyleSheet(stylesheets.SDS_Button)
 
         self.closeButton = QPushButton(Config.SETUP_DIALOG_CLOSE)
-        self.closeButton.setStyleSheet(stylesheets.SDS_Button)
+        self.closeButton.setStyleSheet(stylesheets.SVC_Button)
 
         self.buttonsLayout.addStretch()
         #self.buttonsLayout.addWidget(self.saveButton,0,Qt.AlignRight)

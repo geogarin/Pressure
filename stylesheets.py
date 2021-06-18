@@ -303,6 +303,20 @@ QCheckBox::indicator {
 """
 # Setup Dialog Styles (SDS_)<<
 
+# Service Dialog Styles (SVC_) >>
+SVC_Button="""
+QPushButton
+{
+    border-width: 5px;
+    font-family: "Times";
+    font-size: 30pt;
+    min-width: 300px;
+    DefaultBackgroundColor
+}
+""".replace('DefaultBackgroundColor',DefaultBackgroundColor)
+# Service Dialog Styles (SVC_) <<
+
+
 # Virtual keyboard >>
 VK_Button="""
 QPushButton

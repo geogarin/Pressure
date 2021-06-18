@@ -1,7 +1,8 @@
 from Channel import ChannelView
 from MainModel import MainModel
 from Config import BUTTON_START_TEST
-from stylesheets import ButtonStartStyle,ButtonStopStyle,MenuButtonStyle
+#from stylesheets import ButtonStartStyle,ButtonStopStyle,MenuButtonStyle
+import stylesheets
 
 from PyQt5.QtWidgets import QDialog,QWidget,QGridLayout,QProgressBar,QPushButton,QHBoxLayout
 from PyQt5 import QtGui
@@ -23,9 +24,9 @@ class MainInterface(QWidget):
 
 
         self.setupButton = QPushButton(self._model.buttonSetupName)
-        self.setupButton.setStyleSheet(MenuButtonStyle)
+        self.setupButton.setStyleSheet(stylesheets.SVC_Button) #MenuButtonStyle)
         self.manualButton = QPushButton(self._model.buttonManualName)
-        self.manualButton.setStyleSheet(MenuButtonStyle)
+        self.manualButton.setStyleSheet(stylesheets.SVC_Button) #MenuButtonStyle)
         self.setButtonsVisible()
 
         self.menu.addWidget(self.setupButton)
@@ -42,7 +43,7 @@ class MainInterface(QWidget):
 
         self.startTestButton = QPushButton(self._model.startTestButtonName)
         self.startTestButton.setObjectName("StartTestButton")
-        self.startTestButton.setStyleSheet(ButtonStartStyle)
+        self.startTestButton.setStyleSheet(stylesheets.ButtonStartStyle)
  
  
         self.mainLayout.addWidget(self.startTestButton,3,0,1,self._model.channelsQuantity)
@@ -53,14 +54,15 @@ class MainInterface(QWidget):
         self._model.buttonsVisibleChanged.connect(self.setButtonsVisible)
         self.startTestButton.clicked.connect(lambda: self._model.startTestButtonPressed())
         self.setupButton.clicked.connect(lambda: self._model.openSetupDialogButtonPressed())
+        self.manualButton.clicked.connect(lambda: self._model.openServiceDialogButtonPressed())
         
     @pyqtSlot(str)
     def onStartTestButtonNameChanged(self,value):
         self.startTestButton.setText(value)
         if (value == BUTTON_START_TEST):
-            self.startTestButton.setStyleSheet(ButtonStartStyle)
+            self.startTestButton.setStyleSheet(stylesheets.ButtonStartStyle)
         else:
-            self.startTestButton.setStyleSheet(ButtonStopStyle)
+            self.startTestButton.setStyleSheet(stylesheets.ButtonStopStyle)
     
     @pyqtSlot()
     def setButtonsVisible(self):

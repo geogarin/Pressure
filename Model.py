@@ -13,6 +13,7 @@ class ChannelModel(QObject):
     difValueChanged = pyqtSignal(str)
     durationValueChanged = pyqtSignal(float)
     modelUpdated = pyqtSignal()
+    valveStateChanged = pyqtSignal(int)
 
     def __init__(self,channelName,pinAbs,pinDiff):
         super().__init__()
@@ -26,7 +27,12 @@ class ChannelModel(QObject):
 
         self.testNameModel = ReceiptModel(enabledReceipts=1)
 
-        self.initSensorValues()
+        self._isOpenValve1 = False
+        self._isOpenValve2 = True
+        self._isOpenValve3 = False
+        self._isOpenValve4 = False
+
+        self.initRoundingPrecision()
 
         self.minDurationValue = 0
         self.maxDurationValue = 5 + Config.SENSORS_INIT_PERIOD/1000
@@ -35,14 +41,36 @@ class ChannelModel(QObject):
         self.durationTimer = QTimer()
         self.durationTimer.timeout.connect(self.durationTimerUpdate)
         self.durationTimerStarted = False
-    
+
+        self.sensorRequestTimer = QTimer()
+        self.sensorRequestTimer.timeout.connect(self.onSensorRequest)
+        
+
+    def setMasterMode(self,enabled):
+        if (enabled):
+            self.initRoundingPrecision(Config.ABS_MASTER_MODE_PRESSURE_ROUNDING_PRECISION,Config.DIF_MASTER_MODE_PRESSURE_ROUNDING_PRECISION)
+
+        else:
+            self.initRoundingPrecision()
+
+        self.sensorRequest(enabled)
+
+    def sensorRequest(self,enabled):
+        if (enabled):
+            self.sensorRequestTimer.start(Config.SENSORS_REQUEST_PERIOD)
+        else:
+            self.sensorRequestTimer.stop()
+
+    def initRoundingPrecision(self,absRoundingPrecision=Config.ABS_PRESSURE_ROUNDING_PRECISION,difRoundingPrecision=Config.DIF_PRESSURE_ROUNDING_PRECISION):
+        self.absRoundingPrecision = absRoundingPrecision
+        self.difRoundingPrecision = difRoundingPrecision
+
     def initSensorValues(self):
         self.absPressureSensor.zeroSensor()
         self.difPressureSensor.zeroSensor()
         self._curValAbs = 0       
         self._curValDif = 0
         
-
     def updateModel(self):
         print(f'update channel {self.channelName}')
         self.testNameModel.layoutChanged.emit()
@@ -51,33 +79,31 @@ class ChannelModel(QObject):
            
     @property
     def valueAbs(self):
-        print('abs value getter')
         return(PressureSensor.DISPLAY_RATIO[PressureSensor.absSensorAlias]*self._curValAbs)
           
     @valueAbs.setter
     def valueAbs(self,value):
         self._curValAbs = value
-        #str.format("{:.{}f}",value,Config.ABS_PRESSURE_ROUNDING_PRECISION)
         v = PressureSensor.DISPLAY_RATIO[PressureSensor.absSensorAlias]*self._curValAbs
-        vr = round(v,Config.ABS_PRESSURE_ROUNDING_PRECISION)
-        if (abs(vr)<1/pow(10,Config.ABS_PRESSURE_ROUNDING_PRECISION)): 
+        vr = round(v,self.absRoundingPrecision)
+        if (abs(vr)<1/pow(10,self.absRoundingPrecision)): 
             vr = 0
-        self.absValueChanged.emit(str.format("{:.{}f}",vr,Config.ABS_PRESSURE_ROUNDING_PRECISION))
-   
+        self.absValueChanged.emit(str.format("{:.{}f}",vr,self.absRoundingPrecision))
+    
     @property
     def valueDif(self):
-        print('dif value getter')
         return(PressureSensor.DISPLAY_RATIO[PressureSensor.difSensorAlias]*self._curValDif)
-
+    
     @valueDif.setter
     def valueDif(self,value):
         self._curValDif = value
-        #str.format("{:.{}f}",value,Config.DIF_PRESSURE_ROUNDING_PRECISION)
         v = PressureSensor.DISPLAY_RATIO[PressureSensor.difSensorAlias]*self._curValDif
-        vr = round(v,Config.DIF_PRESSURE_ROUNDING_PRECISION)
-        if (abs(vr)<1/pow(10,Config.DIF_PRESSURE_ROUNDING_PRECISION)): 
+        vr = round(v,self.difRoundingPrecision)
+        if (abs(vr)<1/pow(10,self.difRoundingPrecision)): 
             vr = 0
-        self.difValueChanged.emit(str.format("{:.{}f}",vr,Config.DIF_PRESSURE_ROUNDING_PRECISION)) 
+        if (vr>Config.MAX_PRESSURE_VALVE2_CLOSED) or (vr<-Config.MAX_PRESSURE_VALVE2_CLOSED): self.isOpenValve2 = True
+
+        self.difValueChanged.emit(str.format("{:.{}f}",vr,self.difRoundingPrecision)) 
        
 
     def startDurationTimer(self,start):
@@ -96,6 +122,10 @@ class ChannelModel(QObject):
                 self.durationTimerStarted = False
             self.durationValueChanged.emit(self.curDurationValue)
 
+    def onSensorRequest(self):
+        self.readSensor(PressureSensor.absSensorAlias)
+        self.readSensor(PressureSensor.difSensorAlias)
+
     def readSensor(self,sensorType):
         if (sensorType == PressureSensor.absSensorAlias):
             if (self.absPressureSensor.zeroed):
@@ -104,20 +134,69 @@ class ChannelModel(QObject):
             if (self.difPressureSensor.zeroed):
                 self.valueDif = self.difPressureSensor.getFilteredValue()
         
-        """
-        print(f'Sensor data {res}')
-        print('Decoded:')
-
-
-        print(f'status bits={status_bits:02b}')
-        print(f'Pressure={pressure} mbar (in counts {output})')
-        print(f'Temperature={temperature} (in counts {output_t})')
         
-        #print(f'Датчик {sensorPin}: давление={pressure:.5f}; температура={temperature:.2f}')
-        return [sensorPin,pressure,temperature]
-        """
+    def inverseValve(self,valveNumber):
+        if (valveNumber==1): self.isOpenValve1 = not self.isOpenValve1
+        if (valveNumber==2): self.isOpenValve2 = not self.isOpenValve2
+        if (valveNumber==3): self.isOpenValve3 = not self.isOpenValve3
+        if (valveNumber==4): self.isOpenValve4 = not self.isOpenValve4
 
+    @property
+    def isOpenValve1(self):
+        return self._isOpenValve1
 
+    @isOpenValve1.setter
+    def isOpenValve1(self,value):
+        self._isOpenValve1 = value
+        
+        if (self.isOpenValve1):
+            if (not self.isOpenValve2):
+                self.isOpenValve2 = True
+        self.valveStateChanged.emit(1)
+
+    @property
+    def isOpenValve2(self):
+        return self._isOpenValve2
+        
+    @isOpenValve2.setter
+    def isOpenValve2(self,value):
+        self._isOpenValve2 = value        
+        self.valveStateChanged.emit(2)
+
+    @property
+    def isOpenValve3(self):
+        return self._isOpenValve3
+
+    @isOpenValve3.setter
+    def isOpenValve3(self,value):
+        self._isOpenValve3 = value
+        self.valveStateChanged.emit(3)
+
+    @property
+    def isOpenValve4(self):
+        return self._isOpenValve4
+
+    @isOpenValve4.setter
+    def isOpenValve4(self,value):
+        self._isOpenValve4 = value
+        
+        if (self.isOpenValve4):
+            if (not self.isOpenValve2):
+                self.isOpenValve2 = True
+        self.valveStateChanged.emit(4)
+
+    @property
+    def isEnabledValve2(self):
+        return not(self.isOpenValve1 or self.isOpenValve4)
+
+    def zeroSensors(self):
+        self.absPressureSensor.zeroSensor()
+        self.difPressureSensor.zeroSensor()
+    
+    def resetZeroSensors(self):
+        self.absPressureSensor.setDelta(0)
+        self.difPressureSensor.setDelta(0)
+    
 if __name__ == '__main__':
     print(f'm = {PressureSensor.PRESSURE_MAX["DIF"]}')
     k = 1/pow(10,2)

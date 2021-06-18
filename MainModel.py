@@ -3,6 +3,7 @@ import Config
 from Model import ChannelModel
 from SetupModel import SetupModel
 from SetupInterface import SetupView
+from ServiceInterface import ServiceInterface
 
 from Database.database import data
 from PyQt5.QtCore import Qt,QObject,pyqtSignal,QTimer
@@ -65,6 +66,11 @@ class MainModel(QObject):
         setupDialog.exec_()
 
         self.updateChannelsModel()
+
+    def openServiceDialogButtonPressed(self):
+        serviceInterface = ServiceInterface(self)
+        serviceInterface.exec_()
+        print('after service')
         
     def startDurationTimer(self,start):
         for i in range(self.channelsQuantity):
