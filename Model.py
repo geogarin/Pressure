@@ -5,6 +5,7 @@ import Config
 from Database.database import data
 from ReceiptModel import ReceiptModel
 from PressureSensor import PressureSensor
+from ValveControl import ValveControl
 
 
 
@@ -196,6 +197,16 @@ class ChannelModel(QObject):
     def resetZeroSensors(self):
         self.absPressureSensor.setDelta(0)
         self.difPressureSensor.setDelta(0)
+
+    def setTestPressure(self,testName):
+        if testName!='':
+            d = data()
+            r = d.getReceipt(testName)
+            pressure = r['StrengthTestPressure']
+            
+            ValveControl.setMaxChannelPressure(pressure)
+
+    
     
 if __name__ == '__main__':
     print(f'm = {PressureSensor.PRESSURE_MAX["DIF"]}')

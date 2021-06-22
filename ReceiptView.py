@@ -58,7 +58,7 @@ class ReceiptView(QWidget):
         self.receiptName.keyboard = VirtualKeyboard(self,self.receiptList.model().keyboardButtonSize,False)
         self.receiptName.setStyleSheet(stylesheets.SDS_LineEdit)
         self.receiptName.editDone.connect(self.signalMapper.map)
-        self.signalMapper.setMapping(self.receiptName,self.fieldNames[0])    
+        self.signalMapper.setMapping(self.receiptName,0)#self.fieldNames[0])    
         self.receiptNameLabel = QLabel(self.labelTexts[0]) 
         self.receiptNameLabel.setStyleSheet(stylesheets.SDS_Label)
 

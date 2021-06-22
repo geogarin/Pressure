@@ -27,10 +27,6 @@ class ChannelView(QWidget):
         # Выбор теста >>
         self.testName = QComboBox()
         self.testName.setModel(self._model.testNameModel)
-      
-        #self.pal = self.testName.palette()
-        #self.pal.setColor(QtGui.QPalette.Button, QtGui.QColor(97,197,255))
-        #self.testName.setPalette(self.pal) 
         self.testName.setStyleSheet(stylesheets.QComboBoxReceipt)                    
         # Выбор теста <<
 
@@ -153,7 +149,13 @@ class ChannelView(QWidget):
         self._model.absValueChanged.connect(self.onValueAbsChanged)
         self._model.difValueChanged.connect(self.onValueDifChanged)
         self._model.durationValueChanged.connect(self.onDurationValueChanged)
+
+        self.testName.currentIndexChanged.connect(self.onTestChanged)
+        self.onTestChanged(0)
         #self._model.modelUpdated.connect(self.onModelUpdated)
+
+    def onTestChanged(self,i):
+        self._model.setTestPressure(self.testName.currentText())
 
     @pyqtSlot(str)
     def onValueAbsChanged(self,value):       
