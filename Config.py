@@ -19,6 +19,9 @@ SENSORS_INIT_PERIOD = 2000
 # Период проверки вставленных флешек (мс)
 USB_CHECK_PERIOD = 5000
 
+# i2c адрес модуля, управляющего фитингами
+FITTING_MODULE_ADDRESS = 0x15 
+
 # Максимальное давление по диф. датчику, при котором клапан2 может быть закрыт (-500..500). При превышении-клапан принудительно открывается 
 MAX_PRESSURE_VALVE2_CLOSED = 500
 
@@ -107,6 +110,7 @@ SVC_VALVE1_NAME = 'Клапан 1'
 SVC_VALVE2_NAME = 'Клапан 2'
 SVC_VALVE3_NAME = 'Клапан 3'
 SVC_VALVE4_NAME = 'Клапан 4'
+SVC_VALVE5_NAME = 'Клапан фитинга'
 SVC_VALVE_CLOSED = 'Закр'
 SVC_VALVE_OPEN = 'Откр'
 SVC_ZERO_SENSOR = 'Обнулить'

@@ -41,18 +41,22 @@ CHANNELS = {
     "Канал 1":
         {"DifPin" : 477,
          "AbsPin" : 479,
+         "I2CAddres" : 17,
          "Enabled": 1} ,
     "Канал 2":
         {"DifPin" : 476,
          "AbsPin" : 492,
+         "I2CAddres" : 18,
          "Enabled": 1} ,
     "Канал 3":
         {"DifPin" : 483,
          "AbsPin" : 490,
+         "I2CAddres" : 19,
          "Enabled": 1} ,
     "Канал 4":
         {"DifPin" : 480,
          "AbsPin" : 434,
+         "I2CAddres" : 20,
          "Enabled": 1} ,
 }
 #a=CHANNELS.items()
@@ -67,6 +71,7 @@ connection.row_factory = sqlite3.Row
 connection.isolation_level = None
 #connection.execute("PRAGMA foreign_keys = 1")
 cursor = connection.cursor()
+"""
 cursor.execute('drop table if exists SensorType')
 cursor.execute('''create table if not exists SensorType (
                     Type text primary key not null,
@@ -119,6 +124,7 @@ for sensorType,sensorParameters in SENSOR_TYPES.items():
 connection.commit()
 cursor.execute('drop table if exists Sensor')
 """
+"""
 connection.execute("PRAGMA foreign_keys = 1")
 
 cursor.execute('''create table if not exists Sensor (
@@ -139,10 +145,11 @@ cursor.execute('''create table if not exists Channels (
                     Name text primary key not null,
                     PinDif integer,
                     PinAbs integer,
+                    I2CAddress integer,
                     Enabled integer)
                ''')
 connection.commit()
-cursor.executemany('insert into Channels (Name,PinDif,PinAbs,Enabled) values (?,?,?,?)',[(k,*v.values()) for k,v in CHANNELS.items()])
+cursor.executemany('insert into Channels (Name,PinDif,PinAbs,I2CAddress,Enabled) values (?,?,?,?,?)',[(k,*v.values()) for k,v in CHANNELS.items()])
 
 """
 cursor.execute('drop table if exists Setup')

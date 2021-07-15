@@ -61,7 +61,13 @@ class ServiceChannel(QWidget):
         self.labelValve4.setStyleSheet(stylesheets.QLabelStyle3)
         self.valve4 = SwitchButton(None,'',Config.SVC_VALVE_CLOSED,Config.SVC_VALVE_OPEN,200,50,10,100)
         self.valve4.setStyleSheet(stylesheets.SwitchButtonStyle)
-        for i in range(1,5):
+
+        self.labelValve5 = QLabel(Config.SVC_VALVE5_NAME)
+        self.labelValve5.setObjectName('Label')
+        self.labelValve5.setStyleSheet(stylesheets.QLabelStyle3)
+        self.valve5 = SwitchButton(None,'',Config.SVC_VALVE_CLOSED,Config.SVC_VALVE_OPEN,200,50,10,100)
+        self.valve5.setStyleSheet(stylesheets.SwitchButtonStyle)
+        for i in range(1,6):
             self.updateValves(i)
 
 
@@ -72,6 +78,7 @@ class ServiceChannel(QWidget):
         self.resetZeroSensor.setStyleSheet(stylesheets.SVC_Button)
 
         self.spacer = QSpacerItem(10,200)
+        self.spacer2 = QSpacerItem(10,50)
 
 
         
@@ -126,6 +133,15 @@ class ServiceChannel(QWidget):
         self.mainLayout.addWidget(self.valve2,curRow,curCol+1)
         curRow += 1
 
+        self.mainLayout.addItem(self.spacer2,curRow,curCol,1,2)
+        curRow += 1
+
+        self.mainLayout.addWidget(self.labelValve5,curRow,curCol,1,2,Qt.AlignCenter)
+        curRow += 1
+
+        self.mainLayout.addWidget(self.valve5,curRow,curCol,1,2,Qt.AlignCenter)
+        curRow += 1
+
         self.mainLayout.addItem(self.spacer,curRow,curCol,1,2)
         curRow += 1
 
@@ -154,6 +170,7 @@ class ServiceChannel(QWidget):
         self.valve2.clicked.connect(lambda: self._model.inverseValve(2))
         self.valve3.clicked.connect(lambda: self._model.inverseValve(3))
         self.valve4.clicked.connect(lambda: self._model.inverseValve(4))
+        self.valve5.clicked.connect(lambda: self._model.inverseValve(5))
 
         self.resetZeroSensor.clicked.connect(lambda: self._model.resetZeroSensors())
         self.zeroSensor.clicked.connect(lambda: self._model.zeroSensors())
@@ -172,6 +189,8 @@ class ServiceChannel(QWidget):
             self.valve3.setChecked(self._model.isOpenValve3)
         if (value==4):
             self.valve4.setChecked(self._model.isOpenValve4)
+        if (value==5):
+            self.valve5.setChecked(self._model.isFittingClosed)
 
         self.valve2.setEnabled(self._model.isEnabledValve2)
 

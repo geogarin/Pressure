@@ -20,10 +20,11 @@ class MainModel(QObject):
         self.channelsQuantity = len(channels)
         self.channelModels = []
         
-        
+        channelIndex = 1
         for channel in channels:
             #print(f"{channel['Name']},{channel['PinAbs']},{channel['PinDif']}") 
-            self.channelModels.append(ChannelModel(channel['Name'],channel['PinAbs'],channel['PinDif']))
+            self.channelModels.append(ChannelModel(channel['Name'],channel['PinAbs'],channel['PinDif'],channel['I2CAddress'],channelIndex))
+            channelIndex += 1
 
         self.timer = QTimer()
         self.timer.timeout.connect(self.upd)
@@ -70,7 +71,7 @@ class MainModel(QObject):
     def openServiceDialogButtonPressed(self):
         serviceInterface = ServiceInterface(self)
         serviceInterface.exec_()
-        print('after service')
+        #print('after service')
         
     def startDurationTimer(self,start):
         for i in range(self.channelsQuantity):

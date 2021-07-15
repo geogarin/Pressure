@@ -6,8 +6,7 @@ from Database.database import data
 from ReceiptModel import ReceiptModel
 from PressureSensor import PressureSensor
 from ValveControl import ValveControl
-
-
+from pyiArduinoI2Crelay import *
 
 class ChannelModel(QObject):
     absValueChanged = pyqtSignal(str)
@@ -16,23 +15,23 @@ class ChannelModel(QObject):
     modelUpdated = pyqtSignal()
     valveStateChanged = pyqtSignal(int)
 
-    def __init__(self,channelName,pinAbs,pinDiff):
+    def __init__(self,channelName,pinAbs,pinDiff,i2cAddress,fittingValve):
         super().__init__()
         self.channelName = channelName
         
         self.pinAbs = pinAbs
         self.pinDiff = pinDiff
+        self.i2cAddress = i2cAddress
+        self.fittingValve = fittingValve
 
+        self.channelRelay = pyiArduinoI2Crelay(self.i2cAddress)
+        self.fittingRelay = pyiArduinoI2Crelay(Config.FITTING_MODULE_ADDRESS)
+        self.initChannelRelay()
+        
         self.absPressureSensor = PressureSensor(PressureSensor.absSensorAlias,self.pinAbs)
         self.difPressureSensor = PressureSensor(PressureSensor.difSensorAlias,self.pinDiff)
 
         self.testNameModel = ReceiptModel(enabledReceipts=1)
-
-        self._isOpenValve1 = False
-        self._isOpenValve2 = True
-        self._isOpenValve3 = False
-        self._isOpenValve4 = False
-
         self.initRoundingPrecision()
 
         self.minDurationValue = 0
@@ -50,11 +49,19 @@ class ChannelModel(QObject):
     def setMasterMode(self,enabled):
         if (enabled):
             self.initRoundingPrecision(Config.ABS_MASTER_MODE_PRESSURE_ROUNDING_PRECISION,Config.DIF_MASTER_MODE_PRESSURE_ROUNDING_PRECISION)
-
         else:
             self.initRoundingPrecision()
 
         self.sensorRequest(enabled)
+        self.initChannelRelay()
+    
+    def initChannelRelay(self):
+        #self.channelRelay.digitalWrite(ALL_CHANNEL,LOW)
+        self.isOpenValve1 = False
+        self.isOpenValve2 = True
+        self.isOpenValve3 = False
+        self.isOpenValve4 = False
+        self.isFittingClosed = False
 
     def sensorRequest(self,enabled):
         if (enabled):
@@ -141,6 +148,7 @@ class ChannelModel(QObject):
         if (valveNumber==2): self.isOpenValve2 = not self.isOpenValve2
         if (valveNumber==3): self.isOpenValve3 = not self.isOpenValve3
         if (valveNumber==4): self.isOpenValve4 = not self.isOpenValve4
+        if (valveNumber==5): self.isFittingClosed = not self.isFittingClosed
 
     @property
     def isOpenValve1(self):
@@ -155,6 +163,9 @@ class ChannelModel(QObject):
                 self.isOpenValve2 = True
         self.valveStateChanged.emit(1)
 
+        state = HIGH if self.isOpenValve1 else LOW
+        self.channelRelay.digitalWrite(1,state)
+
     @property
     def isOpenValve2(self):
         return self._isOpenValve2
@@ -163,6 +174,8 @@ class ChannelModel(QObject):
     def isOpenValve2(self,value):
         self._isOpenValve2 = value        
         self.valveStateChanged.emit(2)
+        state = LOW if self.isOpenValve2 else HIGH
+        self.channelRelay.digitalWrite(2,state)
 
     @property
     def isOpenValve3(self):
@@ -172,6 +185,8 @@ class ChannelModel(QObject):
     def isOpenValve3(self,value):
         self._isOpenValve3 = value
         self.valveStateChanged.emit(3)
+        state = HIGH if self.isOpenValve3 else LOW
+        self.channelRelay.digitalWrite(3,state)
 
     @property
     def isOpenValve4(self):
@@ -185,10 +200,24 @@ class ChannelModel(QObject):
             if (not self.isOpenValve2):
                 self.isOpenValve2 = True
         self.valveStateChanged.emit(4)
+        state = HIGH if self.isOpenValve4 else LOW
+        self.channelRelay.digitalWrite(4,state)
 
     @property
     def isEnabledValve2(self):
         return not(self.isOpenValve1 or self.isOpenValve4)
+
+    @property
+    def isFittingClosed(self):
+        return self._isFittingClosed
+        
+    @isFittingClosed.setter
+    def isFittingClosed(self,value):
+        self._isFittingClosed = value        
+        self.valveStateChanged.emit(5)
+        state = HIGH if self.isFittingClosed else LOW
+        self.fittingRelay.digitalWrite(self.fittingValve,state)
+
 
     def zeroSensors(self):
         self.absPressureSensor.zeroSensor()

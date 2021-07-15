@@ -32,7 +32,7 @@ class MainInterface(QWidget):
         self.menu.addWidget(self.setupButton)
         self.menu.addWidget(self.manualButton)
 
-        self.mainLayout.addLayout(self.menu,0,0,1,4,Qt.AlignRight)
+        self.mainLayout.addLayout(self.menu,0,0,1,4,Qt.AlignRight|Qt.AlignVCenter)
 
         for i in range(self._model.channelsQuantity):
             #print(i)
