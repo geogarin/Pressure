@@ -15,12 +15,13 @@ class ReceiptView(QWidget):
 
         super(QWidget,self).__init__(parent)
 
-        self.fieldsQty = 9
+        self.fieldsQty = 10
 
-        self.fieldNames = ['Name','ConnectionDuration','InflatingDuration','StabilizationDuration','StrengthTestPressure','StrengthTestDuration','SealedTestPressure',
+        self.fieldNames = ['Name','Volume','ConnectionDuration','InflatingDuration','StabilizationDuration','StrengthTestPressure','StrengthTestDuration','SealedTestPressure',
                           'SealedTestDeltaThreshold','SealedTestDuration','Enabled']
         self.labelTexts = [
             Config.RC_NAME,
+            Config.RC_VOLUME,
             Config.RC_CONNECTION_DURATION+', '+Config.RC_DURATION_UNIT_OF_MEASURE+' ('+ str(Config.RC_CONNECTION_DURATION_MIN) +'-'+ str(Config.RC_CONNECTION_DURATION_MAX) +')',
             Config.RC_INFLATING_DURATION+', '+Config.RC_DURATION_UNIT_OF_MEASURE+' ('+ str(Config.RC_INFLATING_DURATION_MIN) +'-'+ str(Config.RC_INFLATING_DURATION_MAX) +')',
             Config.RC_STABILIZATION_DURATION+', '+Config.RC_DURATION_UNIT_OF_MEASURE+' ('+ str(Config.RC_STABILIZATION_DURATION_MIN) +'-'+ str(Config.RC_STABILIZATION_DURATION_MAX) +')',
@@ -33,6 +34,7 @@ class ReceiptView(QWidget):
 
         self.fieldRanges = [
             (),
+            (Config.RC_VOLUME_MIN,Config.RC_VOLUME_MAX),
             (Config.RC_CONNECTION_DURATION_MIN,Config.RC_CONNECTION_DURATION_MAX),
             (Config.RC_INFLATING_DURATION_MIN,Config.RC_INFLATING_DURATION_MAX),
             (Config.RC_STABILIZATION_DURATION_MIN,Config.RC_STABILIZATION_DURATION_MAX),
@@ -83,7 +85,7 @@ class ReceiptView(QWidget):
 
         self.receiptEnabled = QCheckBox()
         self.receiptEnabled.setStyleSheet(stylesheets.SDS_CheckBox)
-        self.receiptEnabledLabel = QLabel(self.labelTexts[9])
+        self.receiptEnabledLabel = QLabel(self.labelTexts[self.fieldsQty])
         self.receiptEnabledLabel.setStyleSheet(stylesheets.SDS_Label)
 
         self.buttonNew = QPushButton(Config.RC_NEW)

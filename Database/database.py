@@ -44,6 +44,7 @@ class data():
         #print(receipt)
         self.cursor.execute('''update Receipts set
               Enabled = ?,
+              Volume = ?,
               ConnectionDuration = ?,
               InflatingDuration = ?,
               StabilizationDuration = ?,
@@ -55,6 +56,7 @@ class data():
               where Name=?
         ''',
         (receipt["Enabled"],
+         receipt["Volume"],
          receipt["ConnectionDuration"],
          receipt["InflatingDuration"],
          receipt["StabilizationDuration"],

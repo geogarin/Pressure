@@ -28,7 +28,6 @@ class ReceiptModel(QAbstractListModel):
         return self.d.getReceipt(name)
 
     def saveReceipt(self,receipt):
-        #print(f'save = {receipt["Name"]}')
         self.d.saveReceipt(receipt)
         self.insertNewReceipt = False
 

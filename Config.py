@@ -54,6 +54,7 @@ SETUP_DIALOG_LINE_EDIT_FIELD_WIDTH = 200
 
 # Форма настройки рецепта
 RC_NAME = 'Название'
+RC_VOLUME = 'Объем изделия, куб.см.'
 RC_ENABLED = 'Разрешен'
 RC_CONNECTION_DURATION = 'Стыковка'
 RC_INFLATING_DURATION = 'Напуск'
@@ -76,6 +77,9 @@ RC_DIALOG_NAME = 'Настройка рецепта'
 RC_DIALOG_RECEIPT_EXISTS = 'Рецепт с таким названием уже существует.\nПерезаписать?'
 
 RC_DURATION_UNIT_OF_MEASURE = 'сек'
+
+RC_VOLUME_MIN = 0
+RC_VOLUME_MAX = 100000
 
 RC_CONNECTION_DURATION_MIN = 1
 RC_CONNECTION_DURATION_MAX = 30
