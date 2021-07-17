@@ -2,6 +2,7 @@ import smbus
 from time import sleep
 class mcp4725:
     MCP4725_WRITE_FAST_MODE = 0b00000000
+    MAX_PRESSURE = 1000
 
     def __init__(self,addr=0x62,i2cBusNo=0):
         self.addr = addr
@@ -19,6 +20,9 @@ class mcp4725:
         assert 0.0<=val<=1.0
         self.setVoltage(int(val*4095))
 
+    def setPressure(self,val):
+        assert 0.0<=val<=900.0
+        self.setNormalizedValue(val/mcp4725.MAX_PRESSURE)
 
 if __name__=='__main__':
     m = mcp4725()
@@ -30,5 +34,10 @@ if __name__=='__main__':
     sleep(5)
     print('ноль')
     m.setNormalizedValue(0) # ноль
+    print('900')
+    m.setPressure(900)
+    sleep(5)
+    m.setPressure(0)
+
 
     
