@@ -4,6 +4,7 @@ from Model import ChannelModel
 from SetupModel import SetupModel
 from SetupInterface import SetupView
 from ServiceInterface import ServiceInterface
+from CommonControl import CommonControl
 
 from Database.database import data
 from PyQt5.QtCore import Qt,QObject,pyqtSignal,QTimer
@@ -14,6 +15,7 @@ class MainModel(QObject):
     buttonsVisibleChanged = pyqtSignal()
     def __init__(self):
         super().__init__()
+        CommonControl.closeInputPressure()
         self.db = data()
         channels = self.db.getChannels()
 
