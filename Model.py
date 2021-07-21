@@ -235,7 +235,7 @@ class ChannelModel(QObject):
             pressureSealed = r['SealedTestPressure']
     
             CommonControl.setMaxChannelPressure(pressureStrength)
-            Commonontrol.setMaxChannelPressure(pressureSealed)
+            CommonControl.setMaxChannelPressure(pressureSealed)
         else:
             CommonControl.setMaxChannelPressure(0)
    
