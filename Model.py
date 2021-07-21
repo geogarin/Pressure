@@ -1,6 +1,6 @@
 import sys
 from PyQt5 import QtCore
-from PyQt5.QtCore import Qt,QObject,pyqtSignal,QTimer
+from PyQt5.QtCore import Qt,QObject,pyqtSignal,pyqtSlot,QTimer
 import Config
 from Database.database import data
 from ReceiptModel import ReceiptModel
@@ -45,6 +45,9 @@ class ChannelModel(QObject):
         self.sensorRequestTimer = QTimer()
         self.sensorRequestTimer.timeout.connect(self.onSensorRequest)
         
+        self.absPressureSensor.sensorZeroed.connect(self.onSensorZeroed)
+        self.difPressureSensor.sensorZeroed.connect(self.onSensorZeroed)
+        self.zeroedSensorsQuantity = 0
 
     def setMasterMode(self,enabled):
         if (enabled):
@@ -74,8 +77,7 @@ class ChannelModel(QObject):
         self.difRoundingPrecision = difRoundingPrecision
 
     def initSensorValues(self):
-        self.absPressureSensor.zeroSensor()
-        self.difPressureSensor.zeroSensor()
+        self.zeroSensors()
         self._curValAbs = 0       
         self._curValDif = 0
         
@@ -220,6 +222,12 @@ class ChannelModel(QObject):
 
 
     def zeroSensors(self):
+        self.zeroedSensorsQuantity = 0
+        self.valve4State = self.isOpenValve4
+        self.valve2State = self.isOpenValve2
+
+        self.isOpenValve2 = True
+        self.isOpenValve4 = True
         self.absPressureSensor.zeroSensor()
         self.difPressureSensor.zeroSensor()
     
@@ -227,6 +235,13 @@ class ChannelModel(QObject):
         self.absPressureSensor.setDelta(0)
         self.difPressureSensor.setDelta(0)
 
+    @pyqtSlot()
+    def onSensorZeroed(self):
+        self.zeroedSensorsQuantity += 1
+        if self.zeroedSensorsQuantity==2:
+            self.isOpenValve4 = self.valve4State
+            self.isOpenValve2 = self.valve2State
+            
     def setTestPressure(self,testName):
         if testName!='':
             d = data()

@@ -2,10 +2,11 @@ import spidev
 import Odroid.GPIO as GPIO
 from Database.database import data
 from time import sleep
-from PyQt5.QtCore import QTimer
+from PyQt5.QtCore import QTimer,pyqtSignal,QObject
 import Config
 
-class PressureSensor():
+class PressureSensor(QObject):
+    sensorZeroed = pyqtSignal()
     GPIO.setmode(GPIO.SOC)
 
     d = data()
@@ -55,6 +56,7 @@ class PressureSensor():
         return pressure
 
     def __init__(self,sensorType,sensorPin):
+        super().__init__()
         self.sensorType = sensorType
         self.sensorPin = sensorPin
 
@@ -93,7 +95,7 @@ class PressureSensor():
         self.zeroed = False
         self.currentStep = 0
         self.setDelta(0)
-        print(f'start zero')
+        #print(f'start zero')
         self.initTimer.start(Config.SENSORS_REQUEST_PERIOD)
 
     def initTimerUpdate(self):
@@ -102,8 +104,10 @@ class PressureSensor():
         if (self.currentStep>=Config.SENSORS_INIT_PERIOD):
             self.initTimer.stop()
             self.zeroed = True
-            print(f'zero {p}')
+            #print(f'zero {p}')
             self.setDelta(-p)
+            self.sensorZeroed.emit()
+
             
 
 if __name__ == '__main__':
