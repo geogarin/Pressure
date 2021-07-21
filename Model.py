@@ -5,7 +5,7 @@ import Config
 from Database.database import data
 from ReceiptModel import ReceiptModel
 from PressureSensor import PressureSensor
-from ValveControl import ValveControl
+from CommonControl import CommonControl
 from pyiArduinoI2Crelay import *
 
 class ChannelModel(QObject):
@@ -231,12 +231,14 @@ class ChannelModel(QObject):
         if testName!='':
             d = data()
             r = d.getReceipt(testName)
-            pressure = r['StrengthTestPressure']
-            
-            ValveControl.setMaxChannelPressure(pressure)
-
+            pressureStrength = r['StrengthTestPressure']
+            pressureSealed = r['SealedTestPressure']
     
-    
+            CommonControl.setMaxChannelPressure(pressureStrength)
+            Commonontrol.setMaxChannelPressure(pressureSealed)
+        else:
+            CommonControl.setMaxChannelPressure(0)
+   
 if __name__ == '__main__':
     print(f'm = {PressureSensor.PRESSURE_MAX["DIF"]}')
     k = 1/pow(10,2)

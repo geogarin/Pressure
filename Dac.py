@@ -37,7 +37,7 @@ if __name__=='__main__':
     print('900')
     m.setPressure(900)
     sleep(5)
-    #m.setPressure(0)
+    m.setPressure(0)
 
 
     
