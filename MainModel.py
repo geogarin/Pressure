@@ -7,7 +7,7 @@ from ServiceInterface import ServiceInterface
 from CommonControl import CommonControl
 
 from Database.database import data
-from PyQt5.QtCore import Qt,QObject,pyqtSignal,QTimer
+from PyQt5.QtCore import Qt,QObject,pyqtSignal,pyqtSlot,QTimer
 
 class MainModel(QObject):
     startTestButtonNameChanged = pyqtSignal(str)
@@ -26,10 +26,11 @@ class MainModel(QObject):
         for channel in channels:
             #print(f"{channel['Name']},{channel['PinAbs']},{channel['PinDif']}") 
             self.channelModels.append(ChannelModel(channel['Name'],channel['PinAbs'],channel['PinDif'],channel['I2CAddress'],channelIndex))
+            self.channelModels[channelIndex-1].testComplete.connect(self.onTestComplete)
             channelIndex += 1
 
-        self.timer = QTimer()
-        self.timer.timeout.connect(self.upd)
+        #self.timer = QTimer()
+        #self.timer.timeout.connect(self.upd)
 
         self.testStarted = False
         self._startTestButtonName = Config.BUTTON_START_TEST
@@ -51,17 +52,27 @@ class MainModel(QObject):
         self._startTestButtonName = value
         self.startTestButtonNameChanged.emit(value)
 
+    def onTestComplete(self):
+        self.testCompleteQuantity += 1
+        if self.testCompleteQuantity == self.channelsQuantity:
+            self.startTestButtonPressed()
+
     def startTestButtonPressed(self):
         self.testStarted = not self.testStarted
-        self.startDurationTimer(self.testStarted)
+        #self.startDurationTimer(self.testStarted)
         if self.testStarted:
-            self.initSensorValuesList()
-
-            self.timer.start(Config.SENSORS_REQUEST_PERIOD)
+            #self.initSensorValuesList()
+            #self.timer.start(Config.SENSORS_REQUEST_PERIOD)
             self.startTestButtonName = Config.BUTTON_STOP_TEST
+            self.testCompleteQuantity = 0
+
+            for i in range(self.channelsQuantity):
+                self.channelModels[i].startTest()
         else:
-            self.timer.stop()
+            #self.timer.stop()
             self.startTestButtonName = Config.BUTTON_START_TEST
+            for i in range(self.channelsQuantity):
+                self.channelModels[i].stopTest()
     
     def openSetupDialogButtonPressed(self):
         setupModel = SetupModel()
@@ -75,19 +86,19 @@ class MainModel(QObject):
         serviceInterface.exec_()
         #print('after service')
         
-    def startDurationTimer(self,start):
-        for i in range(self.channelsQuantity):
-            self.channelModels[i].startDurationTimer(start)
+    #def startDurationTimer(self,start):
+    #    for i in range(self.channelsQuantity):
+    #        self.channelModels[i].startDurationTimer(start)
 
-    def initSensorValuesList(self):
-        for i in range(self.channelsQuantity):
-            self.channelModels[i].initSensorValues()
+    #def initSensorValuesList(self):
+    #    for i in range(self.channelsQuantity):
+    #        self.channelModels[i].initSensorValues()
         
         
-    def upd(self):
-        for i in range(self.channelsQuantity):
-            self.channelModels[i].readSensor('ABS')
-            self.channelModels[i].readSensor('DIF')
+    #def upd(self):
+    #    for i in range(self.channelsQuantity):
+    #        self.channelModels[i].readSensor('ABS')
+    #        self.channelModels[i].readSensor('DIF')
 
     def updateChannelsModel(self):       
         for i in range(self.channelsQuantity):

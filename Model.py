@@ -1,4 +1,5 @@
 import sys
+from types import new_class
 from PyQt5 import QtCore
 from PyQt5.QtCore import Qt,QObject,pyqtSignal,pyqtSlot,QTimer
 import Config
@@ -14,6 +15,12 @@ class ChannelModel(QObject):
     durationValueChanged = pyqtSignal(float)
     modelUpdated = pyqtSignal()
     valveStateChanged = pyqtSignal(int)
+    testLabelChanged = pyqtSignal(str)
+    stepLabelChanged = pyqtSignal(str)
+    durationChanged = pyqtSignal(float)
+    testComplete = pyqtSignal()
+    resultStrengthChanged = pyqtSignal(int)
+    resultSealedChanged = pyqtSignal(int) 
 
     def __init__(self,channelName,pinAbs,pinDiff,i2cAddress,fittingValve):
         super().__init__()
@@ -34,8 +41,12 @@ class ChannelModel(QObject):
         self.testNameModel = ReceiptModel(enabledReceipts=1)
         self.initRoundingPrecision()
 
+        self.testStrengthOff = False
+        self.testSealedOff = False
+        self._resultStrength = 0
+        self._resultSealed = 0
+
         self.minDurationValue = 0
-        self.maxDurationValue = 5 + Config.SENSORS_INIT_PERIOD/1000
         self.curDurationValue = 0
         self.durationTimerStep = 0.1    
         self.durationTimer = QTimer()
@@ -44,6 +55,9 @@ class ChannelModel(QObject):
 
         self.sensorRequestTimer = QTimer()
         self.sensorRequestTimer.timeout.connect(self.onSensorRequest)
+
+        self.pressureTestTimer = QTimer()
+        self.pressureTestTimer.timeout.connect(self.onPressureTestTimer)
         
         self.absPressureSensor.sensorZeroed.connect(self.onSensorZeroed)
         self.difPressureSensor.sensorZeroed.connect(self.onSensorZeroed)
@@ -75,18 +89,31 @@ class ChannelModel(QObject):
     def initRoundingPrecision(self,absRoundingPrecision=Config.ABS_PRESSURE_ROUNDING_PRECISION,difRoundingPrecision=Config.DIF_PRESSURE_ROUNDING_PRECISION):
         self.absRoundingPrecision = absRoundingPrecision
         self.difRoundingPrecision = difRoundingPrecision
-
-    def initSensorValues(self):
-        self.zeroSensors()
-        self._curValAbs = 0       
-        self._curValDif = 0
-        
+       
     def updateModel(self):
         print(f'update channel {self.channelName}')
         self.testNameModel.layoutChanged.emit()
 
         self.modelUpdated.emit()
-           
+
+    @property 
+    def resultStrength(self):
+        return(self._resultStrength)
+    
+    @resultStrength.setter
+    def resultStrength(self,value):
+        self._resultStrength = value
+        self.resultStrengthChanged.emit(self._resultStrength)
+
+    @property 
+    def resultSealed(self):
+        return(self._resultSealed)
+    
+    @resultSealed.setter
+    def resultSealed(self,value):
+        self._resultSealed = value
+        self.resultSealedChanged.emit(self._resultSealed)
+
     @property
     def valueAbs(self):
         return(PressureSensor.DISPLAY_RATIO[PressureSensor.absSensorAlias]*self._curValAbs)
@@ -115,7 +142,6 @@ class ChannelModel(QObject):
 
         self.difValueChanged.emit(str.format("{:.{}f}",vr,self.difRoundingPrecision)) 
        
-
     def startDurationTimer(self,start):
         if (start):
             self.curDurationValue = 0
@@ -128,6 +154,7 @@ class ChannelModel(QObject):
         if (self.durationTimerStarted):
             self.curDurationValue += self.durationTimerStep
             if (self.curDurationValue>self.maxDurationValue):
+                print(f'{self.currentTestDuration} {self.curDurationValue} stop!!!')
                 self.curDurationValue = self.maxDurationValue
                 self.durationTimerStarted = False
             self.durationValueChanged.emit(self.curDurationValue)
@@ -151,6 +178,14 @@ class ChannelModel(QObject):
         if (valveNumber==3): self.isOpenValve3 = not self.isOpenValve3
         if (valveNumber==4): self.isOpenValve4 = not self.isOpenValve4
         if (valveNumber==5): self.isFittingClosed = not self.isFittingClosed
+
+    def inverseTestStrength(self):
+        self.testStrengthOff = not self.testStrengthOff
+        self.updateTestParameters()
+
+    def inverseTestSealed(self):
+        self.testSealedOff = not self.testSealedOff
+        self.updateTestParameters()
 
     @property
     def isOpenValve1(self):
@@ -239,20 +274,122 @@ class ChannelModel(QObject):
     def onSensorZeroed(self):
         self.zeroedSensorsQuantity += 1
         if self.zeroedSensorsQuantity==2:
+            print(f'{self.currentTestDuration} {self.curDurationValue} close valves')
             self.isOpenValve4 = self.valve4State
             self.isOpenValve2 = self.valve2State
             
-    def setTestPressure(self,testName):
-        if testName!='':
+    def testNameChanged(self,testName):
+        self.testName = testName
+        self.updateTestParameters()
+        
+    def updateTestParameters(self):
+        self.stepName = []
+        self.stepDuration = []
+        self.maxStepIndex = 0
+
+        if self.testName!='':
             d = data()
-            r = d.getReceipt(testName)
+            r = d.getReceipt(self.testName)
             pressureStrength = r['StrengthTestPressure']
             pressureSealed = r['SealedTestPressure']
     
             CommonControl.setMaxChannelPressure(pressureStrength)
             CommonControl.setMaxChannelPressure(pressureSealed)
+
+            self.stepName.append(Config.RC_ZERO_SENSORS)
+            self.stepDuration.append((Config.SENSOR_WAIT_PERIOD+Config.SENSORS_INIT_PERIOD+Config.DELAY_BETWEEN_STEPS)/1000)
+            self.maxStepIndex += 1
+
+            self.stepName.append(Config.RC_CONNECTION_DURATION)
+            self.stepDuration.append(r['ConnectionDuration']+Config.DELAY_BETWEEN_STEPS/1000)
+            self.stepDuration[self.maxStepIndex] += self.stepDuration[self.maxStepIndex-1]
+            self.maxStepIndex += 1
+
+            self.stepName.append('Все!!!')
+            self.stepDuration.append(5+Config.DELAY_BETWEEN_STEPS/1000)
+            self.stepDuration[self.maxStepIndex] += self.stepDuration[self.maxStepIndex-1]
+            self.maxStepIndex += 1
         else:
             CommonControl.setMaxChannelPressure(0)
+
+        if self.testStrengthOff and self.testSealedOff:
+            CommonControl.setMaxChannelPressure(0)
+            self.maxDurationValue = 0
+        else:
+            self.maxDurationValue = self.stepDuration[self.maxStepIndex-1]
+            self.durationChanged.emit(self.maxDurationValue)
+
+
+
+    def startTest(self):
+        print(f'start test')
+        self.currentTestDuration = 0
+        self.startDurationTimer(True)
+        self.testLabel = ''
+        self.stepLabel = ''
+        if (self.maxDurationValue>0):
+            self._curValAbs = 0       
+            self._curValDif = 0           
+            self.currentStep = ''
+            self.curStepIndex = 0
+            self.pressureTestTimer.start(self.durationTimerStep*1000)
+        else:
+            self.testComplete.emit()
+
+    def stopTest(self):
+        print(f'stop test')
+        self.pressureTestTimer.stop()
+        self.startDurationTimer(False)
+
+        self.resultStrength = 1
+        self.resultSealed = -1
+
+        
+
+    def onPressureTestTimer(self):
+        if self.currentTestDuration > self.stepDuration[self.curStepIndex]:
+            self.curStepIndex += 1
+            if self.curStepIndex == self.maxStepIndex: self.curStepIndex -= 1
+        
+        newStep = self.stepName[self.curStepIndex]
+
+        if self.currentStep!=newStep:
+            self.currentStep = newStep
+            self.testLabel = self.currentStep
+
+            if self.currentStep==Config.RC_ZERO_SENSORS:
+                print(f'{self.currentTestDuration} zero sensors started')
+                self.zeroSensors()
+                
+            if self.currentStep == Config.RC_CONNECTION_DURATION:
+                print(f'{self.currentTestDuration} {self.curDurationValue} {self.currentStep}')
+
+            if self.currentStep == 'Все!!!':
+                print(f'{self.currentTestDuration} {self.curDurationValue} {self.currentStep}')
+
+        
+        if self.currentTestDuration > self.maxDurationValue:
+            self.testComplete.emit()
+            print(f'{self.currentTestDuration} test complete')
+        self.currentTestDuration += self.durationTimerStep
+
+    @property
+    def testLabel(self):
+        return(self._testLabel)
+          
+    @testLabel.setter
+    def testLabel(self,value):
+        self._testLabel = value
+        self.testLabelChanged.emit(self._testLabel)
+
+    @property
+    def stepLabel(self):
+        return(self._stepLabel)
+          
+    @stepLabel.setter
+    def stepLabel(self,value):
+        self._stepLabel = value
+        self.stepLabelChanged.emit(self._stepLabel)
    
 if __name__ == '__main__':
     print(f'm = {PressureSensor.PRESSURE_MAX["DIF"]}')

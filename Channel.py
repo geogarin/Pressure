@@ -31,23 +31,21 @@ class ChannelView(QWidget):
         # Выбор теста <<
 
         # Тест прочности >>
-        #self.testStrength = QCheckBox(Config.CHECKBOX_STRENGTH_TEST)
-        #self.testStrength.setStyleSheet(stylesheets.QCheckBoxStyle2)
         self.testStrengthLabel = QLabel(Config.CHECKBOX_STRENGTH_TEST)
         self.testStrengthLabel.setObjectName('Label')
         self.testStrengthLabel.setStyleSheet(stylesheets.QLabelStyle3)
         self.testStrength = SwitchButton(None,'',Config.BUTTON_VALUE_ON,Config.BUTTON_VALUE_OFF,200,50,10,100)
         self.testStrength.setStyleSheet(stylesheets.SwitchButtonStyle)
+        self.testStrength.setChecked(self._model.testStrengthOff)
         # Тест прочности <<
 
         # Тест герметичности >>
-        #self.testSealed = QCheckBox(Config.CHECKBOX_SEALED_TEST)
-        #self.testSealed.setStyleSheet(stylesheets.QCheckBoxStyle2)
         self.testSealedLabel = QLabel(Config.CHECKBOX_SEALED_TEST)
         self.testSealedLabel.setObjectName('Label')
         self.testSealedLabel.setStyleSheet(stylesheets.QLabelStyle3)
         self.testSealed = SwitchButton(None,'',Config.BUTTON_VALUE_ON,Config.BUTTON_VALUE_OFF,200,50,10,100)
         self.testSealed.setStyleSheet(stylesheets.SwitchButtonStyle)
+        self.testSealed.setChecked(self._model.testSealedOff)
         # Тест герметичности <<
 
         # Название теста >>
@@ -80,7 +78,7 @@ class ChannelView(QWidget):
 
         # результат прочности >>
         self.resultStrength = RoundedRect()
-        self.resultStrength.setValue(1)
+        self.resultStrength.setValue(self._model.resultStrength)
         # результат прочности <<
         
         # таймер >>
@@ -96,15 +94,15 @@ class ChannelView(QWidget):
         self.stepDuration.setNullPosition(90)
         self.stepDuration.setBarStyle(QRoundProgressBar.StyleDonut)
         self.stepDuration.setDataColors([(0., QtGui.QColor.fromRgb(255,0,0)), (0.5, QtGui.QColor.fromRgb(255,255,0)), (1., QtGui.QColor.fromRgb(0,255,0))])
-        self.stepDuration.setMaximun(self._model.maxDurationValue)
+        #self.stepDuration.setMaximun(self._model.maxDurationValue)
         self.stepDuration.setMinimun(0)
-        self.stepDuration.setRange(0, self._model.maxDurationValue)
+        #self.stepDuration.setRange(0, self._model.maxDurationValue)
         self.stepDuration.setValue(0)
         # таймер <<
 
         # результат герметичности >>
         self.resultSealed = RoundedRect()
-        self.resultSealed.setValue(-1)
+        self.resultSealed.setValue(self._model.resultSealed)
         # результат герметичности <<
 
         self.res = QHBoxLayout()
@@ -145,17 +143,27 @@ class ChannelView(QWidget):
         self.group.addWidget(self.title)    
         self.group.addWidget(self.frame)
         #self.group.addStretch()
-        
+
+        self.testStrength.clicked.connect(lambda: self._model.inverseTestStrength())
+        self.testSealed.clicked.connect(lambda: self._model.inverseTestSealed())
+
+        self._model.resultStrengthChanged.connect(self.onResultStrengthChanged)
+        self._model.resultSealedChanged.connect(self.onResultSealedChanged)
+       
         self._model.absValueChanged.connect(self.onValueAbsChanged)
         self._model.difValueChanged.connect(self.onValueDifChanged)
         self._model.durationValueChanged.connect(self.onDurationValueChanged)
 
+        self._model.testLabelChanged.connect(self.onTestLabelChanged)
+        self._model.stepLabelChanged.connect(self.onStepLabelChanged)
+
+        self._model.durationChanged.connect(self.onDurationChanged)
+
         self.testName.currentIndexChanged.connect(self.onTestChanged)
         self.onTestChanged(0)
-        #self._model.modelUpdated.connect(self.onModelUpdated)
 
     def onTestChanged(self,i):
-        self._model.setTestPressure(self.testName.currentText())
+        self._model.testNameChanged(self.testName.currentText())
 
     @pyqtSlot(str)
     def onValueAbsChanged(self,value):       
@@ -169,8 +177,25 @@ class ChannelView(QWidget):
     def onDurationValueChanged(self,value):
         self.stepDuration.setValue(value)
 
-    #@pyqtSlot()
-    #def onModelUpdated(self):
+    @pyqtSlot(str)
+    def onTestLabelChanged(self,value):
+        self.testStage.setText(value)
+    
+    @pyqtSlot(str)
+    def onStepLabelChanged(self,value):
+        self.testStep.setText(value)
+    
+    @pyqtSlot(float)
+    def onDurationChanged(self,value):
+        self.stepDuration.setRange(0, value)
+
+    @pyqtSlot(int)
+    def onResultStrengthChanged(self,value):
+        self.resultStrength.setValue(value)
+
+    @pyqtSlot(int)
+    def onResultSealedChanged(self,value):
+        self.resultSealed.setValue(value)
 
 
 

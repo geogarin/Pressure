@@ -11,10 +11,17 @@ ABS_MASTER_MODE_PRESSURE_ROUNDING_PRECISION = 2
 DIF_MASTER_MODE_PRESSURE_ROUNDING_PRECISION = 2
 
 # Период опроса датчиков (мс)
-SENSORS_REQUEST_PERIOD = 5
+SENSORS_REQUEST_PERIOD = 25
 
-# Длительность обнуления датчиков (мс)
+# Пауза между шагами теста (мс)
+DELAY_BETWEEN_STEPS = 1000
+
+# Длительность обнуления датчиков (мс). Складывается из двух чисел: ожидания стабилизации после открытия клапанов и самого обнуления
+SENSOR_WAIT_PERIOD = 1000
 SENSORS_INIT_PERIOD = 2000
+
+# обнуление датчиков, как нулевой шаг теста
+RC_ZERO_SENSORS = 'Инициализация'
 
 # Период проверки вставленных флешек (мс)
 USB_CHECK_PERIOD = 5000
