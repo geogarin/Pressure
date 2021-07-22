@@ -190,7 +190,7 @@ class ServiceChannel(QWidget):
         if (value==4):
             self.valve4.setChecked(self._model.isOpenValve4)
         if (value==5):
-            self.valve5.setChecked(self._model.isFittingClosed)
+            self.valve5.setChecked(self._model.isOpenFittingValve)
 
         self.valve2.setEnabled(self._model.isEnabledValve2)
 

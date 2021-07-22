@@ -113,7 +113,7 @@ class PressureSensor(QObject):
                 #print('after close')
                 self.initTimer.stop()
                 
-                print(f'zero {p}')
+                #print(f'zero {p}')
                 self.setDelta(-p)
             #    self.inTimer = False
             

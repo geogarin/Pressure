@@ -52,6 +52,7 @@ class ChannelModel(QObject):
         self.durationTimer = QTimer()
         self.durationTimer.timeout.connect(self.durationTimerUpdate)
         self.durationTimerStarted = False
+        self.currentTestDuration = 0
 
         self.sensorRequestTimer = QTimer()
         self.sensorRequestTimer.timeout.connect(self.onSensorRequest)
@@ -78,7 +79,7 @@ class ChannelModel(QObject):
         self.isOpenValve2 = True
         self.isOpenValve3 = False
         self.isOpenValve4 = False
-        self.isFittingClosed = False
+        self.isOpenFittingValve = False
 
     def sensorRequest(self,enabled):
         if (enabled):
@@ -177,7 +178,7 @@ class ChannelModel(QObject):
         if (valveNumber==2): self.isOpenValve2 = not self.isOpenValve2
         if (valveNumber==3): self.isOpenValve3 = not self.isOpenValve3
         if (valveNumber==4): self.isOpenValve4 = not self.isOpenValve4
-        if (valveNumber==5): self.isFittingClosed = not self.isFittingClosed
+        if (valveNumber==5): self.isOpenFittingValve = not self.isOpenFittingValve
 
     def inverseTestStrength(self):
         self.testStrengthOff = not self.testStrengthOff
@@ -245,14 +246,14 @@ class ChannelModel(QObject):
         return not(self.isOpenValve1 or self.isOpenValve4)
 
     @property
-    def isFittingClosed(self):
-        return self._isFittingClosed
+    def isOpenFittingValve(self):
+        return self._isOpenFittingValve
         
-    @isFittingClosed.setter
-    def isFittingClosed(self,value):
-        self._isFittingClosed = value        
+    @isOpenFittingValve.setter
+    def isOpenFittingValve(self,value):
+        self._isOpenFittingValve = value        
         self.valveStateChanged.emit(5)
-        state = HIGH if self.isFittingClosed else LOW
+        state = HIGH if self.isOpenFittingValve else LOW
         self.fittingRelay.digitalWrite(self.fittingValve,state)
 
 
@@ -305,8 +306,8 @@ class ChannelModel(QObject):
             self.stepDuration[self.maxStepIndex] += self.stepDuration[self.maxStepIndex-1]
             self.maxStepIndex += 1
 
-            self.stepName.append('Все!!!')
-            self.stepDuration.append(5+Config.DELAY_BETWEEN_STEPS/1000)
+            self.stepName.append(Config.RC_INFLATING_DURATION)
+            self.stepDuration.append(r['InflatingDuration']+Config.DELAY_BETWEEN_STEPS/1000)
             self.stepDuration[self.maxStepIndex] += self.stepDuration[self.maxStepIndex-1]
             self.maxStepIndex += 1
         else:
@@ -333,6 +334,7 @@ class ChannelModel(QObject):
             self.currentStep = ''
             self.curStepIndex = 0
             self.pressureTestTimer.start(self.durationTimerStep*1000)
+            CommonControl.openInputPressure()
         else:
             self.testComplete.emit()
 
@@ -340,6 +342,11 @@ class ChannelModel(QObject):
         print(f'stop test')
         self.pressureTestTimer.stop()
         self.startDurationTimer(False)
+        CommonControl.closeInputPressure()
+        self.isOpenValve1 = False
+        self.isOpenValve3 = False
+        self.isOpenValve4 = True
+        self.isOpenFittingValve = False
 
         self.resultStrength = 1
         self.resultSealed = -1
@@ -358,14 +365,22 @@ class ChannelModel(QObject):
             self.testLabel = self.currentStep
 
             if self.currentStep==Config.RC_ZERO_SENSORS:
+                # обнуление датчиков
                 print(f'{self.currentTestDuration} zero sensors started')
                 self.zeroSensors()
                 
             if self.currentStep == Config.RC_CONNECTION_DURATION:
+                # открытие фитинга
+                print(f'{self.currentTestDuration} {self.curDurationValue} {self.currentStep}')
+                self.isOpenFittingValve = True
+
+            if self.currentStep == Config.RC_INFLATING_DURATION:
+                # подача воздуха
+                self.isOpenValve4 = False
+                self.isOpenValve3 = True
+                self.isOpenValve1 = True
                 print(f'{self.currentTestDuration} {self.curDurationValue} {self.currentStep}')
 
-            if self.currentStep == 'Все!!!':
-                print(f'{self.currentTestDuration} {self.curDurationValue} {self.currentStep}')
 
         
         if self.currentTestDuration > self.maxDurationValue:
