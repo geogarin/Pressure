@@ -17,18 +17,18 @@ class ReceiptView(QWidget):
 
         self.fieldsQty = 10
 
-        self.fieldNames = ['Name','Volume','ConnectionDuration','InflatingDuration','StabilizationDuration','StrengthTestPressure','StrengthTestDuration','SealedTestPressure',
+        self.fieldNames = ['Name','Volume','ConnectionDuration','InflatingDuration','StrengthTestPressure','StrengthTestDuration','SealedTestPressure','StabilizationDuration',
                           'SealedTestDeltaThreshold','SealedTestDuration','Enabled']
         self.labelTexts = [
             Config.RC_NAME,
             Config.RC_VOLUME,
             Config.RC_CONNECTION_DURATION+', '+Config.RC_DURATION_UNIT_OF_MEASURE+' ('+ str(Config.RC_CONNECTION_DURATION_MIN) +'-'+ str(Config.RC_CONNECTION_DURATION_MAX) +')',
             Config.RC_INFLATING_DURATION+', '+Config.RC_DURATION_UNIT_OF_MEASURE+' ('+ str(Config.RC_INFLATING_DURATION_MIN) +'-'+ str(Config.RC_INFLATING_DURATION_MAX) +')',
-            Config.RC_STABILIZATION_DURATION+', '+Config.RC_DURATION_UNIT_OF_MEASURE+' ('+ str(Config.RC_STABILIZATION_DURATION_MIN) +'-'+ str(Config.RC_STABILIZATION_DURATION_MAX) +')',
             Config.RC_STRENGTH_TEST_PRESSURE+', '+Config.RC_STRENGTH_TEST_PRESSURE_UNIT_OF_MEASURE+' ('+ str(Config.RC_STRENGTH_TEST_PRESSURE_MIN) +'-'+ str(Config.RC_STRENGTH_TEST_PRESSURE_MAX) +')',
             Config.RC_STRENGTH_TEST_DURATION+', '+Config.RC_DURATION_UNIT_OF_MEASURE+' ('+ str(Config.RC_STRENGTH_TEST_DURATION_MIN) +'-'+ str(Config.RC_STRENGTH_TEST_DURATION_MAX) +')',
             Config.RC_SEALED_TEST_PRESSURE+', '+Config.RC_SEALED_TEST_PRESSURE_UNIT_OF_MEASURE+' ('+ str(Config.RC_SEALED_TEST_PRESSURE_MIN) +'-'+ str(Config.RC_SEALED_TEST_PRESSURE_MAX) +')',
-            Config.RC_SEALED_TEST_DELTA_THRESHOLD+', '+Config.RC_SEALED_TEST_PRESSURE_UNIT_OF_MEASURE+' ('+ str(Config.RC_SEALED_TEST_DELTA_THRESHOLD_MIN) +'-'+ str(Config.RC_SEALED_TEST_DELTA_THRESHOLD_MAX) +')',
+            Config.RC_STABILIZATION_DURATION+', '+Config.RC_DURATION_UNIT_OF_MEASURE+' ('+ str(Config.RC_STABILIZATION_DURATION_MIN) +'-'+ str(Config.RC_STABILIZATION_DURATION_MAX) +')',
+            Config.RC_SEALED_TEST_DELTA_THRESHOLD+', '+Config.RC_SEALED_TEST_DELTA_THRESHOLD_UNIT_OF_MEASURE+' ('+ str(Config.RC_SEALED_TEST_DELTA_THRESHOLD_MIN) +'-'+ str(Config.RC_SEALED_TEST_DELTA_THRESHOLD_MAX) +')',
             Config.RC_SEALED_TEST_DURATION+', '+Config.RC_DURATION_UNIT_OF_MEASURE+' ('+ str(Config.RC_SEALED_TEST_DURATION_MIN) +'-'+ str(Config.RC_SEALED_TEST_DURATION_MAX) +')',
             Config.RC_ENABLED]
 
@@ -37,10 +37,10 @@ class ReceiptView(QWidget):
             (Config.RC_VOLUME_MIN,Config.RC_VOLUME_MAX),
             (Config.RC_CONNECTION_DURATION_MIN,Config.RC_CONNECTION_DURATION_MAX),
             (Config.RC_INFLATING_DURATION_MIN,Config.RC_INFLATING_DURATION_MAX),
-            (Config.RC_STABILIZATION_DURATION_MIN,Config.RC_STABILIZATION_DURATION_MAX),
             (Config.RC_STRENGTH_TEST_PRESSURE_MIN,Config.RC_STRENGTH_TEST_PRESSURE_MAX),
             (Config.RC_STRENGTH_TEST_DURATION_MIN,Config.RC_STRENGTH_TEST_DURATION_MAX),
             (Config.RC_SEALED_TEST_PRESSURE_MIN,Config.RC_SEALED_TEST_PRESSURE_MAX),
+            (Config.RC_STABILIZATION_DURATION_MIN,Config.RC_STABILIZATION_DURATION_MAX),
             (Config.RC_SEALED_TEST_DELTA_THRESHOLD_MIN,Config.RC_SEALED_TEST_DELTA_THRESHOLD_MAX),
             (Config.RC_SEALED_TEST_DURATION_MIN,Config.RC_SEALED_TEST_DURATION_MAX),
             ()

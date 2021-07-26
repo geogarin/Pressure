@@ -129,11 +129,11 @@ class ChannelView(QWidget):
         curRow += 1
         self.mainLayout.addWidget(self.testStep,curRow,curCol,1,2)
         curRow += 1
-        self.mainLayout.addWidget(self.unitOfMeasureDiff,curRow,curCol)
-        self.mainLayout.addWidget(self.unitOfMeasureAbs,curRow,curCol+1)
+        self.mainLayout.addWidget(self.unitOfMeasureAbs,curRow,curCol)
+        self.mainLayout.addWidget(self.unitOfMeasureDiff,curRow,curCol+1)               
         curRow += 1
-        self.mainLayout.addWidget(self.measureDiff,curRow,curCol)
-        self.mainLayout.addWidget(self.measureAbs,curRow,curCol+1)
+        self.mainLayout.addWidget(self.measureAbs,curRow,curCol)
+        self.mainLayout.addWidget(self.measureDiff,curRow,curCol+1)
         curRow += 1
         #self.mainLayout.addWidget(self.stepDuration,curRow,curCol,1,2,Qt.AlignCenter) 
         self.mainLayout.addLayout(self.res,curRow,curCol,1,2,Qt.AlignCenter) 

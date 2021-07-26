@@ -113,8 +113,8 @@ class ServiceChannel(QWidget):
         self.mainLayout.addWidget(self.unitOfMeasureAbs,curRow,curCol+1)
         curRow += 1
         """
-        self.mainLayout.addWidget(self.measureDiff,curRow,curCol)
-        self.mainLayout.addWidget(self.measureAbs,curRow,curCol+1)
+        self.mainLayout.addWidget(self.measureAbs,curRow,curCol)
+        self.mainLayout.addWidget(self.measureDiff,curRow,curCol+1)        
         curRow += 1
 
         self.mainLayout.addWidget(self.labelValve1,curRow,curCol)

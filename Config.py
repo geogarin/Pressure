@@ -13,6 +13,9 @@ DIF_MASTER_MODE_PRESSURE_ROUNDING_PRECISION = 2
 # Период опроса датчиков (мс)
 SENSORS_REQUEST_PERIOD = 25
 
+# Период обновления контрола прохождения теста (мс)
+DURATION_TIMER_STEP = 100
+
 # Пауза между шагами теста (мс)
 DELAY_BETWEEN_STEPS = 1000
 
@@ -29,8 +32,14 @@ USB_CHECK_PERIOD = 5000
 # i2c адрес модуля, управляющего фитингами
 FITTING_MODULE_ADDRESS = 0x15 
 
-# Максимальное давление по диф. датчику, при котором клапан2 может быть закрыт (-500..500). При превышении-клапан принудительно открывается 
+# Максимальное давление по диф. датчику, при котором клапан2 может быть закрыт (-500..500 Па). При превышении-клапан принудительно открывается 
 MAX_PRESSURE_VALVE2_CLOSED = 500
+
+# дополнительно подаваемое давление (мБар)
+ADDITIONAL_PRESSURE = 10
+
+# допустимый перепад давления при стабилизации (Па)
+ALLOWED_PRESSURE_DELTA = 5  # -5..5
 
 # Названия контролов
 BUTTON_START_TEST = 'Старт'
@@ -60,6 +69,9 @@ SETUP_DIALOG_CLOSE = 'Закрыть'
 SETUP_DIALOG_LINE_EDIT_FIELD_WIDTH = 200
 
 # Форма настройки рецепта
+RC_STRENGTH_TEST = 'Тест прочности'
+RC_SEALED_TEST = 'Тест герметичности'
+
 RC_NAME = 'Название'
 RC_VOLUME = 'Объем изделия, куб.см.'
 RC_ENABLED = 'Разрешен'
@@ -72,8 +84,9 @@ RC_STRENGTH_TEST_PRESSURE_UNIT_OF_MEASURE = 'мБар'
 RC_STRENGTH_TEST_DURATION = 'Длительность теста прочности'
 
 RC_SEALED_TEST_PRESSURE = 'Давление теста герметичности'
-RC_SEALED_TEST_DELTA_THRESHOLD = 'Порог перепада давления теста герметичности'
 RC_SEALED_TEST_PRESSURE_UNIT_OF_MEASURE = 'мБар'
+RC_SEALED_TEST_DELTA_THRESHOLD = 'Порог перепада давления теста герметичности'
+RC_SEALED_TEST_DELTA_THRESHOLD_UNIT_OF_MEASURE = 'Па'
 RC_SEALED_TEST_DURATION = 'Длительность теста герметичности'
 
 RC_SAVE = 'Сохранить'
@@ -143,7 +156,11 @@ MAX_SAMPLES_QUANTITY = 1000
 MIN_KB_BUTTON_SIZE = 50
 MAX_KB_BUTTON_SIZE = 100
 
+# Результаты
+RES_PRESSURE_TOO_LOW = 'Давление слишком мало'
 
+RES_UNSTABLE_PARAMETRES = 'Нестабильные параметры'
+RES_LEAK_OUT_OF_DIAGNOSTIC = 'Течь вне диагностики'
 
 if __name__=='__main__':
     #print(f'{len(KEYBOARD_CHARS)}  {KEYBOARD_CHARS[38]}')
