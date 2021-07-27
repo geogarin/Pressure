@@ -157,10 +157,13 @@ MIN_KB_BUTTON_SIZE = 50
 MAX_KB_BUTTON_SIZE = 100
 
 # Результаты
-RES_PRESSURE_TOO_LOW = 'Давление слишком мало'
+RES_PRESSURE_TOO_LOW = 'Давл-е слишком мало'
 
 RES_UNSTABLE_PARAMETRES = 'Нестабильные параметры'
 RES_LEAK_OUT_OF_DIAGNOSTIC = 'Течь вне диагностики'
+
+RES_LEAK_MORE_ALLOWED = 'Течь выше допустимой'
+RES_LEAK_DIAMETER = 'Сопост. D течи, мкм'
 
 if __name__=='__main__':
     #print(f'{len(KEYBOARD_CHARS)}  {KEYBOARD_CHARS[38]}')
