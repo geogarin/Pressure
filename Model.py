@@ -50,7 +50,8 @@ class ChannelModel(QObject):
 
         self.minDurationValue = 0
         self.curDurationValue = 0
-        self.durationTimerStep = Config.DURATION_TIMER_STEP   
+        #self.durationTimerStep = Config.DURATION_TIMER_STEP
+        self.durationTimerStep = Config.SENSORS_REQUEST_PERIOD   
         self.durationTimer = QTimer()
         self.durationTimer.timeout.connect(self.durationTimerUpdate)
         self.durationTimerStarted = False
@@ -59,7 +60,7 @@ class ChannelModel(QObject):
         self.sensorRequestTimer = QTimer()
         self.sensorRequestTimer.timeout.connect(self.onSensorRequest)
 
-        self.pressureTestTimerDuration = 2*Config.SENSORS_REQUEST_PERIOD
+        self.pressureTestTimerDuration = Config.SENSORS_REQUEST_PERIOD
         self.pressureTestTimer = QTimer()
         self.pressureTestTimer.timeout.connect(self.onPressureTestTimer)
 
@@ -400,10 +401,12 @@ class ChannelModel(QObject):
     def stopTest(self):
         print(f'stop test')
         self.sensorRequest(False)
-        self.testTimer.stop()
+        
         self.pressureTestTimer.stop()
-        self.startDurationTimer(False)
+        
         CommonControl.closeInputPressure()
+        self.startDurationTimer(False)
+        self.testTimer.stop()
         self.isOpenValve1 = False
         self.isOpenValve3 = False
         self.isOpenValve4 = True
@@ -413,11 +416,10 @@ class ChannelModel(QObject):
         self.resultSealed = self.sealedTestResult
 
     def onTestTimer(self):
-        #self.currentTestDuration += self.testTimerDuration/1000
         self.currentTestDuration = time.time()-self.startTime
 
     def onPressureTestTimer(self):
-        self.currentTestDuration = time.time()-self.startTime
+        #self.currentTestDuration = time.time()-self.startTime
         if self.currentTestDuration > self.stepDuration[self.curStepIndex]:
             self.curStepIndex += 1
             if self.curStepIndex == self.maxStepIndex: self.curStepIndex -= 1

@@ -71,6 +71,7 @@ SETUP_DIALOG_LINE_EDIT_FIELD_WIDTH = 200
 # Форма настройки рецепта
 RC_STRENGTH_TEST = 'Тест прочности'
 RC_SEALED_TEST = 'Тест герметичности'
+RC_TESTING = 'Тестирование'
 
 RC_NAME = 'Название'
 RC_VOLUME = 'Объем изделия, куб.см.'
