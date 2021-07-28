@@ -308,6 +308,9 @@ class ChannelModel(QObject):
             r = d.getReceipt(self.testName)
             self.pressureStrength = r['StrengthTestPressure']
             self.pressureSealed = r['SealedTestPressure']
+            self.savedPressureStrengthAbs = 0
+            self.savedPressureSealedAbs = 0
+            self.savedPressureSealedDif = 0 
     
             CommonControl.setMaxChannelPressure(self.pressureStrength)
             CommonControl.setMaxChannelPressure(self.pressureSealed)
@@ -318,14 +321,14 @@ class ChannelModel(QObject):
             self.stepName.append(Config.RC_ZERO_SENSORS)
             self.subStepName.append('')
             self.stepDuration.append((Config.SENSOR_WAIT_PERIOD+Config.SENSORS_INIT_PERIOD+Config.DELAY_BETWEEN_STEPS)/1000)
-            #self.processFunction.append(self.testZeroSensors)
+            self.processFunction.append(self.testZeroSensors)
             self.maxStepIndex += 1
 
             self.stepName.append(Config.RC_CONNECTION_DURATION)
             self.subStepName.append('')
             self.stepDuration.append(r['ConnectionDuration']+Config.DELAY_BETWEEN_STEPS/1000)
             self.stepDuration[self.maxStepIndex] += self.stepDuration[self.maxStepIndex-1]
-            #self.processFunction.append(self.testConnection)
+            self.processFunction.append(self.testConnection)
             self.maxStepIndex += 1
            
             if (not self.testStrengthOff):
@@ -333,12 +336,14 @@ class ChannelModel(QObject):
                 self.subStepName.append(Config.RC_INFLATING_DURATION)
                 self.stepDuration.append(r['InflatingDuration']+Config.DELAY_BETWEEN_STEPS/1000)
                 self.stepDuration[self.maxStepIndex] += self.stepDuration[self.maxStepIndex-1]
+                self.processFunction.append(self.testStrengthInflating)
                 self.maxStepIndex += 1
 
                 self.stepName.append(Config.RC_STRENGTH_TEST)
                 self.subStepName.append(Config.RC_TESTING)
                 self.stepDuration.append(r['StrengthTestDuration']+Config.DELAY_BETWEEN_STEPS/1000)
                 self.stepDuration[self.maxStepIndex] += self.stepDuration[self.maxStepIndex-1]
+                self.processFunction.append(self.testStrengthTest)
                 self.maxStepIndex += 1
             
             if (not self.testSealedOff):
@@ -346,18 +351,21 @@ class ChannelModel(QObject):
                 self.subStepName.append(Config.RC_INFLATING_DURATION)
                 self.stepDuration.append(r['InflatingDuration']+Config.DELAY_BETWEEN_STEPS/1000)
                 self.stepDuration[self.maxStepIndex] += self.stepDuration[self.maxStepIndex-1]
+                self.processFunction.append(self.testSealedInflating)
                 self.maxStepIndex += 1
 
                 self.stepName.append(Config.RC_SEALED_TEST)
                 self.subStepName.append(Config.RC_STABILIZATION_DURATION)
                 self.stepDuration.append(r['StabilizationDuration']+Config.DELAY_BETWEEN_STEPS/1000)
                 self.stepDuration[self.maxStepIndex] += self.stepDuration[self.maxStepIndex-1]
+                self.processFunction.append(self.testSealedStabilization)
                 self.maxStepIndex += 1
 
                 self.stepName.append(Config.RC_SEALED_TEST)
                 self.subStepName.append(Config.RC_TESTING)
                 self.stepDuration.append(r['SealedTestDuration']+Config.DELAY_BETWEEN_STEPS/1000)
                 self.stepDuration[self.maxStepIndex] += self.stepDuration[self.maxStepIndex-1]
+                self.processFunction.append(self.testSealedTest)
                 self.maxStepIndex += 1
 
                 self.maxAllowedLeakDynamic = 2*r['SealedTestDeltaThreshold']/r['SealedTestDuration']
@@ -438,105 +446,107 @@ class ChannelModel(QObject):
             self.currentStep = newStep
             self.testLabel = newStep
             self.firstRun = True
+
+        self.processFunction[self.curStepIndex]()   
      
         if self.firstRun:
-            print(f'start={self.currentTestDuration} plan={self.stepDuration[self.curStepIndex]} fact={time.time()-self.startTime} {self.currentStep} {self.currentSubStep}')
-            if self.currentStep==Config.RC_ZERO_SENSORS:
-                # обнуление датчиков
-                self.isOpenValve1 = False
-                CommonControl.openInputPressure()
-                self.zeroSensors()
-                
-            if self.currentStep == Config.RC_CONNECTION_DURATION:
-                # открытие фитинга
-                self.sensorRequest(True)
-                self.isOpenFittingValve = True
-
-            if self.currentSubStep == Config.RC_INFLATING_DURATION:
-                # подача воздуха
-                self.isOpenValve3 = True
-                if self.currentStep == Config.RC_STRENGTH_TEST:
-                    self.isOpenValve4 = False
-                    self.isOpenValve1 = True
-
-                if self.currentStep == Config.RC_SEALED_TEST:
-                    self.inflating = self.valueAbs<self.pressureSealed
-
-            if self.currentStep == Config.RC_STRENGTH_TEST:
-                if self.currentSubStep == Config.RC_TESTING:
-                    self.isOpenValve1 = False
-            
-            if self.currentStep == Config.RC_SEALED_TEST:
-                if self.currentSubStep == Config.RC_STABILIZATION_DURATION:
-                    self.isOpenValve1 = False
-                    self.isOpenValve4 = False
-                    self.stabilized = True
-                
-                if self.currentSubStep == Config.RC_SEALED_TEST:
-                    self.isOpenValve2 = False
-                    self.initialSealedTestTime = self.currentTestDuration
-                    self.initialSealedTestPressure = self.valueDif
-
-        # Напуск
-        if self.currentSubStep == Config.RC_INFLATING_DURATION:
-            if self.currentStep == Config.RC_STRENGTH_TEST:
-                # Клапан 1 открыт, пока давление ниже заданного
-                self.isOpenValve1 = (self.pressureStrength+Config.ADDITIONAL_PRESSURE-self.valueAbs) > 0
-            
-            if self.currentStep == Config.RC_SEALED_TEST:
-                """
-                if self.inflating:
-                    self.isOpenValve1 = (self.pressureSealed+Config.ADDITIONAL_PRESSURE-self.valueAbs) > 0
-                    self.isOpenValve4 = False
-                else:
-                    self.isOpenValve1 = False
-                    self.isOpenValve4 = (self.pressureSealed+Config.ADDITIONAL_PRESSURE-self.valueAbs) < 0
-                """
-                # герметичность: либо накачиваем, либо спускаем давление
-                self.isOpenValve1 = (self.pressureSealed-self.valueAbs) > 0
-                self.isOpenValve4 = (self.pressureSealed+Config.ADDITIONAL_PRESSURE-self.valueAbs) < 0
-
-        # Тест прочности
-        if self.currentStep == Config.RC_STRENGTH_TEST:
-            if self.currentSubStep == Config.RC_TESTING:
-                self.strengthTestResult = 1 if self.valueAbs>=self.pressureStrength else -1
-                if (self.strengthTestResult == -1):
-                    self.stepLabel = Config.RES_PRESSURE_TOO_LOW
-                    self.testComplete.emit()
-
-        # Тест герметичности
-        if self.currentStep == Config.RC_SEALED_TEST:
-            # Стабилизация
-            if self.currentSubStep == Config.RC_STABILIZATION_DURATION:
-                self.stabilized = abs(self.valueDif)<=Config.ALLOWED_PRESSURE_DELTA
-
-            if self.currentSubStep == Config.RC_TESTING:
-                if not self.stabilized:
-                    self.testLabel = Config.RES_UNSTABLE_PARAMETRES
-                    self.stepLabel = Config.RES_LEAK_OUT_OF_DIAGNOSTIC
-                    self.testComplete.emit()
-                
-                self.volumeOfLeak = (self.valueDif-self.initialSealedTestPressure)/(self.currentTestDuration-self.initialSealedTestTime)*self.volumeOfProduct
-                self.sealedTestResult = 1 if abs(self.volumeOfLeak)<=self.maxAllowedLeakDynamic else -1
-                if self.sealedTestResult == -1:
-                    self.testLabel = Config.RES_LEAK_MORE_ALLOWED
-                    self.testComplete.emit()
-                
-                if self.sealedTestResult == 1:
-                    self.crossSecAreaLeak = self.volumeOfLeak/330/self.initialSealedTestPressure/100000
-
-                    self.diaLeak = self.crossSecAreaLeak/pi
-
-        
+            print(f'start={self.currentTestDuration} plan finish={self.stepDuration[self.curStepIndex]}{self.currentStep} {self.currentSubStep}')
+                    
         if self.currentTestDuration > self.maxDurationValue:
             if not self.testSealedOff:                
                 self.testLabel = Config.RES_LEAK_DIAMETER
                 self.stepLabel = str.format("{}",self.diaLeak)
-                #self.sensorRequest(False)
-                #self.difValueChanged.emit(str.format("{}",self.diaLeak)) 
+            else:
+                self.testLabel = ''
+                self.stepLabel = ''
                 
             self.testComplete.emit()
             print(f'{self.currentTestDuration} test complete')
+    
+    def testZeroSensors(self):
+        if (self.firstRun):
+            # обнуление датчиков
+            self.isOpenValve1 = False
+            CommonControl.openInputPressure()
+            self.zeroSensors()
+
+    def testConnection(self):
+        if (self.firstRun):
+            # открытие фитинга
+            self.sensorRequest(True)
+            self.isOpenFittingValve = True
+
+    def testStrengthInflating(self):
+        if (self.firstRun):
+            # подача воздуха
+            self.isOpenValve3 = True
+            self.isOpenValve4 = False
+        
+        # Клапан 1 открыт, пока давление ниже заданного
+        self.isOpenValve1 = (self.pressureStrength+Config.ADDITIONAL_PRESSURE-self.valueAbs) > 0
+    
+    def testStrengthTest(self):
+        if (self.firstRun):
+            self.isOpenValve1 = False
+
+        self.savedPressureStrengthAbs = self.valueAbs
+        self.strengthTestResult = 1 if self.valueAbs>=self.pressureStrength else -1
+        if (self.strengthTestResult == -1):
+            self.stepLabel = Config.RES_PRESSURE_TOO_LOW
+            self.testComplete.emit()
+
+    def testSealedInflating(self):
+        if (self.firstRun):
+            # подача воздуха
+            self.isOpenValve3 = True
+            #self.inflating = self.valueAbs<self.pressureSealed
+        """
+        if self.inflating:
+            self.isOpenValve1 = (self.pressureSealed+Config.ADDITIONAL_PRESSURE-self.valueAbs) > 0
+            self.isOpenValve4 = False
+        else:
+            self.isOpenValve1 = False
+            self.isOpenValve4 = (self.pressureSealed+Config.ADDITIONAL_PRESSURE-self.valueAbs) < 0
+        """
+        # герметичность: либо накачиваем, либо спускаем давление
+        self.isOpenValve1 = (self.pressureSealed-self.valueAbs) > 0
+        self.isOpenValve4 = (self.pressureSealed+Config.ADDITIONAL_PRESSURE-self.valueAbs) < 0
+
+    def testSealedStabilization(self):
+        self.savedPressureSealedAbs = self.valueAbs
+        self.savedPressureSealedDif = self.valueDif
+        if (self.firstRun):
+            self.isOpenValve1 = False
+            self.isOpenValve4 = False
+            self.stabilized = True
+            if self.valueAbs < self.pressureSealed:               
+                self.sealedTestResult = -1
+                self.stepLabel = Config.RES_PRESSURE_TOO_LOW
+                self.testComplete.emit()
+
+        self.stabilized = abs(self.valueDif)<=Config.ALLOWED_PRESSURE_DELTA
+
+    def testSealedTest(self):
+        self.savedPressureSealedAbs = self.valueAbs
+        self.savedPressureSealedDif = self.valueDif
+        if (self.firstRun):
+            self.isOpenValve2 = False
+            self.initialSealedTestTime = self.currentTestDuration
+            self.initialSealedTestPressure = self.valueDif
+        if not self.stabilized:
+            self.testLabel = Config.RES_UNSTABLE_PARAMETRES
+            self.stepLabel = Config.RES_LEAK_OUT_OF_DIAGNOSTIC
+            self.testComplete.emit()
+        
+        self.volumeOfLeak = (self.valueDif-self.initialSealedTestPressure)/(self.currentTestDuration-self.initialSealedTestTime)*self.volumeOfProduct
+        self.sealedTestResult = 1 if abs(self.volumeOfLeak)<=self.maxAllowedLeakDynamic else -1
+        if self.sealedTestResult == -1:
+            self.testLabel = Config.RES_LEAK_MORE_ALLOWED
+            self.testComplete.emit()
+        
+        if self.sealedTestResult == 1:
+            self.crossSecAreaLeak = self.volumeOfLeak/330/self.initialSealedTestPressure/100000
+            self.diaLeak = self.crossSecAreaLeak/pi
 
     @property
     def testLabel(self):
