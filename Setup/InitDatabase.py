@@ -163,6 +163,7 @@ connection.commit()
 cursor.execute('insert into Setup (Entry,FilterDepth,KeyboardButtonSize) values (?,?,?)',(0,50,70))
 connection.commit()
 """
+"""
 cursor.execute('drop table if exists Receipts')
 cursor.execute('''create table if not exists Receipts (
                     Name text primary key not null,
@@ -178,7 +179,7 @@ cursor.execute('''create table if not exists Receipts (
                     Enabled integer)
                ''')
 connection.commit()
-
+"""
 #cursor.execute('insert into Receipts (Name,Enabled) values(?,?)',('test1',1))
 #cursor.execute('insert into Receipts (Name,Enabled) values(?,?)',('test2',1))
 #cursor.execute('insert into Receipts (Name,Enabled) values(?,?)',('test3',1))
