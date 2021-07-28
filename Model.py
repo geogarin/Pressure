@@ -50,11 +50,7 @@ class ChannelModel(QObject):
 
         self.minDurationValue = 0
         self.curDurationValue = 0
-        #self.durationTimerStep = Config.DURATION_TIMER_STEP
-        self.durationTimerStep = Config.SENSORS_REQUEST_PERIOD   
-        self.durationTimer = QTimer()
-        self.durationTimer.timeout.connect(self.durationTimerUpdate)
-        self.durationTimerStarted = False
+        
         self.currentTestDuration = 0
 
         self.sensorRequestTimer = QTimer()
@@ -108,6 +104,7 @@ class ChannelModel(QObject):
         self.testNameModel.layoutChanged.emit()
 
         self.modelUpdated.emit()
+        self.updateTestParameters()
 
     @property 
     def resultStrength(self):
@@ -155,23 +152,26 @@ class ChannelModel(QObject):
 
         self.difValueChanged.emit(str.format("{:.{}f}",vr,self.difRoundingPrecision)) 
        
+    """
     def startDurationTimer(self,start):
+        
         if (start):
             self.curDurationValue = 0
             self.durationTimer.start(self.durationTimerStep)
             self.durationTimerStarted = True
         else:
-            self.durationTimer.stop()
+            self.durationTimer.stop()    
 
     def durationTimerUpdate(self):
         if (self.durationTimerStarted):
             #self.curDurationValue += self.durationTimerStep/1000
             self.curDurationValue = self.currentTestDuration
             if (self.curDurationValue>self.maxDurationValue):
-                print(f'{self.currentTestDuration} {self.curDurationValue} stop!!!')
+                print(f'{self.currentTestDuration} {self.curDurationValue} stop 111 !!!')
                 self.curDurationValue = self.maxDurationValue
                 self.durationTimerStarted = False
             self.durationValueChanged.emit(self.curDurationValue)
+    """
 
     def onSensorRequest(self):
         self.readSensor(PressureSensor.absSensorAlias)
@@ -300,6 +300,7 @@ class ChannelModel(QObject):
         self.stepName = []
         self.subStepName = []
         self.stepDuration = []
+        self.processFunction = []
         self.maxStepIndex = 0
 
         if self.testName!='':
@@ -317,12 +318,14 @@ class ChannelModel(QObject):
             self.stepName.append(Config.RC_ZERO_SENSORS)
             self.subStepName.append('')
             self.stepDuration.append((Config.SENSOR_WAIT_PERIOD+Config.SENSORS_INIT_PERIOD+Config.DELAY_BETWEEN_STEPS)/1000)
+            #self.processFunction.append(self.testZeroSensors)
             self.maxStepIndex += 1
 
             self.stepName.append(Config.RC_CONNECTION_DURATION)
             self.subStepName.append('')
             self.stepDuration.append(r['ConnectionDuration']+Config.DELAY_BETWEEN_STEPS/1000)
             self.stepDuration[self.maxStepIndex] += self.stepDuration[self.maxStepIndex-1]
+            #self.processFunction.append(self.testConnection)
             self.maxStepIndex += 1
            
             if (not self.testStrengthOff):
@@ -333,7 +336,7 @@ class ChannelModel(QObject):
                 self.maxStepIndex += 1
 
                 self.stepName.append(Config.RC_STRENGTH_TEST)
-                self.subStepName.append(Config.RC_STRENGTH_TEST)
+                self.subStepName.append(Config.RC_TESTING)
                 self.stepDuration.append(r['StrengthTestDuration']+Config.DELAY_BETWEEN_STEPS/1000)
                 self.stepDuration[self.maxStepIndex] += self.stepDuration[self.maxStepIndex-1]
                 self.maxStepIndex += 1
@@ -352,7 +355,7 @@ class ChannelModel(QObject):
                 self.maxStepIndex += 1
 
                 self.stepName.append(Config.RC_SEALED_TEST)
-                self.subStepName.append(Config.RC_SEALED_TEST)
+                self.subStepName.append(Config.RC_TESTING)
                 self.stepDuration.append(r['SealedTestDuration']+Config.DELAY_BETWEEN_STEPS/1000)
                 self.stepDuration[self.maxStepIndex] += self.stepDuration[self.maxStepIndex-1]
                 self.maxStepIndex += 1
@@ -380,7 +383,6 @@ class ChannelModel(QObject):
     def startTest(self):
         print(f'start test')
         self.currentTestDuration = 0
-        self.startDurationTimer(True)
         self.testLabel = ''
         self.stepLabel = ''
         self.firstRun = False
@@ -401,11 +403,8 @@ class ChannelModel(QObject):
     def stopTest(self):
         print(f'stop test')
         self.sensorRequest(False)
-        
         self.pressureTestTimer.stop()
-        
         CommonControl.closeInputPressure()
-        self.startDurationTimer(False)
         self.testTimer.stop()
         self.isOpenValve1 = False
         self.isOpenValve3 = False
@@ -419,7 +418,9 @@ class ChannelModel(QObject):
         self.currentTestDuration = time.time()-self.startTime
 
     def onPressureTestTimer(self):
-        #self.currentTestDuration = time.time()-self.startTime
+        if (self.currentTestDuration<=self.maxDurationValue):
+            self.durationValueChanged.emit(self.currentTestDuration)
+
         if self.currentTestDuration > self.stepDuration[self.curStepIndex]:
             self.curStepIndex += 1
             if self.curStepIndex == self.maxStepIndex: self.curStepIndex -= 1
@@ -439,7 +440,7 @@ class ChannelModel(QObject):
             self.firstRun = True
      
         if self.firstRun:
-            print(f'{self.currentTestDuration} {self.curDurationValue} {self.currentStep} {self.currentSubStep} {self.stepDuration[self.curStepIndex]} dur={time.time()-self.startTime}')
+            print(f'start={self.currentTestDuration} plan={self.stepDuration[self.curStepIndex]} fact={time.time()-self.startTime} {self.currentStep} {self.currentSubStep}')
             if self.currentStep==Config.RC_ZERO_SENSORS:
                 # обнуление датчиков
                 self.isOpenValve1 = False
@@ -462,7 +463,7 @@ class ChannelModel(QObject):
                     self.inflating = self.valueAbs<self.pressureSealed
 
             if self.currentStep == Config.RC_STRENGTH_TEST:
-                if self.currentSubStep == Config.RC_STRENGTH_TEST:
+                if self.currentSubStep == Config.RC_TESTING:
                     self.isOpenValve1 = False
             
             if self.currentStep == Config.RC_SEALED_TEST:
@@ -497,7 +498,7 @@ class ChannelModel(QObject):
 
         # Тест прочности
         if self.currentStep == Config.RC_STRENGTH_TEST:
-            if self.currentSubStep == Config.RC_STRENGTH_TEST:
+            if self.currentSubStep == Config.RC_TESTING:
                 self.strengthTestResult = 1 if self.valueAbs>=self.pressureStrength else -1
                 if (self.strengthTestResult == -1):
                     self.stepLabel = Config.RES_PRESSURE_TOO_LOW
@@ -509,7 +510,7 @@ class ChannelModel(QObject):
             if self.currentSubStep == Config.RC_STABILIZATION_DURATION:
                 self.stabilized = abs(self.valueDif)<=Config.ALLOWED_PRESSURE_DELTA
 
-            if self.currentSubStep == Config.RC_SEALED_TEST:
+            if self.currentSubStep == Config.RC_TESTING:
                 if not self.stabilized:
                     self.testLabel = Config.RES_UNSTABLE_PARAMETRES
                     self.stepLabel = Config.RES_LEAK_OUT_OF_DIAGNOSTIC
@@ -528,14 +529,14 @@ class ChannelModel(QObject):
 
         
         if self.currentTestDuration > self.maxDurationValue:
-            if not self.testSealedOff:
-                self.sensorRequest(False)
+            if not self.testSealedOff:                
                 self.testLabel = Config.RES_LEAK_DIAMETER
-                self.difValueChanged.emit(str.format("{}",self.diaLeak)) 
+                self.stepLabel = str.format("{}",self.diaLeak)
+                #self.sensorRequest(False)
+                #self.difValueChanged.emit(str.format("{}",self.diaLeak)) 
                 
             self.testComplete.emit()
             print(f'{self.currentTestDuration} test complete')
-        #self.currentTestDuration += self.pressureTestTimerDuration/1000
 
     @property
     def testLabel(self):
