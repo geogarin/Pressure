@@ -180,6 +180,37 @@ cursor.execute('''create table if not exists Receipts (
                ''')
 connection.commit()
 """
+"""
+cursor.execute('drop table if exists TestResult')
+cursor.execute('''create table if not exists TestResult (
+                    Entry integer primary key not null,
+                    TestDate datetime,
+                    ChannelNumber integer,
+                    TestName text,
+                    ProductVolume integer,
+                    StrengthTestEnabled integer,
+                    StrengthTestPassed integer,
+                    StrengthTestResult text,
+                    StrengthTestDuration integer,
+                    StrengthTestPlanPressure integer,
+                    StrengthTestFactPressure integer,
+                    SealedTestEnabled integer,
+                    SealedTestPassed integer,
+                    SealedTestResult text,
+                    SealedTestDuration integer,
+                    SealedTestPlanPressure integer,
+                    SealedTestFactPressure integer,
+                    SealedTestMaxDeltaThreshold integer,
+                    SealedTestFactDeltaThreshold integer,
+                    SealedTestMaxAllowedLeak decimal,
+                    SealedTestVolumeOfLeak decimal,
+                    SealedTestCrossSecAreaLeak decimal,
+                    SealedTestLeakDiameter decimal
+                                        
+                    )
+               ''')
+connection.commit()
+"""
 #cursor.execute('insert into Receipts (Name,Enabled) values(?,?)',('test1',1))
 #cursor.execute('insert into Receipts (Name,Enabled) values(?,?)',('test2',1))
 #cursor.execute('insert into Receipts (Name,Enabled) values(?,?)',('test3',1))
@@ -213,6 +244,11 @@ print('-------------')
 
 print('-------------')
 cursor.execute(f'select * from FlashDrives')
+res= [list(row) for row in cursor.fetchall()]
+print(res)
+print('-------------')
+print('-------------')
+cursor.execute(f'select * from TestResult')
 res= [list(row) for row in cursor.fetchall()]
 print(res)
 print('-------------')

@@ -116,6 +116,58 @@ class data():
         for usbDev in usbs:
             self.addFlashDrive(usbDev,1)
 
+    def saveTestResult(self,testResult):
+        self.cursor.execute('''insert into TestResult 
+            (TestDate,
+            ChannelNumber,
+            TestName,
+            ProductVolume,
+            StrengthTestEnabled,
+            StrengthTestPassed,
+            StrengthTestResult,
+            StrengthTestDuration,
+            StrengthTestPlanPressure,
+            StrengthTestFactPressure,
+            SealedTestEnabled,
+            SealedTestPassed,
+            SealedTestResult,
+            SealedTestDuration,
+            SealedTestPlanPressure,
+            SealedTestFactPressure,
+            SealedTestMaxDeltaThreshold,
+            SealedTestFactDeltaThreshold,
+            SealedTestMaxAllowedLeak,
+            SealedTestVolumeOfLeak,
+            SealedTestCrossSecAreaLeak,
+            SealedTestLeakDiameter)
+            values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)          
+        ''',
+        (
+        testResult["TestDate"],
+        testResult["ChannelNumber"],
+        testResult["TestName"],
+        testResult["ProductVolume"],
+        testResult["StrengthTestEnabled"],
+        testResult["StrengthTestPassed"],
+        testResult["StrengthTestResult"],
+        testResult["StrengthTestDuration"],
+        testResult["StrengthTestPlanPressure"],
+        testResult["StrengthTestFactPressure"],
+        testResult["SealedTestEnabled"],
+        testResult["SealedTestPassed"],
+        testResult["SealedTestResult"],
+        testResult["SealedTestDuration"],
+        testResult["SealedTestPlanPressure"],
+        testResult["SealedTestFactPressure"],
+        testResult["SealedTestMaxDeltaThreshold"],
+        testResult["SealedTestFactDeltaThreshold"],
+        testResult["SealedTestMaxAllowedLeak"],
+        testResult["SealedTestVolumeOfLeak"],
+        testResult["SealedTestCrossSecAreaLeak"],
+        testResult["SealedTestLeakDiameter"]
+        ))
+        self.connection.commit()
+
     def __del__(self):
         self.connection.close() 
 

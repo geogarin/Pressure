@@ -158,6 +158,8 @@ MIN_KB_BUTTON_SIZE = 50
 MAX_KB_BUTTON_SIZE = 100
 
 # Результаты
+RES_TEST_OK = 'Успех'
+RES_TEST_FAILED = 'Провал'
 RES_PRESSURE_TOO_LOW = 'Давление слишком мало'
 
 RES_UNSTABLE_PARAMETRES = 'Нестабильные параметры'

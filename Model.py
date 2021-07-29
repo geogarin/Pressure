@@ -9,6 +9,7 @@ from PressureSensor import PressureSensor
 from CommonControl import CommonControl
 from pyiArduinoI2Crelay import *
 from math import pi
+from datetime import datetime
 import time
 
 class ChannelModel(QObject):
@@ -318,18 +319,21 @@ class ChannelModel(QObject):
             self.strengthTestResult = 0
             self.sealedTestResult = 0
 
-            self.stepName.append(Config.RC_ZERO_SENSORS)
-            self.subStepName.append('')
-            self.stepDuration.append((Config.SENSOR_WAIT_PERIOD+Config.SENSORS_INIT_PERIOD+Config.DELAY_BETWEEN_STEPS)/1000)
-            self.processFunction.append(self.testZeroSensors)
-            self.maxStepIndex += 1
+            if not (self.testStrengthOff and self.testSealedOff):
 
-            self.stepName.append(Config.RC_CONNECTION_DURATION)
-            self.subStepName.append('')
-            self.stepDuration.append(r['ConnectionDuration']+Config.DELAY_BETWEEN_STEPS/1000)
-            self.stepDuration[self.maxStepIndex] += self.stepDuration[self.maxStepIndex-1]
-            self.processFunction.append(self.testConnection)
-            self.maxStepIndex += 1
+                self.stepName.append(Config.RC_ZERO_SENSORS)
+                self.subStepName.append('')
+                self.stepDuration.append((Config.SENSOR_WAIT_PERIOD+Config.SENSORS_INIT_PERIOD+Config.DELAY_BETWEEN_STEPS)/1000)
+                self.processFunction.append(self.testZeroSensors)
+                self.maxStepIndex += 1
+
+                self.stepName.append(Config.RC_CONNECTION_DURATION)
+                self.subStepName.append('')
+                self.stepDuration.append(r['ConnectionDuration']+Config.DELAY_BETWEEN_STEPS/1000)
+                self.stepDuration[self.maxStepIndex] += self.stepDuration[self.maxStepIndex-1]
+                self.processFunction.append(self.testConnection)
+                self.maxStepIndex += 1
+
            
             if (not self.testStrengthOff):
                 self.stepName.append(Config.RC_STRENGTH_TEST)
@@ -422,6 +426,17 @@ class ChannelModel(QObject):
         self.resultStrength = self.strengthTestResult
         self.resultSealed = self.sealedTestResult
 
+        self.strengthTestResultDescription = ''
+        
+        if (self.resultStrength==-1): self.strengthTestResultDescription = self.stepLabel
+
+        self.sealedTestResultDescription = ''
+        if (self.resultSealed==-1): self.sealedTestResultDescription = self.stepLabel
+
+
+
+        self.saveTestResult()
+
     def onTestTimer(self):
         self.currentTestDuration = time.time()-self.startTime
 
@@ -450,7 +465,7 @@ class ChannelModel(QObject):
         self.processFunction[self.curStepIndex]()   
      
         if self.firstRun:
-            print(f'start={self.currentTestDuration} plan finish={self.stepDuration[self.curStepIndex]}{self.currentStep} {self.currentSubStep}')
+            print(f'start={self.currentTestDuration} plan finish={self.stepDuration[self.curStepIndex]} {self.currentStep} {self.currentSubStep}')
                     
         if self.currentTestDuration > self.maxDurationValue:
             if not self.testSealedOff:                
@@ -547,6 +562,40 @@ class ChannelModel(QObject):
         if self.sealedTestResult == 1:
             self.crossSecAreaLeak = self.volumeOfLeak/330/self.initialSealedTestPressure/100000
             self.diaLeak = self.crossSecAreaLeak/pi
+
+    def saveTestResult(self):
+        d = data()
+        r = d.getReceipt(self.testName)
+
+        testResult = {}
+        testResult["TestDate"] = datetime.now()
+        testResult["ChannelNumber"] = self.fittingValve
+        testResult["TestName"] = self.testName
+        testResult["ProductVolume"] = self.volumeOfProduct
+        testResult["StrengthTestEnabled"] = 1 if not self.testStrengthOff else 0
+        testResult["StrengthTestPassed"] = 1 if self.resultStrength==1 else 0
+        testResult["StrengthTestResult"] = self.strengthTestResultDescription
+        testResult["StrengthTestDuration"] = r['StrengthTestDuration']
+        testResult["StrengthTestPlanPressure"] = r['StrengthTestPressure']
+        testResult["StrengthTestFactPressure"] = self.savedPressureStrengthAbs
+        testResult["SealedTestEnabled"] = 1 if not self.testSealedOff else 0
+        testResult["SealedTestPassed"] = 1 if self.resultSealed==1 else 0
+        testResult["SealedTestResult"] = self.sealedTestResultDescription
+        testResult["SealedTestDuration"] = r['SealedTestDuration']
+        testResult["SealedTestPlanPressure"] = r['SealedTestPressure']
+        testResult["SealedTestFactPressure"] = self.savedPressureSealedAbs
+        testResult["SealedTestMaxDeltaThreshold"] = r['SealedTestDeltaThreshold']
+        testResult["SealedTestFactDeltaThreshold"] = self.savedPressureSealedDif
+        testResult["SealedTestMaxAllowedLeak"] = self.maxAllowedLeakDynamic
+        testResult["SealedTestVolumeOfLeak"] = self.volumeOfLeak
+        testResult["SealedTestCrossSecAreaLeak"] = self.crossSecAreaLeak
+        testResult["SealedTestLeakDiameter"] = self.diaLeak
+
+        s = data()
+        s.saveTestResult(testResult)
+
+
+
 
     @property
     def testLabel(self):
