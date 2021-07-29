@@ -86,19 +86,7 @@ class MainModel(QObject):
         serviceInterface.exec_()
         #print('after service')
         
-    #def startDurationTimer(self,start):
-    #    for i in range(self.channelsQuantity):
-    #        self.channelModels[i].startDurationTimer(start)
-
-    #def initSensorValuesList(self):
-    #    for i in range(self.channelsQuantity):
-    #        self.channelModels[i].initSensorValues()
-        
-        
-    #def upd(self):
-    #    for i in range(self.channelsQuantity):
-    #        self.channelModels[i].readSensor('ABS')
-    #        self.channelModels[i].readSensor('DIF')
+   
 
     def updateChannelsModel(self):       
         for i in range(self.channelsQuantity):

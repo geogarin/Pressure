@@ -65,6 +65,7 @@ SD_KEYBOARD_BUTTON_SIZE='Размер кнопки на клавиатуре'
 SETUP_DIALOG_SAVE_CHANGED = 'Cохранить измененные настройки?'
 SETUP_DIALOG_SAVE = 'Сохранить'
 SETUP_DIALOG_CLOSE = 'Закрыть'
+SETUP_DIALOG_SHOW_RESULTS = 'Результаты'
 
 SETUP_DIALOG_LINE_EDIT_FIELD_WIDTH = 200
 

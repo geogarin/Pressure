@@ -116,6 +116,10 @@ class data():
         for usbDev in usbs:
             self.addFlashDrive(usbDev,1)
 
+    def getTestResults(self):
+        r = self.cursor.execute('select * from TestResult').fetchall()
+        return r
+        
     def saveTestResult(self,testResult):
         self.cursor.execute('''insert into TestResult 
             (TestDate,

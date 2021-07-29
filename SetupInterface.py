@@ -8,6 +8,7 @@ from PyQt5.QtCore import Qt,pyqtSlot,pyqtSignal
 from VirtualKeyboard import VirtualKeyboard
 from QLineEditVK import QLineEditVK
 from ReceiptView import ReceiptView
+from TestResultView import TestResultView
 
 import Config
 import stylesheets
@@ -91,6 +92,10 @@ class SetupView(QDialog):
         self.closeButton = QPushButton(Config.SETUP_DIALOG_CLOSE)
         self.closeButton.setStyleSheet(stylesheets.SVC_Button)
 
+        self.showResultButton = QPushButton(Config.SETUP_DIALOG_SHOW_RESULTS)
+        self.showResultButton.setStyleSheet(stylesheets.SVC_Button)
+
+        self.buttonsLayout.addWidget(self.showResultButton,0,Qt.AlignLeft)
         self.buttonsLayout.addStretch()
         #self.buttonsLayout.addWidget(self.saveButton,0,Qt.AlignRight)
         self.buttonsLayout.addWidget(self.closeButton,0,Qt.AlignRight)
@@ -108,6 +113,7 @@ class SetupView(QDialog):
         #self.closeButton.clicked.connect(lambda: self._model.onCloseButtonPressed())
         #self._model.closeButtonPressed.connect(self.onCloseButtonPressed)
         self.closeButton.clicked.connect(self.onCloseButtonPressed)
+        self.showResultButton.clicked.connect(self.onShowResultButtonPressed)
 
     
         self.filterDepthValue.editDone.connect(self.filterDepthValueEdited)
@@ -145,6 +151,12 @@ class SetupView(QDialog):
             #    self._model.onSaveButtonPressed()         
         """
         self.close()
+
+    def onShowResultButtonPressed(self):      
+        testResultDialog = TestResultView()
+        testResultDialog.exec_()
+
+
 
 
 
