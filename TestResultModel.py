@@ -1,7 +1,9 @@
 from PyQt5 import QtCore
+from PyQt5 import QtGui
 from PyQt5.QtCore import Qt,QObject,pyqtSignal, pyqtSlot,QAbstractTableModel,QModelIndex
 from Database.database import data
 from datetime import datetime
+import Config
 
 class TestResultModel(QAbstractTableModel):
     def __init__(self,parent=None):
@@ -9,30 +11,16 @@ class TestResultModel(QAbstractTableModel):
 
         d = data()
         self.tableData = d.getTestResults()
-        """
-        self.columnNames=("Date",
-            "Channel",
-            TestName,
-            ProductVolume,
-            StrengthTestEnabled,
-            StrengthTestPassed,
-            StrengthTestResult,
-            StrengthTestDuration,
-            StrengthTestPlanPressure,
-            StrengthTestFactPressure,
-            SealedTestEnabled,
-            SealedTestPassed,
-            SealedTestResult,
-            SealedTestDuration,
-            SealedTestPlanPressure,
-            SealedTestFactPressure,
-            SealedTestMaxDeltaThreshold,
-            SealedTestFactDeltaThreshold,
-            SealedTestMaxAllowedLeak,
-            SealedTestVolumeOfLeak,
-            SealedTestCrossSecAreaLeak,
-            SealedTestLeakDiameter)
-        """
+   
+        stp = d.getSetup()
+        self.setupKeys = stp.keys()
+        self.setup = {k:str(stp[k]) for k in self.setupKeys if k!='Entry'}
+
+        self.fontSize = 22
+        self.font = QtGui.QFont(QtGui.QFont("Times",self.fontSize))
+
+        self.exportResultQty = '1'
+        
     def rowCount(self, parent: QModelIndex) -> int:
         return len(self.tableData)
 
@@ -40,19 +28,44 @@ class TestResultModel(QAbstractTableModel):
         return len(self.tableData[0])-1
 
     def data(self, index: QModelIndex, role: int):
-        if role == QtCore.Qt.DisplayRole:
-            row = index.row()
-            column = index.column()
-            res = self.tableData[row][column+1]
-            if column==0:
-                res = datetime.strptime(res,'%Y-%m-%d %H:%M:%S.%f').strftime('%d.%m.%y %H:%M:%S')
-            return res
-    
+        row = index.row()
+        column = index.column()
+        if role == QtCore.Qt.DisplayRole:            
+            return self.formatTestResultData(row,column)
+            
+    def formatTestResultData(self,row,column):
+        res = self.tableData[row][column+1]
+        if column==0:
+            res = datetime.strptime(res,'%Y-%m-%d %H:%M:%S.%f').strftime('%d.%m.%y %H:%M:%S')
+        if column in [4,10]:
+            res = Config.RES_YES if res==1 else Config.RES_NO
+        if column in [5,11]:
+            res = Config.RES_TEST_OK if res==1 else Config.RES_TEST_FAILED
+        
+        if self.tableData[row][5]==0:
+            if column in range(5,10):
+                res = ''
+        if self.tableData[row][11]==0:
+            if column in range(11,23):
+                res = ''
+        if self.tableData[row][15]>self.tableData[row][16]:
+            if column in range(16,23):
+                res = ''
+
+
+        return res
+ 
     def headerData(self, section: int, orientation: Qt.Orientation, role: int):
+        
+        if role == QtCore.Qt.DisplayRole:
+            if orientation==QtCore.Qt.Horizontal:           
+                return Config.RES_COLUMN_NAMES[section]
+        if role == QtCore.Qt.FontRole:
+            return self.font
+
+
         if role!=QtCore.Qt.DisplayRole:
             return QtCore.QVariant()
-        if orientation==QtCore.Qt.Horizontal:
-            return QtCore.QVariant('My Column Name') 
         
 
 if __name__=="__main__":
@@ -64,7 +77,10 @@ if __name__=="__main__":
     ddd = r[7][1]
 
     dt = datetime.strptime(ddd,'%Y-%m-%d %H:%M:%S.%f').strftime('%d.%m.%y %H:%M:%S')
-
     print(f'{dt}')
+
+    dt=datetime.now()
+    s=dt.strftime('%d_%m_%Y_%H_%M')
+    print(s)
 
 

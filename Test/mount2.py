@@ -7,7 +7,7 @@ s=str.format("pmount {} /media/gga",r[0])
 os.popen(s)
 print(f'{s}')
 
-ff = open('/media/gga/fff.txt','w')
+ff = open('/media/gga/ffff.txt','w')
 ff.write('asdasdasd')
 ff.close()
 

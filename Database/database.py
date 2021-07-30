@@ -116,8 +116,13 @@ class data():
         for usbDev in usbs:
             self.addFlashDrive(usbDev,1)
 
-    def getTestResults(self):
-        r = self.cursor.execute('select * from TestResult').fetchall()
+    def getTestResults(self, qty=0):
+        if qty==0:
+            qry = 'select * from TestResult order by Entry desc'
+        else:
+            qry = 'select * from TestResult order by Entry desc limit ' + str(qty)
+
+        r = self.cursor.execute(qry).fetchall()
         return r
         
     def saveTestResult(self,testResult):
