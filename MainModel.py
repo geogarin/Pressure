@@ -75,9 +75,11 @@ class MainModel(QObject):
                 self.channelModels[i].stopTest()
     
     def openSetupDialogButtonPressed(self):
+        self.checkUsbTimer.stop()
         setupModel = SetupModel()
         setupDialog = SetupView(setupModel)
         setupDialog.exec_()
+        self.checkUsbTimer.start(Config.USB_CHECK_PERIOD)
 
         self.updateChannelsModel()
 

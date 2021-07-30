@@ -3,6 +3,7 @@ from PyQt5 import QtGui
 from PyQt5.QtCore import Qt,QObject,pyqtSignal, pyqtSlot,QAbstractTableModel,QModelIndex
 from Database.database import data
 from datetime import datetime
+from TestResultExport import TestResultExporter
 import Config
 
 class TestResultModel(QAbstractTableModel):
@@ -20,6 +21,7 @@ class TestResultModel(QAbstractTableModel):
         self.font = QtGui.QFont(QtGui.QFont("Times",self.fontSize))
 
         self.exportResultQty = '1'
+        self.resExporter = TestResultExporter(0)
         
     def rowCount(self, parent: QModelIndex) -> int:
         return len(self.tableData)
@@ -31,10 +33,12 @@ class TestResultModel(QAbstractTableModel):
         row = index.row()
         column = index.column()
         if role == QtCore.Qt.DisplayRole:            
-            return self.formatTestResultData(row,column)
-            
-    def formatTestResultData(self,row,column):
-        res = self.tableData[row][column+1]
+            #return self.formatTestResultData(self.tableData[row],column)
+            return self.resExporter.formatTestResultData(self.tableData[row],column)
+
+      
+    def formatTestResultData(self,data,column):
+        res = data[column+1]
         if column==0:
             res = datetime.strptime(res,'%Y-%m-%d %H:%M:%S.%f').strftime('%d.%m.%y %H:%M:%S')
         if column in [4,10]:
@@ -42,19 +46,19 @@ class TestResultModel(QAbstractTableModel):
         if column in [5,11]:
             res = Config.RES_TEST_OK if res==1 else Config.RES_TEST_FAILED
         
-        if self.tableData[row][5]==0:
+        if data[5]==0:
             if column in range(5,10):
                 res = ''
-        if self.tableData[row][11]==0:
+        if data[11]==0:
             if column in range(11,23):
                 res = ''
-        if self.tableData[row][15]>self.tableData[row][16]:
+        if data[15]>data[16]:
             if column in range(16,23):
                 res = ''
 
 
         return res
- 
+    
     def headerData(self, section: int, orientation: Qt.Orientation, role: int):
         
         if role == QtCore.Qt.DisplayRole:

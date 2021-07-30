@@ -162,7 +162,7 @@ MAX_KB_BUTTON_SIZE = 100
 RES_YES = 'Да'
 RES_NO = 'Нет'
 RES_TEST_OK = 'Успех'
-RES_TEST_FAILED = 'Провал'
+RES_TEST_FAILED = 'Неудача'
 RES_PRESSURE_TOO_LOW = 'Давление слишком мало'
 
 RES_UNSTABLE_PARAMETRES = 'Нестабильные параметры'
@@ -173,6 +173,7 @@ RES_LEAK_DIAMETER = 'Сопоставимый D течи, мкм'
 
 RES_EXPORT_RESULT = 'Количество тестов для выгрузки в Excel'
 RES_EXPORT_BUTTON = 'Выгрузить'
+RES_EXPORT_INIT_USB = 'Инициализация USB'
 
 RES_COLUMN_NAMES = [
     

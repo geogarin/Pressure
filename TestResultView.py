@@ -84,7 +84,6 @@ class TestResultView(QDialog):
         self.close()
 
     def reportProgress(self, n):
-        #print(f"Long-Running Step: {n}")
         self.exportResultQty.setText(str(n))
 
     def onExportButtonPressed(self):
