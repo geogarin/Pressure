@@ -8,6 +8,7 @@ from CommonControl import CommonControl
 
 from Database.database import data
 from PyQt5.QtCore import Qt,QObject,pyqtSignal,pyqtSlot,QTimer
+from Dac import mcp4725
 
 class MainModel(QObject):
     startTestButtonNameChanged = pyqtSignal(str)
@@ -84,8 +85,11 @@ class MainModel(QObject):
         self.updateChannelsModel()
 
     def openServiceDialogButtonPressed(self):
+        m = mcp4725()
+        m.setVoltage(1000)
         serviceInterface = ServiceInterface(self)
         serviceInterface.exec_()
+        m.setVoltage(0)
         #print('after service')
         
    

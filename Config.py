@@ -87,7 +87,7 @@ RC_STRENGTH_TEST_DURATION = 'Длительность теста прочнос�
 
 RC_SEALED_TEST_PRESSURE = 'Давление теста герметичности'
 RC_SEALED_TEST_PRESSURE_UNIT_OF_MEASURE = 'мБар'
-RC_SEALED_TEST_DELTA_THRESHOLD = 'Порог перепада давления теста герметичности'
+RC_SEALED_TEST_DELTA_THRESHOLD = 'Порог течи теста герметичности'
 RC_SEALED_TEST_DELTA_THRESHOLD_UNIT_OF_MEASURE = 'Па'
 RC_SEALED_TEST_DURATION = 'Длительность теста герметичности'
 
@@ -170,6 +170,7 @@ RES_LEAK_OUT_OF_DIAGNOSTIC = 'Течь вне диагностики'
 
 RES_LEAK_MORE_ALLOWED = 'Течь выше допустимой'
 RES_LEAK_DIAMETER = 'Сопоставимый D течи, мкм'
+RES_MKM = 'мкм'
 
 RES_EXPORT_RESULT = 'Количество тестов для выгрузки в Excel'
 RES_EXPORT_BUTTON = 'Выгрузить'
@@ -196,7 +197,7 @@ RES_COLUMN_NAMES = [
     "Макс. план. перепад давления, Па",
     "Факт. перепад давления, Па",
     "Максимально допустимая течь, Па/сек",
-    "Величина течи, Па*см3/сек",
+    "Величина течи, мБар*см3/сек",
     "Площадь сечения течи,мкм2",
     "Диаметр течи, мкм"
 ]

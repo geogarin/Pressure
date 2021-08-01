@@ -8,7 +8,7 @@ from ReceiptModel import ReceiptModel
 from PressureSensor import PressureSensor
 from CommonControl import CommonControl
 from pyiArduinoI2Crelay import *
-from math import pi
+from math import pi,sqrt
 from datetime import datetime
 import time
 
@@ -134,8 +134,8 @@ class ChannelModel(QObject):
         self._curValAbs = value
         v = PressureSensor.DISPLAY_RATIO[PressureSensor.absSensorAlias]*self._curValAbs
         vr = round(v,self.absRoundingPrecision)
-        if (abs(vr)<1/pow(10,self.absRoundingPrecision)): 
-            vr = 0
+        #if (abs(vr)<1/pow(10,self.absRoundingPrecision)): 
+        #    vr = 0
         self.absValueChanged.emit(str.format("{:.{}f}",vr,self.absRoundingPrecision))
     
     @property
@@ -147,8 +147,9 @@ class ChannelModel(QObject):
         self._curValDif = value
         v = PressureSensor.DISPLAY_RATIO[PressureSensor.difSensorAlias]*self._curValDif
         vr = round(v,self.difRoundingPrecision)
-        if (abs(vr)<1/pow(10,self.difRoundingPrecision)): 
-            vr = 0
+        #if (abs(vr)<1/pow(10,self.difRoundingPrecision)): 
+        #    vr = 0
+        #print(f'dif={self.valueDif}')
         if (vr>Config.MAX_PRESSURE_VALVE2_CLOSED) or (vr<-Config.MAX_PRESSURE_VALVE2_CLOSED): self.isOpenValve2 = True
 
         self.difValueChanged.emit(str.format("{:.{}f}",vr,self.difRoundingPrecision)) 
@@ -372,7 +373,7 @@ class ChannelModel(QObject):
                 self.processFunction.append(self.testSealedTest)
                 self.maxStepIndex += 1
 
-                self.maxAllowedLeakDynamic = 2*r['SealedTestDeltaThreshold']/r['SealedTestDuration']
+                self.maxAllowedLeakDynamic = r['SealedTestDeltaThreshold']/r['SealedTestDuration']
                 self.volumeOfProduct = r['Volume']
                 self.volumeOfLeak = 0
                 self.crossSecAreaLeak = 0
@@ -398,6 +399,7 @@ class ChannelModel(QObject):
         self.testLabel = ''
         self.stepLabel = ''
         self.firstRun = False
+        self.volumeOfLeak = 0
         if (self.maxDurationValue>0):
             self._curValAbs = 0       
             self._curValDif = 0           
@@ -406,6 +408,8 @@ class ChannelModel(QObject):
             self.curStepIndex = 0  
             self.resultStrength = 0
             self.resultSealed = 0
+            self.absPressureSensor.initFilterValues()
+            self.difPressureSensor.initFilterValues()
             self.testTimer.start(self.testTimerDuration)
             self.pressureTestTimer.start(self.pressureTestTimerDuration)
             self.startTime = time.time()
@@ -419,7 +423,7 @@ class ChannelModel(QObject):
         CommonControl.closeInputPressure()
         self.testTimer.stop()
         self.isOpenValve1 = False
-        self.isOpenValve3 = False
+        self.isOpenValve3 = True
         self.isOpenValve4 = True
         self.isOpenFittingValve = False
 
@@ -465,12 +469,30 @@ class ChannelModel(QObject):
         self.processFunction[self.curStepIndex]()   
      
         if self.firstRun:
-            print(f'start={self.currentTestDuration} plan finish={self.stepDuration[self.curStepIndex]} {self.currentStep} {self.currentSubStep}')
+            print(f'start={self.currentTestDuration} plan finish={self.stepDuration[self.curStepIndex]} {self.currentStep} {self.currentSubStep} volume={self.volumeOfLeak}')
                     
         if self.currentTestDuration > self.maxDurationValue:
-            if not self.testSealedOff:                
-                self.testLabel = Config.RES_LEAK_DIAMETER
-                self.stepLabel = str.format("{}",self.diaLeak)
+            if not self.testSealedOff:
+                curLeak = (self.valueDif-self.initialSealedTestPressure)/(self.currentTestDuration-self.initialSealedTestTime)
+
+                self.volumeOfLeak = abs(self.valueDif-self.initialSealedTestPressure)/(self.currentTestDuration-self.initialSealedTestTime)*self.volumeOfProduct/100000
+                print(f'cur={self.currentTestDuration} initT={self.initialSealedTestTime} initP={self.initialSealedTestPressure} curP={self.valueDif} curAbs={self.valueAbs} vol={self.volumeOfLeak}')
+                self.sealedTestResult = 1 if abs(curLeak)<=self.maxAllowedLeakDynamic else -1
+                if self.sealedTestResult == -1:
+                    self.testLabel = Config.RES_LEAK_MORE_ALLOWED
+                else:
+                    self.testLabel = Config.RES_TEST_OK
+                       
+                #if self.sealedTestResult == 1:
+                self.crossSecAreaLeak = self.volumeOfLeak/330/self.initialSealedTestAbsPressure/100
+                self.diaLeak = 2000*sqrt(self.crossSecAreaLeak/pi)
+
+
+
+
+                #self.testLabel = Config.RES_LEAK_DIAMETER
+                #self.stepLabel = str.format("D={}",self.diaLeak)
+                self.stepLabel= str.format("D={:.{}f}{}",self.diaLeak,3,Config.RES_MKM)
             else:
                 self.testLabel = ''
                 self.stepLabel = ''
@@ -541,6 +563,9 @@ class ChannelModel(QObject):
 
         self.stabilized = abs(self.valueDif)<=Config.ALLOWED_PRESSURE_DELTA
 
+        #self.initialSealedTestTime = self.currentTestDuration
+        #self.initialSealedTestPressure = self.valueDif
+
     def testSealedTest(self):
         self.savedPressureSealedAbs = self.valueAbs
         self.savedPressureSealedDif = self.valueDif
@@ -548,21 +573,24 @@ class ChannelModel(QObject):
             self.isOpenValve2 = False
             self.initialSealedTestTime = self.currentTestDuration
             self.initialSealedTestPressure = self.valueDif
+            self.initialSealedTestAbsPressure = self.valueAbs
         if not self.stabilized:
             self.testLabel = Config.RES_UNSTABLE_PARAMETRES
             self.stepLabel = Config.RES_LEAK_OUT_OF_DIAGNOSTIC
             self.testComplete.emit()
-        
-        self.volumeOfLeak = (self.valueDif-self.initialSealedTestPressure)/(self.currentTestDuration-self.initialSealedTestTime)*self.volumeOfProduct
+        """
+        if (self.currentTestDuration-self.initialSealedTestTime)!=0:
+            self.volumeOfLeak = (self.valueDif-self.initialSealedTestPressure)/(self.currentTestDuration-self.initialSealedTestTime)*self.volumeOfProduct/100000
+        print(f'cur={self.currentTestDuration} initT={self.initialSealedTestTime} initP={self.initialSealedTestPressure} curP={self.valueDif} curAbs={self.valueAbs} vol={self.volumeOfLeak}')
         self.sealedTestResult = 1 if abs(self.volumeOfLeak)<=self.maxAllowedLeakDynamic else -1
         if self.sealedTestResult == -1:
             self.testLabel = Config.RES_LEAK_MORE_ALLOWED
             self.testComplete.emit()
         
         if self.sealedTestResult == 1:
-            self.crossSecAreaLeak = self.volumeOfLeak/330/self.initialSealedTestPressure/100000
+            self.crossSecAreaLeak = self.volumeOfLeak/330/self.initialSealedTestAbsPressure
             self.diaLeak = self.crossSecAreaLeak/pi
-
+        """
     def saveTestResult(self):
         d = data()
         r = d.getReceipt(self.testName)
