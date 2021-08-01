@@ -374,6 +374,7 @@ class ChannelModel(QObject):
                 self.maxStepIndex += 1
 
                 self.maxAllowedLeakDynamic = r['SealedTestDeltaThreshold']/r['SealedTestDuration']
+                self.maxAllowedLeak = r['SealedTestDeltaThreshold']
                 self.volumeOfProduct = r['Volume']
                 self.volumeOfLeak = 0
                 self.crossSecAreaLeak = 0
@@ -400,6 +401,7 @@ class ChannelModel(QObject):
         self.stepLabel = ''
         self.firstRun = False
         self.volumeOfLeak = 0
+        self.maxSealedTestPressure = 0
         if (self.maxDurationValue>0):
             self._curValAbs = 0       
             self._curValDif = 0           
@@ -473,11 +475,16 @@ class ChannelModel(QObject):
                     
         if self.currentTestDuration > self.maxDurationValue:
             if not self.testSealedOff:
-                curLeak = (self.valueDif-self.initialSealedTestPressure)/(self.currentTestDuration-self.initialSealedTestTime)
+                #curLeak = (self.valueDif-self.initialSealedTestPressure)/(self.currentTestDuration-self.initialSealedTestTime)
+                #curLeak = (self.valueDif-self.maxSealedTestPressure)/(self.currentTestDuration-self.initialSealedTestTime)
+                curLeak = (self.maxSealedTestPressure-self.valueDif)
+                print(f'max={self.maxSealedTestPressure} cur={self.valueDif} delta={curLeak}')
 
-                self.volumeOfLeak = abs(self.valueDif-self.initialSealedTestPressure)/(self.currentTestDuration-self.initialSealedTestTime)*self.volumeOfProduct/100000
-                print(f'cur={self.currentTestDuration} initT={self.initialSealedTestTime} initP={self.initialSealedTestPressure} curP={self.valueDif} curAbs={self.valueAbs} vol={self.volumeOfLeak}')
-                self.sealedTestResult = 1 if abs(curLeak)<=self.maxAllowedLeakDynamic else -1
+                #self.volumeOfLeak = abs(self.valueDif-self.initialSealedTestPressure)/(self.currentTestDuration-self.initialSealedTestTime)*self.volumeOfProduct/100000
+                self.volumeOfLeak = abs(curLeak)/(self.currentTestDuration-self.initialSealedTestTime)*self.volumeOfProduct/100000
+                #print(f'cur={self.currentTestDuration} initT={self.initialSealedTestTime} initP={self.initialSealedTestPressure} curP={self.valueDif} curAbs={self.valueAbs} vol={self.volumeOfLeak}')
+                #self.sealedTestResult = 1 if abs(curLeak)<=self.maxAllowedLeakDynamic else -1
+                self.sealedTestResult = 1 if abs(curLeak)<=self.maxAllowedLeak else -1
                 if self.sealedTestResult == -1:
                     self.testLabel = Config.RES_LEAK_MORE_ALLOWED
                 else:
@@ -574,10 +581,14 @@ class ChannelModel(QObject):
             self.initialSealedTestTime = self.currentTestDuration
             self.initialSealedTestPressure = self.valueDif
             self.initialSealedTestAbsPressure = self.valueAbs
+            self.maxSealedTestPressure = self.valueDif
         if not self.stabilized:
             self.testLabel = Config.RES_UNSTABLE_PARAMETRES
             self.stepLabel = Config.RES_LEAK_OUT_OF_DIAGNOSTIC
             self.testComplete.emit()
+
+        valDif = self.valueDif
+        if valDif > self.maxSealedTestPressure: self.maxSealedTestPressure = valDif    
         """
         if (self.currentTestDuration-self.initialSealedTestTime)!=0:
             self.volumeOfLeak = (self.valueDif-self.initialSealedTestPressure)/(self.currentTestDuration-self.initialSealedTestTime)*self.volumeOfProduct/100000
