@@ -326,3 +326,95 @@ QPushButton
 """.replace('DefaultFontStyle',DefaultFontStyle)
 # Virtual keyboard <<
 
+# Test Result >>
+#https://doc.qt.io/archives/qt-4.8/stylesheet-examples.html#customizing-qscrollbar
+TR_Vertical = """
+QScrollBar:vertical {
+     border: 2px;
+     width: 120px;
+     margin: 0px 0 160px 0;
+     
+ }
+ QScrollBar::handle:vertical {
+     min-width: 20px;     
+ }
+ QScrollBar::add-line:vertical {
+    height: 75px;
+    subcontrol-position: bottom;
+    subcontrol-origin: margin;
+    border: 2px solid gray;
+    
+    
+ }
+
+ QScrollBar::sub-line:vertical {
+    height: 75px;
+    subcontrol-position: bottom;
+    subcontrol-origin: margin;
+    border: 2px solid gray;
+    position: absolute;
+    bottom: 80px;
+    
+    
+     
+ }
+ QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical {
+     width: 15px;
+    height: 15px;
+    background: pink;
+ }
+
+ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+     
+ }
+"""
+
+TR_Horizontal = """
+QScrollBar:horizontal {
+    
+    border: 2px;    
+    height: 100px;
+    margin: 0px 80px 0px 80px;
+    
+}
+
+QScrollBar::handle:horizontal {
+    
+    min-width: 20px;
+    
+}
+
+QScrollBar::add-line:horizontal {
+    
+    width: 75px;
+    subcontrol-position: right;
+    subcontrol-origin: margin;
+    border: 2px solid gray;
+    
+    
+}
+
+QScrollBar::sub-line:horizontal {   
+    width: 75px;
+    subcontrol-position: left;
+    subcontrol-origin: margin;
+    border: 2px solid gray;
+
+      
+}
+
+QScrollBar:left-arrow:horizontal, QScrollBar::right-arrow:horizontal {
+    width: 15px;
+    height: 15px;
+    background: pink;
+}
+
+QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
+    
+}
+"""
+
+
+
+# Test Result <<
+

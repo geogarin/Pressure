@@ -2,7 +2,7 @@ import sys
 from PyQt5 import QtGui
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import QThread
-from PyQt5.QtWidgets import QAbstractItemView, QHeaderView, QWidget,QDialog,QPushButton,QVBoxLayout,QSpacerItem,QGridLayout,QFrame,QApplication,QLabel
+from PyQt5.QtWidgets import QAbstractItemView, QHeaderView, QWidget,QDialog,QPushButton,QVBoxLayout,QSpacerItem,QGridLayout,QFrame,QApplication,QLabel,QScrollBar
 from TestResultModel import TestResultModel
 from TestResultExport import TestResultExporter
 import Config
@@ -18,14 +18,20 @@ class TestResultView(QDialog):
         self.showFullScreen()
      
         self.view = QtWidgets.QTableView()
+        
+        
         self.model = TestResultModel()
         self.view.setModel(self.model)
         self.view.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.view.verticalHeader().setVisible(False)
         self.view.verticalHeader().sectionResizeMode(QHeaderView.Fixed)
         self.view.verticalHeader().setDefaultSectionSize(self.model.fontSize+20)
+        self.view.resizeColumnsToContents()
 
-        #self.mainLayout = QVBoxLayout()
+        
+        self.view.verticalScrollBar().setStyleSheet(stylesheets.TR_Vertical)
+        self.view.horizontalScrollBar().setStyleSheet(stylesheets.TR_Horizontal)
+        
         self.frame = QFrame()
         self.frame.setStyleSheet(stylesheets.BodyStyle)
         self.mainLayout = QGridLayout(self.frame) 
@@ -87,7 +93,7 @@ class TestResultView(QDialog):
         self.exportResultQty.setText(str(n))
 
     def onExportButtonPressed(self):
-        print(f"export")
+        #print(f"export")
         self.thread = QThread()
         self.xlsExporter = TestResultExporter(int(self.model.exportResultQty))
         self.xlsExporter.moveToThread(self.thread)

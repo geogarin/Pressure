@@ -37,27 +37,7 @@ class TestResultModel(QAbstractTableModel):
             return self.resExporter.formatTestResultData(self.tableData[row],column)
 
       
-    def formatTestResultData(self,data,column):
-        res = data[column+1]
-        if column==0:
-            res = datetime.strptime(res,'%Y-%m-%d %H:%M:%S.%f').strftime('%d.%m.%y %H:%M:%S')
-        if column in [4,10]:
-            res = Config.RES_YES if res==1 else Config.RES_NO
-        if column in [5,11]:
-            res = Config.RES_TEST_OK if res==1 else Config.RES_TEST_FAILED
-        
-        if data[5]==0:
-            if column in range(5,10):
-                res = ''
-        if data[11]==0:
-            if column in range(11,23):
-                res = ''
-        if data[15]>data[16]:
-            if column in range(16,23):
-                res = ''
-
-
-        return res
+    
     
     def headerData(self, section: int, orientation: Qt.Orientation, role: int):
         

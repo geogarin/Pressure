@@ -1,4 +1,6 @@
+from datetime import date, datetime
 import sqlite3
+from datetime import datetime
 import os,sys,inspect
 current_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parent_dir = os.path.dirname(current_dir)
@@ -248,9 +250,17 @@ res= [list(row) for row in cursor.fetchall()]
 print(res)
 print('-------------')
 print('-------------')
+t=datetime.now()
 cursor.execute(f'select * from TestResult')
 res= [list(row) for row in cursor.fetchall()]
 print(res)
+dt=datetime.now()
+print(f'select={dt-t}')
+print('-------------')
+print('-------------')
+res=cursor.execute(f'select count(*) from TestResult').fetchone()
+
+print(res[0])
 print('-------------')
 
 connection.commit()
