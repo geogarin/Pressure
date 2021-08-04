@@ -62,11 +62,9 @@ class TestResultExporter(QObject):
 
             workbook.close()
             os.popen(cp)
-            #/home/gga/Pressure/Export/{} /media/gga/',fn
-            #shutil.copyfile('/home/gga/Pressure/%s' % fn, '/media/gga/export/%s' %fn)
-            #sleep(1)
+            
             os.popen(dl)
-            #sleep(1)
+            
             os.popen("pumount /media/gga")
         self.finished.emit()
 
@@ -77,7 +75,7 @@ class TestResultExporter(QObject):
     
     def formatTestResultData(self,tableData,column):
         res = tableData[column+1]
-        
+        """
         if column==0:
             res = datetime.strptime(res,'%Y-%m-%d %H:%M:%S.%f').strftime('%d.%m.%y %H:%M:%S')
         if column in [4,10]:
@@ -94,5 +92,5 @@ class TestResultExporter(QObject):
         if tableData[15]>tableData[16]:
             if column in range(16,23):
                 res = ''
-        
+        """
         return res

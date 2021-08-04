@@ -30,24 +30,19 @@ class TestResultModel(QAbstractTableModel):
         return len(self.tableData[0])-1
 
     def data(self, index: QModelIndex, role: int):
+        
         row = index.row()
         column = index.column()
         if role == QtCore.Qt.DisplayRole:            
-            #return self.formatTestResultData(self.tableData[row],column)
-            return self.resExporter.formatTestResultData(self.tableData[row],column)
+            return self.formatTestResultData(self.tableData[row],column)
 
-      
-    
-    
     def headerData(self, section: int, orientation: Qt.Orientation, role: int):
-        
         if role == QtCore.Qt.DisplayRole:
             if orientation==QtCore.Qt.Horizontal:           
                 return Config.RES_COLUMN_NAMES[section]
         if role == QtCore.Qt.FontRole:
             return self.font
-
-
+        
         if role!=QtCore.Qt.DisplayRole:
             return QtCore.QVariant()
         
