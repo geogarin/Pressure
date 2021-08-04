@@ -11,6 +11,7 @@ from pyiArduinoI2Crelay import *
 from math import pi,sqrt
 from datetime import datetime
 import time
+from Dac import mcp4725
 
 class ChannelModel(QObject):
     absValueChanged = pyqtSignal(str)
@@ -48,7 +49,7 @@ class ChannelModel(QObject):
         self.testSealedOff = False
         self._resultStrength = 0
         self._resultSealed = 0
-
+        
         self.testStopType = ''
 
         self.minDurationValue = 0

@@ -6,6 +6,7 @@ import Config
 from PressureSensor import PressureSensor
 from CircularProgressBar import QRoundProgressBar
 from SwitchButton import SwitchButton
+
 from RoundedRect import RoundedRect
 import stylesheets
 
@@ -27,6 +28,9 @@ class ServiceChannel(QWidget):
         self.frame = QFrame()
         self.frame.setStyleSheet(stylesheets.BodyStyle)
         
+        
+
+
         # значения с датчиков >>
         self.measureDiff = QLineEdit('')
         self.measureDiff.setReadOnly(True)
@@ -113,6 +117,9 @@ class ServiceChannel(QWidget):
         self.mainLayout.addWidget(self.unitOfMeasureAbs,curRow,curCol+1)
         curRow += 1
         """
+        
+
+
         self.mainLayout.addWidget(self.measureAbs,curRow,curCol)
         self.mainLayout.addWidget(self.measureDiff,curRow,curCol+1)        
         curRow += 1
@@ -178,6 +185,8 @@ class ServiceChannel(QWidget):
         self._model.absValueChanged.connect(self.onValueAbsChanged)
         self._model.difValueChanged.connect(self.onValueDifChanged)
         self._model.valveStateChanged.connect(self.updateValves)
+
+        
 
     @pyqtSlot(int)    
     def updateValves(self,value):

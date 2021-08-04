@@ -140,6 +140,7 @@ RC_LIST_WIDTH=300 # Ширина списка рецептов
 # форма сервиса
 SVC_SERVICE_NAME = 'Сервис'
 
+SVC_SET_VOLTAGE = 'Уст. напряжения (0-100%)'
 SVC_VALVE1_NAME = 'Клапан 1'
 SVC_VALVE2_NAME = 'Клапан 2'
 SVC_VALVE3_NAME = 'Клапан 3'

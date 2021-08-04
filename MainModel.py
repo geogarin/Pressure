@@ -20,6 +20,10 @@ class MainModel(QObject):
         self.db = data()
         channels = self.db.getChannels()
 
+        stp = self.db.getSetup()
+        self.setupKeys = stp.keys()
+        self.setup = {k:str(stp[k]) for k in self.setupKeys if k!='Entry'}
+
         self.channelsQuantity = len(channels)
         self.channelModels = []
         
@@ -88,11 +92,11 @@ class MainModel(QObject):
         self.updateChannelsModel()
 
     def openServiceDialogButtonPressed(self):
-        m = mcp4725()
-        m.setVoltage(1000)
+        #m = mcp4725()
+        #m.setVoltage(1000)
         serviceInterface = ServiceInterface(self)
         serviceInterface.exec_()
-        m.setVoltage(0)
+        #m.setVoltage(0)
         #print('after service')
         
    
