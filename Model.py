@@ -666,11 +666,13 @@ class ChannelModel(QObject):
                 else: 
                     testResult["SealedTestPassed"] = Config.RES_TEST_OK if self.resultSealed==1 else Config.RES_TEST_FAILED
         
-            if testResult["SealedTestPassed"] == Config.RES_TEST_OK:            
+            if testResult["SealedTestPassed"] != Config.RES_TEST_OFF:            
                 testResult["SealedTestResult"] = self.sealedTestResultDescription
                 testResult["SealedTestDuration"] = str(r['SealedTestDuration'])
                 testResult["SealedTestPlanPressure"] = str.format("{:.{}f}",r['SealedTestPressure'],Config.RES_ROUNDING_PRECISION)
                 testResult["SealedTestFactPressure"] = str.format("{:.{}f}",self.savedPressureSealedAbs,Config.RES_ROUNDING_PRECISION)
+
+            #if testResult["SealedTestPassed"] == Config.RES_TEST_OK: 
                 testResult["SealedTestMaxDeltaThreshold"] = str.format("{:.{}f}",r['SealedTestDeltaThreshold'],Config.RES_ROUNDING_PRECISION)
                 testResult["SealedTestFactDeltaThreshold"] = str.format("{:.{}f}",self.savedPressureSealedDif,Config.RES_ROUNDING_PRECISION)
                 testResult["SealedTestMaxAllowedLeak"] = str.format("{:.{}f}",self.maxAllowedLeakDynamic,Config.RES_ROUNDING_PRECISION)
