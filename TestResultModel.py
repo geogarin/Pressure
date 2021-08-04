@@ -34,7 +34,7 @@ class TestResultModel(QAbstractTableModel):
         row = index.row()
         column = index.column()
         if role == QtCore.Qt.DisplayRole:            
-            return self.formatTestResultData(self.tableData[row],column)
+            return self.resExporter.formatTestResultData(self.tableData[row],column)
 
     def headerData(self, section: int, orientation: Qt.Orientation, role: int):
         if role == QtCore.Qt.DisplayRole:

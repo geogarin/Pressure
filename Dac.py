@@ -25,7 +25,9 @@ class mcp4725:
         self.setNormalizedValue(val/mcp4725.MAX_PRESSURE)
 
 if __name__=='__main__':
+
     m = mcp4725()
+    """
     print('максимальное напряжение')
     m.setNormalizedValue(1) # максимальное напряжение
     sleep(5)
@@ -37,6 +39,7 @@ if __name__=='__main__':
     print('900')
     m.setPressure(900)
     sleep(5)
+    """
     m.setPressure(0)
 
 

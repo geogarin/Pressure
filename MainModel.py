@@ -56,6 +56,7 @@ class MainModel(QObject):
     def onTestComplete(self):
         self.testCompleteQuantity += 1
         if self.testCompleteQuantity == self.channelsQuantity:
+            self.testStopType = ''
             self.startTestButtonPressed()
 
     def startTestButtonPressed(self):
@@ -66,13 +67,15 @@ class MainModel(QObject):
             #self.timer.start(Config.SENSORS_REQUEST_PERIOD)
             self.startTestButtonName = Config.BUTTON_STOP_TEST
             self.testCompleteQuantity = 0
-
+            
+            self.testStopType = Config.RES_TEST_CANCELED
             for i in range(self.channelsQuantity):
                 self.channelModels[i].startTest()
         else:
             #self.timer.stop()
             self.startTestButtonName = Config.BUTTON_START_TEST
             for i in range(self.channelsQuantity):
+                self.channelModels[i].setTestStopType(self.testStopType)
                 self.channelModels[i].stopTest()
     
     def openSetupDialogButtonPressed(self):

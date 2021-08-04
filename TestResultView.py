@@ -20,7 +20,7 @@ class TestResultView(QDialog):
      
         self.view = QtWidgets.QTableView()
         
-        dt1 = datetime.now()
+        
         self.model = TestResultModel()
         self.view.setModel(self.model)
         self.view.setEditTriggers(QAbstractItemView.NoEditTriggers)
@@ -80,7 +80,7 @@ class TestResultView(QDialog):
         self.exportButton.clicked.connect(self.onExportButtonPressed)
         self.exportResultQty.editDone.connect(self.exportResultQtyEdited)
 
-        print(f'create={datetime.now()-dt1}')
+        
 
     def exportResultQtyEdited(self):
         val = int(self.exportResultQty.text())

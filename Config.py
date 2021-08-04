@@ -173,6 +173,8 @@ RES_NO = 'Нет'
 RES_TEST_OK = 'Успех'
 RES_TEST_FAILED = 'Неудача'
 RES_TEST_OFF = 'Не проводился'
+RES_TEST_CANCELED = 'Отменен'
+
 RES_PRESSURE_TOO_LOW = 'Давление слишком мало'
 
 RES_UNSTABLE_PARAMETRES = 'Нестабильные параметры'

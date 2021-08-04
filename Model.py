@@ -49,6 +49,8 @@ class ChannelModel(QObject):
         self._resultStrength = 0
         self._resultSealed = 0
 
+        self.testStopType = ''
+
         self.minDurationValue = 0
         self.curDurationValue = 0
         
@@ -106,7 +108,7 @@ class ChannelModel(QObject):
         self.difRoundingPrecision = difRoundingPrecision
        
     def updateModel(self):
-        print(f'update channel {self.channelName}')
+        #print(f'update channel {self.channelName}')
         self.testNameModel.layoutChanged.emit()
 
         self.modelUpdated.emit()
@@ -300,7 +302,7 @@ class ChannelModel(QObject):
     def onSensorZeroed(self):
         self.zeroedSensorsQuantity += 1
         if self.zeroedSensorsQuantity==2:
-            print(f'{self.currentTestDuration} {self.curDurationValue} close valves')
+            #print(f'{self.currentTestDuration} {self.curDurationValue} close valves')
             self.isOpenValve4 = self.valve4State
             self.isOpenValve2 = self.valve2State
             
@@ -401,11 +403,13 @@ class ChannelModel(QObject):
         else:
             self.maxDurationValue = self.stepDuration[self.maxStepIndex-1]
             self.durationChanged.emit(self.maxDurationValue)
-        print(f'{self.maxDurationValue} max duration')
+        #print(f'{self.maxDurationValue} max duration')
 
+    def setTestStopType(self,stopType):
+        self.testStopType = stopType
 
     def startTest(self):
-        print(f'start test')
+        #print(f'start test')
         self.currentTestDuration = 0
         self.testLabel = ''
         self.stepLabel = ''
@@ -429,7 +433,7 @@ class ChannelModel(QObject):
             self.testComplete.emit()
 
     def stopTest(self):
-        print(f'stop test')
+        #print(f'stop test')
         self.sensorRequest(False)
         self.pressureTestTimer.stop()
         CommonControl.closeInputPressure()
@@ -511,7 +515,11 @@ class ChannelModel(QObject):
                        
                 #if self.sealedTestResult == 1:
                 self.crossSecAreaLeak = self.volumeOfLeak/330/self.initialSealedTestAbsPressure/100
-                self.diaLeak = 2000*sqrt(self.crossSecAreaLeak/pi)
+                #print(f'vol={self.volumeOfLeak} pr={self.initialSealedTestAbsPressure}')
+                if self.crossSecAreaLeak >= 0:
+                    self.diaLeak = 2000*sqrt(self.crossSecAreaLeak/pi)
+                else: 
+                    self.diaLeak = 0
 
                 self.stepLabel= str.format("D={:.{}f}{}",self.diaLeak,Config.RES_ROUNDING_PRECISION,Config.RES_MKM)
             else:
@@ -519,7 +527,7 @@ class ChannelModel(QObject):
                 self.stepLabel = ''
                 
             self.testComplete.emit()
-            print(f'{self.currentTestDuration} test complete')
+            #print(f'{self.currentTestDuration} test complete')
     
     def testZeroSensors(self):
         if (self.firstRun):
@@ -552,6 +560,7 @@ class ChannelModel(QObject):
         if (self.strengthTestResult == -1):
             self.stepLabel = Config.RES_PRESSURE_TOO_LOW
             self.testComplete.emit()
+            #print('stop!')
 
     def testSealedInflating(self):
         if (self.firstRun):
@@ -613,65 +622,64 @@ class ChannelModel(QObject):
             self.testComplete.emit()    
         
     def saveTestResult(self):
-        d = data()
-        r = d.getReceipt(self.testName)
+        if self.testStopType != Config.RES_TEST_CANCELED:
+            d = data()
+            r = d.getReceipt(self.testName)
 
-        testResult = {}
-        testResult["TestDate"] = str(datetime.strptime(datetime.now(),'%d.%m.%y %H:%M:%S'))
-        testResult["ChannelNumber"] = self.fittingValve
-        testResult["TestName"] = self.testName
-        testResult["ProductVolume"] = self.volumeOfProduct
-        testResult["StrengthTestEnabled"] = Config.RES_YES if not self.testStrengthOff else Config.RES_NO
-        if self.testStrengthOff:
-            testResult["StrengthTestPassed"] = Config.RES_TEST_OFF
-            testResult["StrengthTestResult"] = ''
-            testResult["StrengthTestDuration"] = ''
-            testResult["StrengthTestPlanPressure"] = ''
-            testResult["StrengthTestFactPressure"] = ''
-        else:
-            testResult["StrengthTestPassed"] = Config.RES_TEST_OK if self.resultStrength==1 else Config.RES_TEST_FAILED
-            testResult["StrengthTestResult"] = self.strengthTestResultDescription
-            testResult["StrengthTestDuration"] = str(r['StrengthTestDuration'])
-            testResult["StrengthTestPlanPressure"] = str.format("{:.{}f}",r['StrengthTestPressure'],Config.RES_ROUNDING_PRECISION)
-            testResult["StrengthTestFactPressure"] = str.format("{:.{}f}",self.savedPressureStrengthAbs,Config.RES_ROUNDING_PRECISION)
 
-        testResult["SealedTestEnabled"] = Config.RES_YES if not self.testSealedOff else Config.RES_NO
-        testResult["SealedTestPassed"] = ''
-        testResult["SealedTestResult"] = ''
-        testResult["SealedTestDuration"] = ''
-        testResult["SealedTestPlanPressure"] = ''
-        testResult["SealedTestFactPressure"] = ''
-        testResult["SealedTestMaxDeltaThreshold"] = ''
-        testResult["SealedTestFactDeltaThreshold"] = ''
-        testResult["SealedTestMaxAllowedLeak"] = ''
-        testResult["SealedTestVolumeOfLeak"] = ''
-        testResult["SealedTestCrossSecAreaLeak"] = ''
-        testResult["SealedTestLeakDiameter"] = ''
-        if self.testSealedOff:
-            testResult["SealedTestPassed"] = Config.RES_TEST_OFF
-        else:
-            if self.resultStrength==0: 
+            testResult = {}
+            testResult["TestDate"] = datetime.now().strftime('%d.%m.%y %H:%M:%S')
+            testResult["ChannelNumber"] = self.fittingValve
+            testResult["TestName"] = self.testName
+            testResult["ProductVolume"] = self.volumeOfProduct
+            testResult["StrengthTestEnabled"] = Config.RES_YES if not self.testStrengthOff else Config.RES_NO
+            if self.testStrengthOff:
+                testResult["StrengthTestPassed"] = Config.RES_TEST_OFF
+                testResult["StrengthTestResult"] = ''
+                testResult["StrengthTestDuration"] = ''
+                testResult["StrengthTestPlanPressure"] = ''
+                testResult["StrengthTestFactPressure"] = ''
+            else:
+                testResult["StrengthTestPassed"] = Config.RES_TEST_OK if self.resultStrength==1 else Config.RES_TEST_FAILED
+                testResult["StrengthTestResult"] = self.strengthTestResultDescription
+                testResult["StrengthTestDuration"] = str(r['StrengthTestDuration'])
+                testResult["StrengthTestPlanPressure"] = str.format("{:.{}f}",r['StrengthTestPressure'],Config.RES_ROUNDING_PRECISION)
+                testResult["StrengthTestFactPressure"] = str.format("{:.{}f}",self.savedPressureStrengthAbs,Config.RES_ROUNDING_PRECISION)
+
+            testResult["SealedTestEnabled"] = Config.RES_YES if not self.testSealedOff else Config.RES_NO
+            testResult["SealedTestPassed"] = ''
+            testResult["SealedTestResult"] = ''
+            testResult["SealedTestDuration"] = ''
+            testResult["SealedTestPlanPressure"] = ''
+            testResult["SealedTestFactPressure"] = ''
+            testResult["SealedTestMaxDeltaThreshold"] = ''
+            testResult["SealedTestFactDeltaThreshold"] = ''
+            testResult["SealedTestMaxAllowedLeak"] = ''
+            testResult["SealedTestVolumeOfLeak"] = ''
+            testResult["SealedTestCrossSecAreaLeak"] = ''
+            testResult["SealedTestLeakDiameter"] = ''
+            if self.testSealedOff:
                 testResult["SealedTestPassed"] = Config.RES_TEST_OFF
-            else: 
-                testResult["SealedTestPassed"] = Config.RES_TEST_OK if self.resultSealed==1 else Config.RES_TEST_FAILED
-    
-        if testResult["SealedTestPassed"] == Config.RES_TEST_OK:            
-            testResult["SealedTestResult"] = self.sealedTestResultDescription
-            testResult["SealedTestDuration"] = str(r['SealedTestDuration'])
-            testResult["SealedTestPlanPressure"] = str.format("{:.{}f}",r['SealedTestPressure'],Config.RES_ROUNDING_PRECISION)
-            testResult["SealedTestFactPressure"] = str.format("{:.{}f}",self.savedPressureSealedAbs,Config.RES_ROUNDING_PRECISION)
-            testResult["SealedTestMaxDeltaThreshold"] = str.format("{:.{}f}",r['SealedTestDeltaThreshold'],Config.RES_ROUNDING_PRECISION)
-            testResult["SealedTestFactDeltaThreshold"] = str.format("{:.{}f}",self.savedPressureSealedDif,Config.RES_ROUNDING_PRECISION)
-            testResult["SealedTestMaxAllowedLeak"] = str.format("{:.{}f}",self.maxAllowedLeakDynamic,Config.RES_ROUNDING_PRECISION)
-            testResult["SealedTestVolumeOfLeak"] = str.format("{:.{}f}",self.volumeOfLeak,Config.RES_ROUNDING_PRECISION)
-            testResult["SealedTestCrossSecAreaLeak"] = str.format("{:.{}f}",self.crossSecAreaLeak,Config.RES_ROUNDING_PRECISION)
-            testResult["SealedTestLeakDiameter"] = str.format("{:.{}f}",self.diaLeak,Config.RES_ROUNDING_PRECISION)
+            else:
+                if self.resultStrength==-1: 
+                    testResult["SealedTestPassed"] = Config.RES_TEST_OFF
+                else: 
+                    testResult["SealedTestPassed"] = Config.RES_TEST_OK if self.resultSealed==1 else Config.RES_TEST_FAILED
+        
+            if testResult["SealedTestPassed"] == Config.RES_TEST_OK:            
+                testResult["SealedTestResult"] = self.sealedTestResultDescription
+                testResult["SealedTestDuration"] = str(r['SealedTestDuration'])
+                testResult["SealedTestPlanPressure"] = str.format("{:.{}f}",r['SealedTestPressure'],Config.RES_ROUNDING_PRECISION)
+                testResult["SealedTestFactPressure"] = str.format("{:.{}f}",self.savedPressureSealedAbs,Config.RES_ROUNDING_PRECISION)
+                testResult["SealedTestMaxDeltaThreshold"] = str.format("{:.{}f}",r['SealedTestDeltaThreshold'],Config.RES_ROUNDING_PRECISION)
+                testResult["SealedTestFactDeltaThreshold"] = str.format("{:.{}f}",self.savedPressureSealedDif,Config.RES_ROUNDING_PRECISION)
+                testResult["SealedTestMaxAllowedLeak"] = str.format("{:.{}f}",self.maxAllowedLeakDynamic,Config.RES_ROUNDING_PRECISION)
+                testResult["SealedTestVolumeOfLeak"] = str.format("{:.{}f}",self.volumeOfLeak,Config.RES_ROUNDING_PRECISION)
+                testResult["SealedTestCrossSecAreaLeak"] = str.format("{:.{}f}",self.crossSecAreaLeak,Config.RES_ROUNDING_PRECISION)
+                testResult["SealedTestLeakDiameter"] = str.format("{:.{}f}",self.diaLeak,Config.RES_ROUNDING_PRECISION)
 
-        s = data()
-        s.saveTestResult(testResult)
-
-
-
+            s = data()
+            s.saveTestResult(testResult)
 
     @property
     def testLabel(self):

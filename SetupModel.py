@@ -20,7 +20,7 @@ class SetupModel(QObject):
         
     @pyqtSlot(str,str)
     def onSave(self,name,value):
-        print(f'saving {name}={value}')
+        #print(f'saving {name}={value}')
         self.d.saveSetup(name,value)
 
 

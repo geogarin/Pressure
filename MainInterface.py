@@ -59,6 +59,8 @@ class MainInterface(QWidget):
     @pyqtSlot(str)
     def onStartTestButtonNameChanged(self,value):
         self.startTestButton.setText(value)
+        self.setupButton.setEnabled(value == BUTTON_START_TEST)
+        self.manualButton.setEnabled(value == BUTTON_START_TEST)
         if (value == BUTTON_START_TEST):
             self.startTestButton.setStyleSheet(stylesheets.ButtonStartStyle)
         else:
