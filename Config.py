@@ -10,6 +10,8 @@ DIF_PRESSURE_ROUNDING_PRECISION = 0
 ABS_MASTER_MODE_PRESSURE_ROUNDING_PRECISION = 2
 DIF_MASTER_MODE_PRESSURE_ROUNDING_PRECISION = 2
 
+
+
 # Период опроса датчиков (мс)
 SENSORS_REQUEST_PERIOD = 25
 
@@ -167,8 +169,10 @@ MAX_KB_BUTTON_SIZE = 100
 # Результаты
 RES_YES = 'Да'
 RES_NO = 'Нет'
+
 RES_TEST_OK = 'Успех'
 RES_TEST_FAILED = 'Неудача'
+RES_TEST_OFF = 'Не проводился'
 RES_PRESSURE_TOO_LOW = 'Давление слишком мало'
 
 RES_UNSTABLE_PARAMETRES = 'Нестабильные параметры'
@@ -177,6 +181,8 @@ RES_LEAK_OUT_OF_DIAGNOSTIC = 'Течь вне диагностики'
 RES_LEAK_MORE_ALLOWED = 'Течь выше допустимой'
 RES_LEAK_DIAMETER = 'Сопоставимый D течи, мкм'
 RES_MKM = 'мкм'
+
+RES_ROUNDING_PRECISION = 3
 
 RES_EXPORT_RESULT = 'Количество тестов для выгрузки в Excel'
 RES_EXPORT_BUTTON = 'Выгрузить'
