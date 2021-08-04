@@ -16,7 +16,7 @@ DIF_MASTER_MODE_PRESSURE_ROUNDING_PRECISION = 2
 SENSORS_REQUEST_PERIOD = 25
 
 # Период срабатывания таймера простоя (мс)
-IDLE_TIMER_PERIOD = 10000
+IDLE_TIMER_PERIOD = 2000
 
 # Допустимый период простоя
 IDLE_PERIOD = 60000
