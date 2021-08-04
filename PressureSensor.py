@@ -96,6 +96,7 @@ class PressureSensor(QObject):
         #self.inTimer = False
         self.setDelta(0)
         #print(f'start zero')
+        #self.initFilterValues()
         self.initTimer.start(Config.SENSORS_REQUEST_PERIOD)
 
     def initTimerUpdate(self):
@@ -104,8 +105,8 @@ class PressureSensor(QObject):
         self.currentStep += Config.SENSORS_REQUEST_PERIOD
         if self.currentStep>=Config.SENSOR_WAIT_PERIOD:
             p = self.getFilteredValue()
-            #if self.sensorPin == 480:
-            #    print(f'{self.currentStep} {self.sensorType} {self.sensorPin} current')
+            #if self.sensorPin == 477:
+            #    print(f'{self.currentStep} {self.sensorType} {self.sensorPin} current={p}')
             if (self.currentStep>=(Config.SENSOR_WAIT_PERIOD+Config.SENSORS_INIT_PERIOD)):
                 self.zeroed = True
                 #print(f'{self.currentStep} {self.sensorType} {self.sensorPin} before close')
@@ -116,7 +117,8 @@ class PressureSensor(QObject):
                 #print(f'zero {p}')
                 self.setDelta(-p)
             #    self.inTimer = False
-            
+        else:
+            self.initFilterValues()    
 
             
 
