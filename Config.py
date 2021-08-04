@@ -1,7 +1,7 @@
 
 # База данных
 DATABASE_NAME = 'data.db'
-DATABASE_PATH = './Data/'
+DATABASE_PATH = '/home/gga/Pressure/Data/'     #'./Data/' так не работает в kiosk mode!
 
 # Точность округления показаний давления (знаков после запятой)
 ABS_PRESSURE_ROUNDING_PRECISION = 0
