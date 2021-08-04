@@ -204,13 +204,14 @@ cursor.execute('''create table if not exists TestResult (
                     SealedTestFactPressure text,
                     SealedTestMaxDeltaThreshold text,
                     SealedTestFactDeltaThreshold text,
-                    SealedTestMaxAllowedLeak text,
+                    
                     SealedTestVolumeOfLeak text,
                     SealedTestCrossSecAreaLeak text,
                     SealedTestLeakDiameter text
                                         
                     )
                ''')
+               #SealedTestMaxAllowedLeak text,
 connection.commit()
 """
 #cursor.execute('insert into Receipts (Name,Enabled) values(?,?)',('test1',1))

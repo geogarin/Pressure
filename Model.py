@@ -141,8 +141,8 @@ class ChannelModel(QObject):
         self._curValAbs = value
         v = PressureSensor.DISPLAY_RATIO[PressureSensor.absSensorAlias]*self._curValAbs
         vr = round(v,self.absRoundingPrecision)
-        #if (abs(vr)<1/pow(10,self.absRoundingPrecision)): 
-        #    vr = 0
+        if (abs(vr)<1/pow(10,self.absRoundingPrecision)): 
+            vr = 0
         self.absValueChanged.emit(str.format("{:.{}f}",vr,self.absRoundingPrecision))
     
     @property
@@ -154,8 +154,8 @@ class ChannelModel(QObject):
         self._curValDif = value
         v = PressureSensor.DISPLAY_RATIO[PressureSensor.difSensorAlias]*self._curValDif
         vr = round(v,self.difRoundingPrecision)
-        #if (abs(vr)<1/pow(10,self.difRoundingPrecision)): 
-        #    vr = 0
+        if (abs(vr)<1/pow(10,self.difRoundingPrecision)): 
+            vr = 0
         #print(f'dif={self.valueDif}')
         if (vr>Config.MAX_PRESSURE_VALVE2_CLOSED) or (vr<-Config.MAX_PRESSURE_VALVE2_CLOSED): self.isOpenValve2 = True
 
@@ -675,7 +675,7 @@ class ChannelModel(QObject):
             #if testResult["SealedTestPassed"] == Config.RES_TEST_OK: 
                 testResult["SealedTestMaxDeltaThreshold"] = str.format("{:.{}f}",r['SealedTestDeltaThreshold'],Config.RES_ROUNDING_PRECISION)
                 testResult["SealedTestFactDeltaThreshold"] = str.format("{:.{}f}",self.savedPressureSealedDif,Config.RES_ROUNDING_PRECISION)
-                testResult["SealedTestMaxAllowedLeak"] = str.format("{:.{}f}",self.maxAllowedLeakDynamic,Config.RES_ROUNDING_PRECISION)
+                #testResult["SealedTestMaxAllowedLeak"] = str.format("{:.{}f}",self.maxAllowedLeakDynamic,Config.RES_ROUNDING_PRECISION)
                 testResult["SealedTestVolumeOfLeak"] = str.format("{:.{}f}",self.volumeOfLeak,Config.RES_ROUNDING_PRECISION)
                 testResult["SealedTestCrossSecAreaLeak"] = str.format("{:.{}f}",self.crossSecAreaLeak,Config.RES_ROUNDING_PRECISION)
                 testResult["SealedTestLeakDiameter"] = str.format("{:.{}f}",self.diaLeak,Config.RES_ROUNDING_PRECISION)

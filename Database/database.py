@@ -145,11 +145,11 @@ class data():
             SealedTestFactPressure,
             SealedTestMaxDeltaThreshold,
             SealedTestFactDeltaThreshold,
-            SealedTestMaxAllowedLeak,
+            
             SealedTestVolumeOfLeak,
             SealedTestCrossSecAreaLeak,
             SealedTestLeakDiameter)
-            values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)          
+            values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)          
         ''',
         (
         testResult["TestDate"],
@@ -170,7 +170,7 @@ class data():
         testResult["SealedTestFactPressure"],
         testResult["SealedTestMaxDeltaThreshold"],
         testResult["SealedTestFactDeltaThreshold"],
-        testResult["SealedTestMaxAllowedLeak"],
+        
         testResult["SealedTestVolumeOfLeak"],
         testResult["SealedTestCrossSecAreaLeak"],
         testResult["SealedTestLeakDiameter"]
