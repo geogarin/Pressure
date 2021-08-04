@@ -458,7 +458,7 @@ class ChannelModel(QObject):
         self.saveTestResult()
 
     def onIdleTimer(self):
-        if self.idleTimerDuration > Config.IDLE_PERIOD:
+        if self.idleTimerDuration >= Config.IDLE_PERIOD:
             if self.isOpenValve1 or not self.isOpenValve2 or self.isOpenValve3 or self.isOpenValve4 or self.isOpenFittingValve:
                 self.initChannelRelay()
                 self.idleTimerDuration = 0
