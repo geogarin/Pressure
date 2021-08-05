@@ -81,7 +81,7 @@ class ServiceChannel(QWidget):
         self.resetZeroSensor = QPushButton(Config.SVC_RESET_ZERO_SENSOR)
         self.resetZeroSensor.setStyleSheet(stylesheets.SVC_Button)
 
-        self.spacer = QSpacerItem(10,200)
+        self.spacer = QSpacerItem(10,100)
         self.spacer2 = QSpacerItem(10,50)
 
 

@@ -92,14 +92,14 @@ class MainModel(QObject):
         self.updateChannelsModel()
 
     def openServiceDialogButtonPressed(self):
-        #m = mcp4725()
-        #m.setVoltage(1000)
+        
         serviceInterface = ServiceInterface(self)
         serviceInterface.exec_()
-        #m.setVoltage(0)
-        #print('after service')
-        
-   
+               
+    def setInputVoltage(self,value):
+        m = mcp4725()
+        normVal = value/100
+        m.setNormalizedValue(normVal)
 
     def updateChannelsModel(self):       
         for i in range(self.channelsQuantity):

@@ -193,6 +193,48 @@ QLineEdit {
 }
 """.replace('DefaultFontStyle',DefaultFontStyle)
 
+QVoltageStyle="""
+QLineEdit {
+	border: 1px solid #FF17365D;
+	border-bottom-right-radius: 20px;
+    border-bottom-left-radius: 20px;
+    background-color: rgb(135, 250, 211);
+    max-width: 200px;
+    DefaultFontStyle
+}
+""".replace('DefaultFontStyle',DefaultFontStyle)
+
+QVoltageSlider = """
+QSlider {
+    min-height: 100px;
+    max-height: 100px;
+    
+}
+QSlider::groove:horizontal {
+    background-color: black;
+	border: 0px solid #424242; 
+	height: 10px; 
+	border-radius: 4px;
+    
+}
+
+QSlider::handle:horizontal {
+    background-color: red; 
+	border: 2px solid red; 
+    width: 80px; 
+	height: 100px; 
+	line-height: 100px; 
+	margin-top: -40px; 
+	margin-bottom: -40px; 
+	border-radius: 35px; 
+}
+QSlider::handle:horizontal:hover { 
+	border-radius: 35px;
+}
+
+"""
+
+
 SwitchButtonStyle="""
 QPushButton {
 	border: 1px solid #FF17365D;

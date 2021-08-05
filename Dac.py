@@ -18,6 +18,8 @@ class mcp4725:
     
     def setNormalizedValue(self,val):
         assert 0.0<=val<=1.0
+
+        print(f'{val} {int(val*4095)}')
         self.setVoltage(int(val*4095))
 
     def setPressure(self,val):

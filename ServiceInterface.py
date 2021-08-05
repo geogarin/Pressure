@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QWidget,QDialog,QSizePolicy, QDialogButtonBox, QFormLayout, QLabel,QLineEdit, QGroupBox, QVBoxLayout,QGridLayout,QPushButton,QHBoxLayout,QMessageBox
+from PyQt5.QtWidgets import QSlider, QWidget,QDialog, QFrame, QLabel,QLineEdit, QGroupBox, QVBoxLayout,QGridLayout,QPushButton,QHBoxLayout,QMessageBox
 from PyQt5 import QtGui
 from PyQt5.QtCore import Qt,pyqtSlot,pyqtSignal
 
@@ -17,25 +17,56 @@ class ServiceInterface(QDialog):
         self.showFullScreen()
         
         
-        self.channels = []
-        self.mainLayout = QGridLayout()
+        
         
         # установка напряжения >>
-        self.labelSetVoltage = QLabel(Config.SVC_SET_VOLTAGE)
-        self.labelSetVoltage.setStyleSheet(stylesheets.SDS_Label)
+        self.widg = QWidget()
 
-        self.setVoltage = QLineEditVK()
-        self.setVoltage.keyboard = VirtualKeyboard(self,int(model.setup['KeyboardButtonSize']),True) 
-        self.setVoltage.setStyleSheet(stylesheets.SDS_LineEdit)
-        self.setVoltage.name = 'SetVoltage'
-        self.setVoltage.setText('0')
-        #self.setVoltage.setFixedWidth(Config.SETUP_DIALOG_LINE_EDIT_FIELD_WIDTH)
-        # установка напряжения <<
-        curRow = 2
+        self.frame = QFrame()
+        self.frame.setStyleSheet(stylesheets.BodyStyle)
 
-        self.mainLayout.addWidget(self.labelSetVoltage,curRow,1)
-        self.mainLayout.addWidget(self.setVoltage,curRow,2)        
+
+        self.voltage = QLineEdit('')
+        self.voltage.setReadOnly(True)
+        self.voltage.setStyleSheet(stylesheets.QVoltageStyle)
+        self.voltage.setAlignment(Qt.AlignCenter)
+        self.voltage.setText('0')
+
+        self.voltageSlider = QSlider(Qt.Horizontal)
+        self.voltageSlider.setRange(0,100)
+        self.voltageSlider.setValue(0)
+        self.voltageSlider.setFixedWidth(500)
+        self.voltageSlider.setStyleSheet(stylesheets.QVoltageSlider)
+
+        self.group = QVBoxLayout(self.widg)
+        self.group.setSpacing(0)
+
+        self.title = QLabel(Config.SVC_SET_VOLTAGE)
+        self.title.setProperty('type',1)
+        self.title.setStyleSheet(stylesheets.HeaderStyle)
+        
+        self.frame = QFrame()
+        self.frame.setStyleSheet(stylesheets.BodyStyle)
+        self.group.addWidget(self.title)    
+        self.group.addWidget(self.frame)
+        self.widg.mainLayout = QGridLayout(self.frame)
+
+        curRow = 1
+        self.widg.mainLayout.addWidget(self.voltage,curRow,0,Qt.AlignHCenter)
         curRow += 1
+        self.widg.mainLayout.addWidget(self.voltageSlider,curRow,0,Qt.AlignHCenter) 
+        self.model = model 
+        self.model.setInputVoltage(0)      
+        # установка напряжения <<
+
+        self.channels = []
+        self.mainLayout = QGridLayout()
+
+        curRow = 1
+        self.mainLayout.addWidget(self.widg,curRow,0,1,model.channelsQuantity)
+        curRow += 1
+
+        
 
         for i in range(model.channelsQuantity):
             ch = ServiceChannel(model.channelModels[i])
@@ -54,18 +85,16 @@ class ServiceInterface(QDialog):
         closeButton.clicked.connect(self.onCloseButtonPressed)
 
 
-        self.setVoltage.editDone.connect(self.onSetVoltage)
+        self.voltageSlider.valueChanged.connect(self.onSetVoltage)
 
-    def onSetVoltage(self):
-        val = int(self.setVoltage.text())
-        if (val<0): val=0 
-        if (val>100): val=100     
-        self.setVoltage.setText(str(val))
-        #self._model.setVoltage()
-
+    def onSetVoltage(self,value):    
+        self.voltage.setText(str(value))
+        self.model.setInputVoltage(value)
+        #print(f'val={value}')
+    
     def onCloseButtonPressed(self):
-        m = mcp4725()
-        m.setNormalizedValue(0)
+        self.model.setInputVoltage(0)
+        
         for ch in self.channels:
             ch._model.setMasterMode(False)
         self.close()
