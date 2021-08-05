@@ -211,10 +211,10 @@ QSlider {
     
 }
 QSlider::groove:horizontal {
-    background-color: black;
+    background-color: rgb(135, 250, 211);
 	border: 0px solid #424242; 
-	height: 10px; 
-	border-radius: 4px;
+	height: 15px; 
+	border-radius: 7px;
     
 }
 
@@ -226,10 +226,10 @@ QSlider::handle:horizontal {
 	line-height: 100px; 
 	margin-top: -40px; 
 	margin-bottom: -40px; 
-	border-radius: 35px; 
+	border-radius: 40px; 
 }
 QSlider::handle:horizontal:hover { 
-	border-radius: 35px;
+	border-radius: 40px;
 }
 
 """
