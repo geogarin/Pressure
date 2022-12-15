@@ -34,8 +34,8 @@ class ChannelView(QWidget):
         self.testStrengthLabel = QLabel(Config.CHECKBOX_STRENGTH_TEST)
         self.testStrengthLabel.setObjectName('Label')
         self.testStrengthLabel.setStyleSheet(stylesheets.QLabelStyle3)
-        self.testStrength = SwitchButton(None,'',Config.BUTTON_VALUE_ON,Config.BUTTON_VALUE_OFF,200,50,10,100)
-        self.testStrength.setStyleSheet(stylesheets.SwitchButtonStyle)
+        self.testStrength = SwitchButton(None,'',Config.BUTTON_VALUE_ON,Config.BUTTON_VALUE_OFF,200,120,20,100)
+        self.testStrength.setStyleSheet(stylesheets.SwitchButtonStyleFront)
         self.testStrength.setChecked(self._model.testStrengthOff)
         # Тест прочности <<
 
@@ -43,8 +43,8 @@ class ChannelView(QWidget):
         self.testSealedLabel = QLabel(Config.CHECKBOX_SEALED_TEST)
         self.testSealedLabel.setObjectName('Label')
         self.testSealedLabel.setStyleSheet(stylesheets.QLabelStyle3)
-        self.testSealed = SwitchButton(None,'',Config.BUTTON_VALUE_ON,Config.BUTTON_VALUE_OFF,200,50,10,100)
-        self.testSealed.setStyleSheet(stylesheets.SwitchButtonStyle)
+        self.testSealed = SwitchButton(None,'',Config.BUTTON_VALUE_ON,Config.BUTTON_VALUE_OFF,200,120,20,100)
+        self.testSealed.setStyleSheet(stylesheets.SwitchButtonStyleFront)
         self.testSealed.setChecked(self._model.testSealedOff)
         # Тест герметичности <<
 

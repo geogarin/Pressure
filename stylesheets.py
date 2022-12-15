@@ -105,6 +105,10 @@ DefaultFontStyle="""
     font-family: "Times";
     font-size: 27pt;
 """
+DefaultFontStyleFront="""
+    font-family: "Times";
+    font-size: 40pt;
+"""
 
 
 QComboBoxReceipt="""
@@ -115,9 +119,10 @@ QComboBox QAbstractItemView {
 }
 QComboBox {
   background: rgb(97,197,255);
-  DefaultFontStyle
+  min-height:100px;
+  DefaultFontStyleFront
 }
-""".replace('DefaultFontStyle',DefaultFontStyle)
+""".replace('DefaultFontStyleFront',DefaultFontStyleFront)
 
 QCheckBoxStyle2="""
 QCheckBox {
@@ -234,6 +239,15 @@ QSlider::handle:horizontal:hover {
 
 """
 
+
+SwitchButtonStyleFront="""
+QPushButton {
+	border: 1px solid #FF17365D;
+	border-bottom-right-radius: 20px;
+    
+    DefaultFontStyleFront
+}
+""".replace('DefaultFontStyleFront',DefaultFontStyleFront)
 
 SwitchButtonStyle="""
 QPushButton {
